@@ -100,7 +100,7 @@ public class Figurate {
          swing.frame(title: 'Figurate', defaultCloseOperation: JFrame.DISPOSE_ON_CLOSE,
              size: [800, 600], show: true, locationRelativeTo: null) {
              
-//             lookAndFeel("substance")
+             lookAndFeel("system")
              actions() {
                  action(id: 'newFileAction', name: 'New', accelerator: shortcut('N'), closure: newTab)
                  action(id: 'openFileAction', name: 'Open', accelerator: shortcut('O'))

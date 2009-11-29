@@ -29,7 +29,7 @@ import javax.swing.JTabbedPane
 import javax.swing.JScrollPane
 import javax.swing.UIManager
 import groovy.swing.SwingXBuilder
-
+import groovy.swing.LookAndFeelHelper
  /**
   * @author fortuna
   *
@@ -39,7 +39,11 @@ public class Figurate {
  		
  	static void main(def args) {
          UIManager.put("TabbedPane.contentBorderInsets", new Insets(0, 0, 0, 0));
+         LookAndFeelHelper.instance.addLookAndFeelAlias('substance5', 'org.jvnet.substance.skin.SubstanceBusinessLookAndFeel')
          def swing = new SwingXBuilder()
+         swing.edt {
+             lookAndFeel('substance5', 'system')
+         }
 
          def headingFont = new Font('Arial', Font.PLAIN, 14)
          def textFont = new Font('Courier', Font.PLAIN, 12)

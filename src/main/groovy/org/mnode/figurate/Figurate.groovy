@@ -25,19 +25,23 @@ import java.awt.Insets
 import java.awt.BorderLayout
 import java.awt.FlowLayout
 import javax.swing.DefaultComboBoxModel
+import javax.swing.DefaultListModel
 import javax.swing.JFrame
 import javax.swing.JTabbedPane
 import javax.swing.JScrollPane
 import javax.swing.UIManager
+import javax.swing.filechooser.FileSystemView
 import groovy.swing.SwingXBuilder
 import groovy.swing.LookAndFeelHelper
 import org.jvnet.substance.SubstanceLookAndFeel
 import org.jvnet.substance.api.SubstanceConstants
+import org.jvnet.flamingo.bcb.*
+import org.jvnet.flamingo.bcb.core.BreadcrumbFileSelector
+
  /**
   * @author fortuna
   *
   */
-  /*
 @Grapes([
     @Grab(group='org.codehaus.griffon.swingxbuilder', module='swingxbuilder', version='0.1.6'),
     @Grab(group='net.java.dev.substance', module='substance', version='5.3'),
@@ -47,9 +51,9 @@ import org.jvnet.substance.api.SubstanceConstants
     @Grab(group='org.codehaus.griffon.flamingobuilder', module='flamingobuilder', version='0.2'),
     @Grab(group='net.java.dev.flamingo', module='flamingo', version='4.2'),
     @Grab(group='org.apache.xmlgraphics', module='batik-awt-util', version='1.7')])
-    */
 public class Figurate {
-         
+     
+     
      static void main(def args) {
          UIManager.put("TabbedPane.contentBorderInsets", new Insets(0, 0, 0, 0))
          UIManager.put(org.jvnet.lafwidget.LafWidget.ANIMATION_KIND, org.jvnet.lafwidget.utils.LafConstants.AnimationKind.FAST.derive(2))
@@ -61,21 +65,46 @@ public class Figurate {
 
          def headingFont = new Font('Arial', Font.PLAIN, 14)
          def textFont = new Font('Courier', Font.PLAIN, 12)
-         def newTab = {
-             tabs.add(swing.edt {
-                 panel(name: 'New File') {
+         def tabCount = 0
+         def newTab = { 
+             def breadcrumbBar = new BreadcrumbFileSelector()
+             swing.panel(name: 'New Tab', id: 'tab' + tabCount) { //, tabIcon: imageIcon('/note.png')) {
                      borderLayout()
-                     editorPane(page: new java.net.URL('file:/etc/hosts'), font: textFont)
-                 }})
+                     widget(breadcrumbBar, constraints: BorderLayout.NORTH)
+//                     panel(constraints: BorderLayout.WEST) {
+                     splitPane {
+                         scrollPane(constraints: "left", border: null) {
+                             list(id: 'fileList')
+                         }
+                         scrollPane(constraints: "right", border: null) {
+                             editorPane(font: textFont)
+                         }
+                     }
+                 }
+//             }
+             //(tab + tabCount).putClientProperty(SubstanceLookAndFeel.TABBED_PANE_CLOSE_BUTTONS_PROPERTY, true)
+             /*
+             breadcrumbBar.model.addPathListener({
+                //public void breadcrumbPathEvent(BreadcrumbPathEvent event) {
+//                    swing.edt() {
+                  def fileModel = new DefaultListModel()
+                  for (item in breadcrumbBar.model.items) {
+                    fileModel.addElement(item.data.name)
+                  }
+                  fileList.setModel(fileModel)
+                //}}
+             } as BreadcrumbPathListener)*/
          }
-
+         
          swing.edt {
              frame(title: 'Figurate', defaultCloseOperation: JFrame.DISPOSE_ON_CLOSE,
              size: [800, 600], show: true, locationRelativeTo: null) {
              
 //             lookAndFeel("system")
              actions() {
-                 action(id: 'newFileAction', name: 'New', accelerator: shortcut('N'), closure: newTab)
+                 action(id: 'newFileAction', name: 'New', accelerator: shortcut('N'), closure: {
+                     tabs.add(newTab())
+                 })
                  action(id: 'openFileAction', name: 'Open', accelerator: shortcut('O'))
                  action(id: 'closeTabAction', name: 'Close Tab', accelerator: shortcut('W'))
                  action(id: 'closeAllTabsAction', name: 'Close All Tabs', accelerator: shortcut('shift W'))
@@ -124,7 +153,7 @@ public class Figurate {
                  }
              }
          tabbedPane(tabLayoutPolicy: JTabbedPane.SCROLL_TAB_LAYOUT, id: 'tabs') {
-                 panel(name: 'Home') {
+                 panel(name: 'Home', tabIcon: imageIcon('/note.png')) {
                      borderLayout()
                      vbox(constraints: BorderLayout.CENTER) {
                          panel(constraints: BorderLayout.CENTER, border: emptyBorder(10)) {
@@ -160,17 +189,10 @@ public class Figurate {
                          vglue()
                      }
                  }
-                 panel(name: 'hosts', id: 'hostsPane') {
-                     borderLayout()
-                     comboBox(model: new DefaultComboBoxModel(new java.io.File('C:\\WINDOWS\\system32\\drivers\\etc').listFiles()), foreground: Color.LIGHT_GRAY, editable: true, border: emptyBorder(2), constraints: BorderLayout.NORTH)
-                     scrollPane(border: null) {
-                         editorPane(page: new java.net.URL('file:/etc/hosts'), font: textFont)
-                     }
-                 }
-                hostsPane.putClientProperty(SubstanceLookAndFeel.TABBED_PANE_CLOSE_BUTTONS_PROPERTY, true)
              }
            }
                 tabs.putClientProperty(SubstanceLookAndFeel.TABBED_PANE_CONTENT_BORDER_KIND , SubstanceConstants.TabContentPaneBorderKind.SINGLE_FULL)
          }
      }
+     
 }

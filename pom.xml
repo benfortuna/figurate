@@ -59,6 +59,11 @@
 			<artifactId>substance-swingx</artifactId>
 			<version>5.3</version>
 		</dependency>
+		<dependency>
+			<groupId>net.java.dev.flamingo</groupId>
+			<artifactId>flamingo</artifactId>
+			<version>4.2</version>
+		</dependency>
 	</dependencies>
 	<scm>
 		<connection>scm:svn:http://svn.mnode.org/base/figurate/trunk</connection>

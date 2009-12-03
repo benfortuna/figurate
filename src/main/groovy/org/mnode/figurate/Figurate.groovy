@@ -19,6 +19,9 @@
  */
 package org.mnode.figurate
 
+import java.awt.*;
+import javax.swing.*;
+import javax.swing.text.*;
 import java.awt.Color
 import java.awt.Font
 import java.awt.Insets
@@ -31,33 +34,38 @@ import javax.swing.JTabbedPane
 import javax.swing.JScrollPane
 import javax.swing.UIManager
 import javax.swing.filechooser.FileSystemView
+import groovy.beans.Bindable
 import groovy.swing.SwingXBuilder
 import groovy.swing.LookAndFeelHelper
 import org.jvnet.substance.SubstanceLookAndFeel
 import org.jvnet.substance.api.SubstanceConstants
 import org.jvnet.flamingo.bcb.*
 import org.jvnet.flamingo.bcb.core.BreadcrumbFileSelector
+import org.mnode.base.views.tracker.FrameTracker;
 
  /**
   * @author fortuna
   *
   */
+  /*
 @Grapes([
     @Grab(group='org.codehaus.griffon.swingxbuilder', module='swingxbuilder', version='0.1.6'),
     @Grab(group='net.java.dev.substance', module='substance', version='5.3'),
     @Grab(group='net.java.dev.substance', module='substance-swingx', version='5.3'),
-    @Grab(group='org.swinglabs', module='swingx', version='0.9.2'),
+    //@Grab(group='org.swinglabs', module='swingx', version='0.9.2'),
+    @Grab(group='org.mnode.base', module='base-views', version='0.0.1-SNAPSHOT'),
     @Grab(group='jgoodies', module='forms', version='1.0.5'),
     @Grab(group='org.codehaus.griffon.flamingobuilder', module='flamingobuilder', version='0.2'),
     @Grab(group='net.java.dev.flamingo', module='flamingo', version='4.2'),
     @Grab(group='org.apache.xmlgraphics', module='batik-awt-util', version='1.7')])
-public class Figurate {
+    */
+class Figurate {
      
-     
-     static void main(def args) {
+     static void main(args) {
          UIManager.put("TabbedPane.contentBorderInsets", new Insets(0, 0, 0, 0))
          UIManager.put(org.jvnet.lafwidget.LafWidget.ANIMATION_KIND, org.jvnet.lafwidget.utils.LafConstants.AnimationKind.FAST.derive(2))
         LookAndFeelHelper.instance.addLookAndFeelAlias('substance5', 'org.jvnet.substance.skin.SubstanceNebulaLookAndFeel')
+        
          def swing = new SwingXBuilder()
          swing.edt {
              lookAndFeel('substance5') //, 'system')
@@ -68,24 +76,41 @@ public class Figurate {
          def tabCount = 0
          def newTab = { 
              def breadcrumbBar = new BreadcrumbFileSelector()
-             swing.panel(name: 'New Tab', id: 'tab' + tabCount) { //, tabIcon: imageIcon('/note.png')) {
+             def userDir = new File(System.getProperty("user.dir"))
+             breadcrumbBar.setPath(userDir)
+             
+             //@Bindable String tabName = 'New Tab'
+             swing.panel(name: 'New Tab', id: 'tab' + (tabCount++)) { //, tabIcon: imageIcon('F:/images/icons/liquidicity/note.png')) {
                      borderLayout()
                      widget(breadcrumbBar, constraints: BorderLayout.NORTH)
 //                     panel(constraints: BorderLayout.WEST) {
                      splitPane {
                          scrollPane(constraints: "left", border: null) {
                              list(id: 'fileList')
+                             fileList.valueChanged = {
+                                 def selectedFile = new File(userDir, fileList.selectedValue)
+                                 editPane.setPage(selectedFile.toURL())
+                                 editPane.editorKit = new NumberedEditorKit()
+                                 tab0.name = fileList.selectedValue
+                                 tab0.invalidate()
+                                 tab0.repaint()
+                             }
                          }
                          scrollPane(constraints: "right", border: null) {
-                             editorPane(font: textFont)
+                             editorPane(id: 'editPane', font: textFont)
                          }
                      }
+                  def fileModel = new DefaultListModel()
+                  for (file in userDir.listFiles()) {
+                    fileModel.addElement(file.name)
+                  }
+                  fileList.setModel(fileModel)
                  }
 //             }
+
              //(tab + tabCount).putClientProperty(SubstanceLookAndFeel.TABBED_PANE_CLOSE_BUTTONS_PROPERTY, true)
-             /*
-             breadcrumbBar.model.addPathListener({
-                //public void breadcrumbPathEvent(BreadcrumbPathEvent event) {
+/*
+             breadcrumbBar.model.breadcrumbPathEvent = { event -> println "${event}" }
 //                    swing.edt() {
                   def fileModel = new DefaultListModel()
                   for (item in breadcrumbBar.model.items) {
@@ -93,17 +118,19 @@ public class Figurate {
                   }
                   fileList.setModel(fileModel)
                 //}}
-             } as BreadcrumbPathListener)*/
+             }*/
          }
          
          swing.edt {
-             frame(title: 'Figurate', defaultCloseOperation: JFrame.DISPOSE_ON_CLOSE,
-             size: [800, 600], show: true, locationRelativeTo: null) {
+             frame(title: 'Figurate', id: 'figurateFrame', defaultCloseOperation: JFrame.DISPOSE_ON_CLOSE,
+             size: [800, 600], show: false, locationRelativeTo: null) {
              
 //             lookAndFeel("system")
              actions() {
                  action(id: 'newFileAction', name: 'New', accelerator: shortcut('N'), closure: {
-                     tabs.add(newTab())
+                     doLater {
+                         tabs.add(newTab())
+                     }
                  })
                  action(id: 'openFileAction', name: 'Open', accelerator: shortcut('O'))
                  action(id: 'closeTabAction', name: 'Close Tab', accelerator: shortcut('W'))
@@ -191,8 +218,98 @@ public class Figurate {
                  }
              }
            }
-                tabs.putClientProperty(SubstanceLookAndFeel.TABBED_PANE_CONTENT_BORDER_KIND , SubstanceConstants.TabContentPaneBorderKind.SINGLE_FULL)
+           tabs.putClientProperty(SubstanceLookAndFeel.TABBED_PANE_CONTENT_BORDER_KIND , SubstanceConstants.TabContentPaneBorderKind.SINGLE_FULL)
+           new FrameTracker(figurateFrame, 'figurateFrame');
+           figurateFrame.visible = true
          }
      }
      
 }
+
+class FigurateModel {
+    @Bindable Map activeDocument = null  
+    List openDocuments = []  
+    DocumentState state = new DocumentState()  
+}  
+  
+@Bindable class DocumentState {  
+    boolean isDirty = false  
+}
+
+class NumberedEditorKit extends StyledEditorKit {
+    public ViewFactory getViewFactory() {
+        return new NumberedViewFactory();
+    }
+}
+
+class NumberedViewFactory implements ViewFactory {
+    public View create(Element elem) {
+        String kind = elem.getName();
+        if (kind != null)
+            if (kind.equals(AbstractDocument.ContentElementName)) {
+                return new LabelView(elem);
+            }
+            else if (kind.equals(AbstractDocument.ParagraphElementName)) {
+//              return new ParagraphView(elem);
+                return new NumberedParagraphView(elem);
+            }
+            else if (kind.equals(AbstractDocument.SectionElementName)) {
+                return new BoxView(elem, View.Y_AXIS);
+            }
+            else if (kind.equals(StyleConstants.ComponentElementName)) {
+                return new ComponentView(elem);
+            }
+            else if (kind.equals(StyleConstants.IconElementName)) {
+                return new IconView(elem);
+            }
+        // default to text display
+        return new LabelView(elem);
+    }
+}
+
+class NumberedParagraphView extends ParagraphView {
+    public static short NUMBERS_WIDTH=25;
+
+    public NumberedParagraphView(Element e) {
+        super(e);
+        short top = 0;
+        short left = 0;
+        short bottom = 0;
+        short right = 0;
+        this.setInsets(top, left, bottom, right);
+    }
+
+    protected void setInsets(short top, short left, short bottom,
+                             short right) {
+        super.setInsets(top,(short)(left+NUMBERS_WIDTH),bottom,right);
+    }
+
+    public void paintChild(Graphics g, Rectangle r, int n) {
+        super.paintChild(g, r, n);
+        int previousLineCount = getPreviousLineCount();
+        int numberX = r.x - getLeftInset();
+        int numberY = r.y + r.height - 5;
+//        def origColor = g.color
+//        g.color = Color.LIGHT_GRAY
+//        g.fillRect((int) r.x, (int) r.y, (int) r.width, (int) r.height)
+//        g.color = origColor
+        g.drawString(Integer.toString(previousLineCount + n + 1),
+                                      numberX, numberY);
+    }
+
+    public int getPreviousLineCount() {
+        int lineCount = 0;
+        View parent = this.getParent();
+        int count = parent.getViewCount();
+        for (int i = 0; i < count; i++) {
+            if (parent.getView(i) == this) {
+                break;
+            }
+            else {
+                lineCount += parent.getView(i).getViewCount();
+            }
+        }
+        return lineCount;
+    }
+}
+

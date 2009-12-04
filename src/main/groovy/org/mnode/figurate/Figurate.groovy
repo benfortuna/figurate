@@ -19,6 +19,9 @@
  */
 package org.mnode.figurate
 
+import static java.lang.Math.min;
+import static java.lang.Math.max;
+
 import java.awt.*;
 import javax.swing.*;
 import javax.swing.text.*;
@@ -41,7 +44,7 @@ import org.jvnet.substance.SubstanceLookAndFeel
 import org.jvnet.substance.api.SubstanceConstants
 import org.jvnet.flamingo.bcb.*
 import org.jvnet.flamingo.bcb.core.BreadcrumbFileSelector
-import org.mnode.base.views.tracker.FrameTracker;
+import org.mnode.base.views.tracker.TrackerRegistry;
 
  /**
   * @author fortuna
@@ -80,24 +83,49 @@ class Figurate {
              breadcrumbBar.setPath(userDir)
              
              //@Bindable String tabName = 'New Tab'
-             swing.panel(name: 'New Tab', id: 'tab' + (tabCount++)) { //, tabIcon: imageIcon('F:/images/icons/liquidicity/note.png')) {
+             def newPanel = swing.panel(name: 'New Tab', id: 'tab' + (tabCount++)) { //, tabIcon: imageIcon('F:/images/icons/liquidicity/note.png')) {
                      borderLayout()
                      widget(breadcrumbBar, constraints: BorderLayout.NORTH)
 //                     panel(constraints: BorderLayout.WEST) {
-                     splitPane {
+                     splitPane(oneTouchExpandable: true, dividerLocation: 0) {
                          scrollPane(constraints: "left", border: null) {
                              list(id: 'fileList')
                              fileList.valueChanged = {
                                  def selectedFile = new File(userDir, fileList.selectedValue)
-                                 editPane.setPage(selectedFile.toURL())
-                                 editPane.editorKit = new NumberedEditorKit()
-                                 tab0.name = fileList.selectedValue
-                                 tab0.invalidate()
-                                 tab0.repaint()
+                                 editPane.text = selectedFile.text
+                                 editPane.caretPosition = 0
+                                 //tab0.name = fileList.selectedValue
+                                 //tab0.invalidate()
+                                 //tab0.repaint()
                              }
                          }
                          scrollPane(constraints: "right", border: null) {
                              editorPane(id: 'editPane', font: textFont)
+                             editPane.editorKit = new NumberedEditorKit()
+                             def lineHighlighter = new LineHighlightPainter(new Color(230, 230, 230))
+                             editPane.caretUpdate = { event ->
+                                 def posStart = min(Utilities.getRowStart(editPane, event.dot), Utilities.getRowStart(editPane, event.mark))
+                                 def posEnd = max(Utilities.getRowEnd(editPane, event.dot), Utilities.getRowEnd(editPane, event.mark))
+                                 
+                                 //Element elem = Utilities.getParagraphElement(editPane, event.dot)
+                                 //posStart = elem.startOffset
+                                 //posEnd = elem.endOffset
+                                 
+                                 def vetoHighlight = false
+                                 //println posStart + '-' + posEnd
+                                 for (highlight in editPane.highlighter.highlights) {
+                                   if (highlight.painter == lineHighlighter) {
+                                     editPane.highlighter.removeHighlight(highlight)
+                                   }
+                                   //else if (highlight.painter.startOffset <= posStart || highlight.painter.endOffset >= posEnd) {
+                                   //    vetoHighlight = true
+                                   //}
+                                 }
+                                 //println vetoHighlight
+                                 if (!vetoHighlight) {
+                                     editPane.highlighter.addHighlight(posStart, posEnd, lineHighlighter)
+                                 }
+                             }
                          }
                      }
                   def fileModel = new DefaultListModel()
@@ -105,20 +133,21 @@ class Figurate {
                     fileModel.addElement(file.name)
                   }
                   fileList.setModel(fileModel)
-                 }
-//             }
-
-             //(tab + tabCount).putClientProperty(SubstanceLookAndFeel.TABBED_PANE_CLOSE_BUTTONS_PROPERTY, true)
-/*
-             breadcrumbBar.model.breadcrumbPathEvent = { event -> println "${event}" }
+             breadcrumbBar.model.addPathListener(new BreadcrumbPathListenerImpl({ //event -> println "${event}" }))
 //                    swing.edt() {
-                  def fileModel = new DefaultListModel()
-                  for (item in breadcrumbBar.model.items) {
-                    fileModel.addElement(item.data.name)
+                    userDir = breadcrumbBar.model.getItem(breadcrumbBar.model.itemCount - 1).data
+                  fileModel = new DefaultListModel()
+                  for (file in userDir.listFiles()) {
+                    fileModel.addElement(file.name)
                   }
                   fileList.setModel(fileModel)
                 //}}
-             }*/
+             }))
+                 }
+//             }
+
+             newPanel.putClientProperty(SubstanceLookAndFeel.TABBED_PANE_CLOSE_BUTTONS_PROPERTY, true)
+             return newPanel
          }
          
          swing.edt {
@@ -219,7 +248,7 @@ class Figurate {
              }
            }
            tabs.putClientProperty(SubstanceLookAndFeel.TABBED_PANE_CONTENT_BORDER_KIND , SubstanceConstants.TabContentPaneBorderKind.SINGLE_FULL)
-           new FrameTracker(figurateFrame, 'figurateFrame');
+           TrackerRegistry.instance.register(figurateFrame, 'figurateFrame');
            figurateFrame.visible = true
          }
      }
@@ -234,6 +263,18 @@ class FigurateModel {
   
 @Bindable class DocumentState {  
     boolean isDirty = false  
+}
+
+class BreadcrumbPathListenerImpl implements BreadcrumbPathListener {
+    def closure
+    
+    BreadcrumbPathListenerImpl(c) {
+      closure = c
+    }
+    
+    void breadcrumbPathEvent(BreadcrumbPathEvent event) {
+        closure()
+    }
 }
 
 class NumberedEditorKit extends StyledEditorKit {
@@ -254,7 +295,7 @@ class NumberedViewFactory implements ViewFactory {
                 return new NumberedParagraphView(elem);
             }
             else if (kind.equals(AbstractDocument.SectionElementName)) {
-                return new BoxView(elem, View.Y_AXIS);
+                return new NoWrapBoxView(elem, View.Y_AXIS);
             }
             else if (kind.equals(StyleConstants.ComponentElementName)) {
                 return new ComponentView(elem);
@@ -267,6 +308,22 @@ class NumberedViewFactory implements ViewFactory {
     }
 }
 
+class NoWrapBoxView extends BoxView {
+        public NoWrapBoxView(Element elem, int axis)
+        {
+            super(elem, axis);
+        }
+ 
+        public void layout(int width, int height)
+        {
+            super.layout(32768, height);
+        }
+        
+        public float getMinimumSpan(int axis) {
+            return super.getPreferredSpan(axis);
+        }
+}
+    
 class NumberedParagraphView extends ParagraphView {
     public static short NUMBERS_WIDTH=25;
 
@@ -289,12 +346,8 @@ class NumberedParagraphView extends ParagraphView {
         int previousLineCount = getPreviousLineCount();
         int numberX = r.x - getLeftInset();
         int numberY = r.y + r.height - 5;
-//        def origColor = g.color
-//        g.color = Color.LIGHT_GRAY
-//        g.fillRect((int) r.x, (int) r.y, (int) r.width, (int) r.height)
-//        g.color = origColor
-        g.drawString(Integer.toString(previousLineCount + n + 1),
-                                      numberX, numberY);
+        g.color = Color.LIGHT_GRAY
+        g.drawString(Integer.toString(previousLineCount + n + 1), numberX, numberY);
     }
 
     public int getPreviousLineCount() {
@@ -313,3 +366,15 @@ class NumberedParagraphView extends ParagraphView {
     }
 }
 
+    
+class LineHighlightPainter extends DefaultHighlighter.DefaultHighlightPainter {
+        
+        public LineHighlightPainter(Color colour)
+        {
+            super(colour);
+        }
+        
+        void paint(Graphics g, int offs0, int offs1, Shape bounds, JTextComponent c) {
+            super.paint(g, offs0, offs1, bounds, c);
+        }
+}

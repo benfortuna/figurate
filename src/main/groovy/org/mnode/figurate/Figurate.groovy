@@ -22,8 +22,9 @@ package org.mnode.figurate
 import static java.lang.Math.min;
 import static java.lang.Math.max;
 
-import java.awt.*;
-import javax.swing.*;
+import java.awt.Graphics;
+import java.awt.Rectangle;
+import java.awt.Shape;
 import javax.swing.text.*;
 import java.awt.Color
 import java.awt.Font

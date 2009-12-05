@@ -92,12 +92,23 @@ class Figurate {
                          scrollPane(constraints: "left", border: null) {
                              list(id: 'fileList')
                              fileList.valueChanged = {
-                                 def selectedFile = new File(userDir, fileList.selectedValue)
-                                 editPane.text = selectedFile.text
-                                 editPane.caretPosition = 0
-                                 //tab0.name = fileList.selectedValue
-                                 //tab0.invalidate()
-                                 //tab0.repaint()
+                                 if (fileList.selectedValue) {
+                                     def selectedFile = new File(userDir, fileList.selectedValue)
+                                     if (selectedFile.isDirectory()) {
+                                         fileList.selectedIndex = -1
+                                         breadcrumbBar.setPath(selectedFile)
+                                     }
+                                     else {
+                                         editPane.text = selectedFile.text
+                                         editPane.caretPosition = 0
+                                         //tab0.name = fileList.selectedValue
+                                         //tab0.invalidate()
+                                         //tab0.repaint()
+                                     }
+                                 }
+                                 else {
+                                     editPane.text = null
+                                 }
                              }
                          }
                          scrollPane(constraints: "right", border: null) {

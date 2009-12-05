@@ -22,6 +22,7 @@ package org.mnode.figurate
 import static java.lang.Math.min;
 import static java.lang.Math.max;
 
+import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.Shape;
@@ -33,9 +34,11 @@ import java.awt.BorderLayout
 import java.awt.FlowLayout
 import javax.swing.DefaultComboBoxModel
 import javax.swing.DefaultListModel
+import javax.swing.DefaultListCellRenderer
 import javax.swing.JFrame
 import javax.swing.JTabbedPane
 import javax.swing.JScrollPane
+import javax.swing.JList
 import javax.swing.UIManager
 import javax.swing.filechooser.FileSystemView
 import groovy.beans.Bindable
@@ -91,9 +94,10 @@ class Figurate {
                      splitPane(oneTouchExpandable: true, dividerLocation: 0) {
                          scrollPane(constraints: "left", border: null) {
                              list(id: 'fileList')
+                             fileList.cellRenderer = new FileListCellRenderer()
                              fileList.valueChanged = {
                                  if (fileList.selectedValue) {
-                                     def selectedFile = new File(userDir, fileList.selectedValue)
+                                     def selectedFile = fileList.selectedValue //new File(userDir, fileList.selectedValue)
                                      if (selectedFile.isDirectory()) {
                                          fileList.selectedIndex = -1
                                          breadcrumbBar.setPath(selectedFile)
@@ -142,18 +146,19 @@ class Figurate {
                      }
                   def fileModel = new DefaultListModel()
                   for (file in userDir.listFiles()) {
-                    fileModel.addElement(file.name)
+                    fileModel.addElement(file)
                   }
                   fileList.setModel(fileModel)
              breadcrumbBar.model.addPathListener(new BreadcrumbPathListenerImpl({ //event -> println "${event}" }))
-//                    swing.edt() {
+                    swing.edt() {
                     userDir = breadcrumbBar.model.getItem(breadcrumbBar.model.itemCount - 1).data
                   fileModel = new DefaultListModel()
                   for (file in userDir.listFiles()) {
-                    fileModel.addElement(file.name)
+                    fileModel.addElement(file)
                   }
+                    fileList.selectedIndex = -1
                   fileList.setModel(fileModel)
-                //}}
+                }
              }))
                  }
 //             }
@@ -275,6 +280,17 @@ class FigurateModel {
   
 @Bindable class DocumentState {  
     boolean isDirty = false  
+}
+
+class FileListCellRenderer extends DefaultListCellRenderer {
+    def fsv = FileSystemView.fileSystemView
+    
+    public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+        super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus)
+        setIcon(fsv.getSystemIcon(value))
+        setText(fsv.getSystemDisplayName(value))
+        return this
+    }
 }
 
 class BreadcrumbPathListenerImpl implements BreadcrumbPathListener {

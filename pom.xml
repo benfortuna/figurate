@@ -21,6 +21,14 @@
 				<enabled>false</enabled>
 			</snapshots>
 		</repository>
+		<repository>
+			<id>mnode-snapshots</id>
+			<name>Micronode Snapshots</name>
+			<url>http://build.mnode.org/snapshots</url>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+		</repository>
 	</repositories>
 	<dependencies>
 		<dependency>
@@ -38,11 +46,6 @@
 			<groupId>org.apache.xmlgraphics</groupId>
 			<artifactId>batik-awt-util</artifactId>
 			<version>1.7</version>
-		</dependency>
-		<dependency>
-			<groupId>org.swinglabs</groupId>
-			<artifactId>swingx</artifactId>
-			<version>0.9.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.codehaus.griffon.swingxbuilder</groupId>
@@ -68,6 +71,11 @@
 			<groupId>org.mnode.base</groupId>
 			<artifactId>base-views</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.swinglabs</groupId>
+			<artifactId>swingx</artifactId>
+			<version>0.9.2</version>
 		</dependency>
 	</dependencies>
 	<scm>

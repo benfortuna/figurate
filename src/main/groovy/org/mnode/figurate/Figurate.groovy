@@ -71,51 +71,52 @@ class Figurate {
      static void main(args) {
          UIManager.put("TabbedPane.contentBorderInsets", new Insets(0, 0, 0, 0))
          UIManager.put(org.jvnet.lafwidget.LafWidget.ANIMATION_KIND, org.jvnet.lafwidget.utils.LafConstants.AnimationKind.FAST.derive(2))
-        LookAndFeelHelper.instance.addLookAndFeelAlias('substance5', 'org.jvnet.substance.skin.SubstanceNebulaLookAndFeel')
+         LookAndFeelHelper.instance.addLookAndFeelAlias('substance5', 'org.jvnet.substance.skin.SubstanceNebulaLookAndFeel')
         
          def swing = new SwingXBuilder()
          swing.edt {
-             lookAndFeel('substance5') //, 'system')
+             lookAndFeel('substance5', 'system')
          }
 
          def headingFont = new Font('Arial', Font.PLAIN, 14)
          def textFont = new Font('Courier', Font.PLAIN, 12)
-         def tabCount = 0
-         def newTab = { 
-             def breadcrumbBar = new BreadcrumbFileSelector()
-             def userDir = new File(System.getProperty("user.dir"))
-             breadcrumbBar.setPath(userDir)
+//         def tabCount = 0
+         def newTab = { tabFile ->
+//             def breadcrumbBar = new BreadcrumbFileSelector()
+//             def userDir = new File(System.getProperty("user.dir"))
+//             breadcrumbBar.setPath(userDir)
              
              //@Bindable String tabName = 'New Tab'
-             def newPanel = swing.panel(name: 'New Tab', id: 'tab' + (tabCount++)) { //, tabIcon: imageIcon('F:/images/icons/liquidicity/note.png')) {
+             def newPanel = swing.panel(name: tabFile.name, id: tabFile.absolutePath) {//,
+//                     tabIcon: FileSystemView.fileSystemView.getSystemIcon(tabFile)) {
                      borderLayout()
-                     widget(breadcrumbBar, constraints: BorderLayout.NORTH)
+//                     widget(breadcrumbBar, constraints: BorderLayout.NORTH)
 //                     panel(constraints: BorderLayout.WEST) {
-                     splitPane(oneTouchExpandable: true, dividerLocation: 0) {
-                         scrollPane(constraints: "left", border: null) {
-                             list(id: 'fileList')
-                             fileList.cellRenderer = new FileListCellRenderer()
-                             fileList.valueChanged = {
-                                 if (fileList.selectedValue) {
-                                     def selectedFile = fileList.selectedValue //new File(userDir, fileList.selectedValue)
-                                     if (selectedFile.isDirectory()) {
-                                         fileList.selectedIndex = -1
-                                         breadcrumbBar.setPath(selectedFile)
-                                     }
-                                     else {
-                                         editPane.text = selectedFile.text
-                                         editPane.caretPosition = 0
-                                         //tab0.name = fileList.selectedValue
-                                         //tab0.invalidate()
-                                         //tab0.repaint()
-                                     }
-                                 }
-                                 else {
-                                     editPane.text = null
-                                 }
-                             }
-                         }
-                         scrollPane(constraints: "right", border: null) {
+//                     splitPane(oneTouchExpandable: true, dividerLocation: 0) {
+//                         scrollPane(constraints: "left", border: null) {
+//                             list(id: 'fileList')
+//                             fileList.cellRenderer = new FileListCellRenderer()
+//                             fileList.valueChanged = {
+//                                 if (fileList.selectedValue) {
+//                                     def selectedFile = fileList.selectedValue new File(userDir, fileList.selectedValue)
+//                                     if (selectedFile.isDirectory()) {
+//                                         fileList.selectedIndex = -1
+//                                         breadcrumbBar.setPath(selectedFile)
+//                                     }
+//                                     else {
+//                                         editPane.text = selectedFile.text
+//                                         editPane.caretPosition = 0
+//                                         tab0.name = fileList.selectedValue
+//                                         tab0.invalidate()
+//                                         tab0.repaint()
+//                                     }
+//                                 }
+//                                 else {
+//                                     editPane.text = null
+//                                 }
+//                             }
+//                         }
+                         scrollPane(border: null) {
                              editorPane(id: 'editPane', font: textFont)
                              editPane.editorKit = new NumberedEditorKit()
                              def lineHighlighter = new LineHighlightPainter(new Color(230, 230, 230))
@@ -143,25 +144,29 @@ class Figurate {
                                  }
                              }
                          }
-                     }
-                  def fileModel = new DefaultListModel()
-                  for (file in userDir.listFiles()) {
-                    fileModel.addElement(file)
-                  }
-                  fileList.setModel(fileModel)
-             breadcrumbBar.model.addPathListener(new BreadcrumbPathListenerImpl({ //event -> println "${event}" }))
-                    swing.edt() {
-                    userDir = breadcrumbBar.model.getItem(breadcrumbBar.model.itemCount - 1).data
-                  fileModel = new DefaultListModel()
-                  for (file in userDir.listFiles()) {
-                    fileModel.addElement(file)
-                  }
-                    fileList.selectedIndex = -1
-                  fileList.setModel(fileModel)
-                }
-             }))
-                 }
-//             }
+                         doLater {
+                             editPane.text = tabFile.text
+                             editPane.caretPosition = 0
+                         }
+//                     }
+//                  def fileModel = new DefaultListModel()
+//                  for (file in userDir.listFiles()) {
+//                    fileModel.addElement(file)
+//                  }
+//                  fileList.setModel(fileModel)
+//             breadcrumbBar.model.addPathListener(new BreadcrumbPathListenerImpl({ //event -> println "${event}" }))
+//                    swing.edt() {
+//                    userDir = breadcrumbBar.model.getItem(breadcrumbBar.model.itemCount - 1).data
+//                  fileModel = new DefaultListModel()
+//                  for (file in userDir.listFiles()) {
+//                    fileModel.addElement(file)
+//                  }
+//                    fileList.selectedIndex = -1
+//                  fileList.setModel(fileModel)
+//                }
+//             }))
+//                 }
+             }
 
              newPanel.putClientProperty(SubstanceLookAndFeel.TABBED_PANE_CLOSE_BUTTONS_PROPERTY, true)
              return newPanel
@@ -169,107 +174,161 @@ class Figurate {
          
          swing.edt {
              frame(title: 'Figurate', id: 'figurateFrame', defaultCloseOperation: JFrame.DISPOSE_ON_CLOSE,
-             size: [800, 600], show: false, locationRelativeTo: null) {
+                     size: [800, 600], show: false, locationRelativeTo: null) {
              
-//             lookAndFeel("system")
-             actions() {
-                 action(id: 'newFileAction', name: 'New', accelerator: shortcut('N'), closure: {
-                     doLater {
-                         tabs.add(newTab())
-                     }
-                 })
-                 action(id: 'openFileAction', name: 'Open', accelerator: shortcut('O'))
-                 action(id: 'closeTabAction', name: 'Close Tab', accelerator: shortcut('W'))
-                 action(id: 'closeAllTabsAction', name: 'Close All Tabs', accelerator: shortcut('shift W'))
-                 action(id: 'printAction', name: 'Print', accelerator: shortcut('P'))
-                 action(id: 'exitAction', name: 'Exit', accelerator: shortcut('Q'), closure: { dispose() })
-
-                 action(id: 'onlineHelpAction', name: 'Online Help', accelerator: 'F1')
-             }
-             menuBar() {
-                 menu(text: "File", mnemonic: 'F') {
-                     menuItem(newFileAction)
-                     menuItem(openFileAction)
-                     separator()
-                     menuItem(closeTabAction)
-                     menuItem(text: "Close Other Tabs")
-                     menuItem(closeAllTabsAction)
-                     separator()
-                     menuItem(printAction)
-                     separator()
-                     menuItem(exitAction)
-                 }
-                 menu(text: "Edit", mnemonic: 'E') {
-                     menuItem(text: "Undo")
-                     menuItem(text: "Redo")
-                     separator()
-                     menuItem(text: "Cut")
-                     menuItem(text: "Copy")
-                     menuItem(text: "Paste")
-                     menuItem(text: "Delete")
-                     separator()
-                     menuItem(text: "Preferences")
-                 }
-                 menu(text: "View", mnemonic: 'V') {
-                     menuItem(text: "Status Bar")
-                 }
-                 menu(text: "Tools", mnemonic: 'T') {
-                     menu(text: "Search") {
-                         menuItem(text: "New Search..")
-                     }
-                 }
-                 menu(text: "Help", mnemonic: 'H') {
-                     menuItem(onlineHelpAction)
-                     menuItem(text: "Tips")
-                 separator()
-                     menuItem(text: "About")
-                 }
-             }
-         tabbedPane(tabLayoutPolicy: JTabbedPane.SCROLL_TAB_LAYOUT, id: 'tabs') {
-                 panel(name: 'Home', tabIcon: imageIcon('/note.png')) {
-                     borderLayout()
-                     vbox(constraints: BorderLayout.CENTER) {
-                         panel(constraints: BorderLayout.CENTER, border: emptyBorder(10)) {
-                             borderLayout()
-                             label('Recent Files', font: headingFont, constraints: BorderLayout.NORTH)
-                             table(constraints: BorderLayout.CENTER)
+//                 lookAndFeel('substance5', 'system')
+                 
+                 actions() {
+                     action(id: 'newFileAction', name: 'New', accelerator: shortcut('N'), closure: {
+                         doLater {
+                             tabs.add(newTab())
                          }
-                         vglue()
+                     })
+                     action(id: 'openFileAction', name: 'Open', accelerator: shortcut('O'))
+                     action(id: 'closeTabAction', name: 'Close Tab', accelerator: shortcut('W'))
+                     action(id: 'closeAllTabsAction', name: 'Close All Tabs', accelerator: shortcut('shift W'))
+                     action(id: 'printAction', name: 'Print', accelerator: shortcut('P'))
+                     action(id: 'exitAction', name: 'Exit', accelerator: shortcut('Q'), closure: { dispose() })
+    
+                     action(id: 'onlineHelpAction', name: 'Online Help', accelerator: 'F1')
+                 }
+                 
+                 menuBar() {
+                     menu(text: "File", mnemonic: 'F') {
+                         menuItem(newFileAction)
+                         menuItem(openFileAction)
+                         separator()
+                         menuItem(closeTabAction)
+                         menuItem(text: "Close Other Tabs")
+                         menuItem(closeAllTabsAction)
+                         separator()
+                         menuItem(printAction)
+                         separator()
+                         menuItem(exitAction)
                      }
-                     vbox(constraints: BorderLayout.EAST) {
-                         panel(constraints: BorderLayout.NORTH, border: emptyBorder(10)) {
+                     menu(text: "Edit", mnemonic: 'E') {
+                         menuItem(text: "Undo")
+                         menuItem(text: "Redo")
+                         separator()
+                         menuItem(text: "Cut")
+                         menuItem(text: "Copy")
+                         menuItem(text: "Paste")
+                         menuItem(text: "Delete")
+                         separator()
+                         menuItem(text: "Preferences")
+                     }
+                     menu(text: "View", mnemonic: 'V') {
+                         menuItem(text: "Status Bar")
+                     }
+                     menu(text: "Tools", mnemonic: 'T') {
+                         menu(text: "Search") {
+                             menuItem(text: "New Search..")
+                         }
+                     }
+                     menu(text: "Help", mnemonic: 'H') {
+                         menuItem(onlineHelpAction)
+                         menuItem(text: "Tips")
+                     separator()
+                         menuItem(text: "About")
+                     }
+                 }
+                 
+                 borderLayout()
+                 
+                 def breadcrumbBar = new BreadcrumbFileSelector()
+                 def userDir = new File(System.getProperty("user.dir"))
+                 breadcrumbBar.setPath(userDir)
+                 widget(breadcrumbBar, constraints: BorderLayout.NORTH)
+                 
+                 splitPane(oneTouchExpandable: true, dividerLocation: 0) {
+                     scrollPane(constraints: "left", border: null) {
+                         list(id: 'fileList')
+                         fileList.cellRenderer = new FileListCellRenderer()
+                     }
+                     tabbedPane(constraints: "right", tabLayoutPolicy: JTabbedPane.SCROLL_TAB_LAYOUT, id: 'tabs') {
+                         panel(name: 'Home', tabIcon: imageIcon('/note.png')) {
                              borderLayout()
-                             label('Search', font: headingFont, constraints: BorderLayout.NORTH)
-                             panel(constraints: BorderLayout.CENTER) {
-                                 borderLayout()
-                                 textField('Enter query', font: headingFont,  foreground: Color.LIGHT_GRAY, border: null, constraints: BorderLayout.NORTH)
-                                 vbox(constraints: BorderLayout.CENTER) {
-                                     hyperlink('192.168.0.1')
-                                     hyperlink('hdparm=1')
-                                     vglue()
+                             vbox(constraints: BorderLayout.CENTER) {
+                                 panel(constraints: BorderLayout.CENTER, border: emptyBorder(10)) {
+                                     borderLayout()
+                                     label('Recent Files', font: headingFont, constraints: BorderLayout.NORTH)
+                                     table(constraints: BorderLayout.CENTER)
                                  }
+                                 vglue()
+                             }
+                             vbox(constraints: BorderLayout.EAST) {
+                                 panel(constraints: BorderLayout.NORTH, border: emptyBorder(10)) {
+                                     borderLayout()
+                                     label('Search', font: headingFont, constraints: BorderLayout.NORTH)
+                                     panel(constraints: BorderLayout.CENTER) {
+                                         borderLayout()
+                                         textField('Enter query', font: headingFont,  foreground: Color.LIGHT_GRAY, border: null, constraints: BorderLayout.NORTH)
+                                         vbox(constraints: BorderLayout.CENTER) {
+                                             hyperlink('192.168.0.1')
+                                             hyperlink('hdparm=1')
+                                             vglue()
+                                         }
+                                     }
+                                 }
+                                 panel(constraints: BorderLayout.SOUTH, border: emptyBorder(10)) {
+                                     borderLayout()
+                                     label('Tags', font: headingFont, constraints: BorderLayout.NORTH)
+                                     panel(constraints: BorderLayout.CENTER) {
+                                         hyperlink('network')
+                                         hyperlink('font', font: headingFont)
+                                         hyperlink('printer settings')
+                                     }
+                                 }
+                                 vglue()
                              }
                          }
-                         panel(constraints: BorderLayout.SOUTH, border: emptyBorder(10)) {
-                             borderLayout()
-                             label('Tags', font: headingFont, constraints: BorderLayout.NORTH)
-                             panel(constraints: BorderLayout.CENTER) {
-                                 hyperlink('network')
-                                 hyperlink('font', font: headingFont)
-                                 hyperlink('printer settings')
-                             }
-                         }
-                         vglue()
                      }
+                     tabs.putClientProperty(SubstanceLookAndFeel.TABBED_PANE_CONTENT_BORDER_KIND , SubstanceConstants.TabContentPaneBorderKind.SINGLE_FULL)
+                 }
+                 def fileModel = new DefaultListModel()
+                 for (file in userDir.listFiles()) {
+                     fileModel.addElement(file)
+                 }
+                 fileList.setModel(fileModel)
+                 breadcrumbBar.model.addPathListener(new BreadcrumbPathListenerImpl({
+                     doLater() {
+                         userDir = breadcrumbBar.model.getItem(breadcrumbBar.model.itemCount - 1).data
+                         fileModel = new DefaultListModel()
+                         for (file in userDir.listFiles()) {
+                             fileModel.addElement(file)
+                         }
+                         fileList.selectedIndex = -1
+                         fileList.setModel(fileModel)
+                     }
+                 }))
+                 
+                 fileList.valueChanged = { e ->
+                     if (fileList.selectedValue && !e.valueIsAdjusting) {
+                         def selectedFile = fileList.selectedValue
+                         if (selectedFile.isDirectory()) {
+                             fileList.selectedIndex = -1
+                             breadcrumbBar.setPath(selectedFile)
+                         }
+                         else {
+//                             editPane.text = selectedFile.text
+//                             editPane.caretPosition = 0
+                            def tab = newTab(selectedFile)
+                            tabs.add(tab)
+                            tabs.setIconAt(tabs.indexOfComponent(tab), FileSystemView.fileSystemView.getSystemIcon(selectedFile))
+                            tabs.selectedComponent = tab
+//                            tabs.add(panel(name: selectedFile.name, id: selectedFile.absolutePath,
+//                                    tabIcon: FileSystemView.fileSystemView.getSystemIcon(selectedFile)))
+                         }
+                     }
+//                     else {
+//                         editPane.text = null
+//                     }
                  }
              }
-           }
-           tabs.putClientProperty(SubstanceLookAndFeel.TABBED_PANE_CONTENT_BORDER_KIND , SubstanceConstants.TabContentPaneBorderKind.SINGLE_FULL)
-           TrackerRegistry.instance.register(figurateFrame, 'figurateFrame');
-           figurateFrame.visible = true
+             TrackerRegistry.instance.register(figurateFrame, 'figurateFrame');
+             figurateFrame.visible = true
          }
      }
-     
 }
 
 class FigurateModel {

@@ -549,7 +549,7 @@ class TabCloseCallbackImpl implements TabCloseCallback {
 }
 
 class FileComparator implements Comparator<File> {
-    int compare(File f1, File f2) {
+    public int compare(File f1, File f2) {
         if (f1.directory && !f2.directory) {
             return Integer.MIN_VALUE
         }
@@ -557,5 +557,9 @@ class FileComparator implements Comparator<File> {
             return Integer.MAX_VALUE
         }
         return f1.name.compareToIgnoreCase(f2.name)
+    }
+    
+    public int compare(Object o1, Object o2) {
+        return compare((File) o1, (File) o2)
     }
 }

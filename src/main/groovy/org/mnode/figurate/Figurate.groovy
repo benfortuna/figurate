@@ -32,6 +32,7 @@ import java.awt.Font
 import java.awt.Insets
 import java.awt.BorderLayout
 import java.awt.FlowLayout
+import java.awt.event.MouseEvent
 import javax.swing.DefaultComboBoxModel
 import javax.swing.DefaultListModel
 import javax.swing.DefaultListCellRenderer
@@ -46,6 +47,8 @@ import groovy.swing.SwingXBuilder
 import groovy.swing.LookAndFeelHelper
 import org.jvnet.substance.SubstanceLookAndFeel
 import org.jvnet.substance.api.SubstanceConstants
+import org.jvnet.substance.api.SubstanceConstants.TabCloseKind
+import org.jvnet.substance.api.tabbed.TabCloseCallback
 import org.jvnet.flamingo.bcb.*
 import org.jvnet.flamingo.bcb.core.BreadcrumbFileSelector
 import org.mnode.base.views.tracker.TrackerRegistry;
@@ -54,8 +57,7 @@ import org.mnode.base.views.tracker.TrackerRegistry;
   * @author fortuna
   *
   */
-  /*
-@Grapes([
+/*@Grapes([
     @Grab(group='org.codehaus.griffon.swingxbuilder', module='swingxbuilder', version='0.1.6'),
     @Grab(group='net.java.dev.substance', module='substance', version='5.3'),
     @Grab(group='net.java.dev.substance', module='substance-swingx', version='5.3'),
@@ -169,6 +171,7 @@ class Figurate {
              }
 
              newPanel.putClientProperty(SubstanceLookAndFeel.TABBED_PANE_CLOSE_BUTTONS_PROPERTY, true)
+             newPanel.putClientProperty("figurate.file", tabFile.absolutePath)
              return newPanel
          }
          
@@ -238,7 +241,34 @@ class Figurate {
                  def breadcrumbBar = new BreadcrumbFileSelector()
                  def userDir = new File(System.getProperty("user.dir"))
                  breadcrumbBar.setPath(userDir)
-                 widget(breadcrumbBar, constraints: BorderLayout.NORTH)
+                 
+                 panel(constraints: BorderLayout.NORTH) {
+                     borderLayout()
+                     toggleButton(id: 'showPathButton', constraints: BorderLayout.WEST, text: 'Path')
+                     panel(id: 'togglePathPane') {
+                         cardLayout()
+                         panel(constraints: 'breadcrumb') {
+                             borderLayout()
+                             widget(breadcrumbBar)
+                         }
+                         textField(id: 'pathField', constraints: 'path')
+                         pathField.putClientProperty(org.jvnet.lafwidget.LafWidget.TEXT_SELECT_ON_FOCUS, true)
+                         pathField.putClientProperty(org.jvnet.lafwidget.LafWidget.TEXT_FLIP_SELECT_ON_ESCAPE, true)
+                         pathField.putClientProperty(org.jvnet.lafwidget.LafWidget.TEXT_EDIT_CONTEXT_MENU, true)
+                         pathField.actionPerformed = {
+                             breadcrumbBar.path = new File(pathField.text)
+                         }
+                     }
+                     showPathButton.putClientProperty(SubstanceLookAndFeel.BUTTON_NO_MIN_SIZE_PROPERTY, true)
+                     showPathButton.actionPerformed = {
+                         if (showPathButton.selected) {
+                             togglePathPane.layout.show(togglePathPane, 'path')
+                         }
+                         else {
+                             togglePathPane.layout.show(togglePathPane, 'breadcrumb')
+                         }                         
+                     }
+                 }
                  
                  splitPane(oneTouchExpandable: true, dividerLocation: 0) {
                      scrollPane(constraints: "left", border: null) {
@@ -283,7 +313,12 @@ class Figurate {
                              }
                          }
                      }
-                     tabs.putClientProperty(SubstanceLookAndFeel.TABBED_PANE_CONTENT_BORDER_KIND , SubstanceConstants.TabContentPaneBorderKind.SINGLE_FULL)
+                     tabs.putClientProperty(SubstanceLookAndFeel.TABBED_PANE_CONTENT_BORDER_KIND, SubstanceConstants.TabContentPaneBorderKind.SINGLE_FULL)
+                     tabs.putClientProperty(SubstanceLookAndFeel.TABBED_PANE_CLOSE_CALLBACK, new TabCloseCallbackImpl())
+                     tabs.putClientProperty(org.jvnet.lafwidget.LafWidget.TABBED_PANE_PREVIEW_PAINTER, org.jvnet.lafwidget.utils.LafConstants.TabOverviewKind.GRID)
+                     tabs.stateChanged = {
+                        breadcrumbBar.path = new File(tabs.selectedComponent.getClientProperty("figurate.file")).parentFile
+                     }
                  }
                  def fileModel = new DefaultListModel()
                  for (file in userDir.listFiles()) {
@@ -299,6 +334,7 @@ class Figurate {
                          }
                          fileList.selectedIndex = -1
                          fileList.setModel(fileModel)
+                         pathField.text = userDir.absolutePath
                      }
                  }))
                  
@@ -464,4 +500,45 @@ class LineHighlightPainter extends DefaultHighlighter.DefaultHighlightPainter {
         void paint(Graphics g, int offs0, int offs1, Shape bounds, JTextComponent c) {
             super.paint(g, offs0, offs1, bounds, c);
         }
+}
+
+class TabCloseCallbackImpl implements TabCloseCallback {
+
+      public TabCloseKind onAreaClick(JTabbedPane tabbedPane, int tabIndex, MouseEvent mouseEvent) {
+        if (mouseEvent.getButton() != MouseEvent.BUTTON2)
+          return TabCloseKind.NONE;
+        if (mouseEvent.isShiftDown()) {
+          return TabCloseKind.ALL;
+        }
+        return TabCloseKind.THIS;
+      }
+
+      public TabCloseKind onCloseButtonClick(JTabbedPane tabbedPane,
+          int tabIndex, MouseEvent mouseEvent) {
+        if (mouseEvent.isAltDown()) {
+          return TabCloseKind.ALL_BUT_THIS;
+        }
+        if (mouseEvent.isShiftDown()) {
+          return TabCloseKind.ALL;
+        }
+        return TabCloseKind.THIS;
+      }
+
+      public String getAreaTooltip(JTabbedPane tabbedPane, int tabIndex) {
+        return null;
+      }
+
+      public String getCloseButtonTooltip(JTabbedPane tabbedPane,
+          int tabIndex) {
+        StringBuffer result = new StringBuffer();
+        result.append("<html><body>");
+        result.append("Mouse click closes <b>"
+            + tabbedPane.getTitleAt(tabIndex) + "</b> tab");
+        result
+            .append("<br><b>Alt</b>-Mouse click closes all tabs but <b>"
+                + tabbedPane.getTitleAt(tabIndex) + "</b> tab");
+        result.append("<br><b>Shift</b>-Mouse click closes all tabs");
+        result.append("</body></html>");
+        return result.toString();
+      }
 }

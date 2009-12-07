@@ -321,7 +321,10 @@ class Figurate {
                      }
                  }
                  def fileModel = new DefaultListModel()
-                 for (file in userDir.listFiles()) {
+                 def files = userDir.listFiles()
+                 def comparator = new FileComparator()
+                 Arrays.sort(files, comparator)
+                 for (file in files) {
                      fileModel.addElement(file)
                  }
                  fileList.setModel(fileModel)
@@ -329,7 +332,9 @@ class Figurate {
                      doLater() {
                          userDir = breadcrumbBar.model.getItem(breadcrumbBar.model.itemCount - 1).data
                          fileModel = new DefaultListModel()
-                         for (file in userDir.listFiles()) {
+                         files = userDir.listFiles()
+                         Arrays.sort(files, comparator)
+                         for (file in files) {
                              fileModel.addElement(file)
                          }
                          fileList.selectedIndex = -1
@@ -541,4 +546,16 @@ class TabCloseCallbackImpl implements TabCloseCallback {
         result.append("</body></html>");
         return result.toString();
       }
+}
+
+class FileComparator implements Comparator<File> {
+    int compare(File f1, File f2) {
+        if (f1.directory && !f2.directory) {
+            return Integer.MIN_VALUE
+        }
+        else if (f2.directory && !f1.directory) {
+            return Integer.MAX_VALUE
+        }
+        return f1.name.compareToIgnoreCase(f2.name)
+    }
 }

@@ -53,6 +53,9 @@ import org.jvnet.substance.api.tabbed.TabCloseCallback
 import org.jvnet.flamingo.bcb.*
 import org.jvnet.flamingo.bcb.core.BreadcrumbFileSelector
 import org.mnode.base.views.tracker.TrackerRegistry;
+import org.fife.ui.rtextarea.RTextScrollPane
+import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea
+import org.fife.ui.rsyntaxtextarea.SyntaxConstants
 
  /**
   * @author fortuna
@@ -124,6 +127,20 @@ class Figurate {
 //                                 }
 //                             }
 //                         }
+
+                    if (tabFile.name.endsWith('.java')) {
+                        RSyntaxTextArea textArea = new RSyntaxTextArea();
+                        textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVA);
+                        RTextScrollPane sp = new RTextScrollPane(textArea);
+                        widget(sp)
+                        doLater {
+                            if (tabFile.exists()) {
+                                textArea.text = tabFile.text
+                                textArea.caretPosition = 0
+                            }
+                        }
+                    }
+                    else {
                          scrollPane(border: null) {
                              editorPane(id: 'editPane', font: textFont)
                              editPane.editorKit = new NumberedEditorKit()
@@ -158,7 +175,7 @@ class Figurate {
                                  editPane.caretPosition = 0
                              }
                          }
-//                     }
+                     }
 //                  def fileModel = new DefaultListModel()
 //                  for (file in userDir.listFiles()) {
 //                    fileModel.addElement(file)

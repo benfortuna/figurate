@@ -91,6 +91,11 @@
 			<artifactId>swingx</artifactId>
 			<version>0.9.2</version>
 		</dependency>
+		<dependency>
+			<groupId>com.fifesoft.rsyntaxtextarea</groupId>
+			<artifactId>rsyntaxtextarea</artifactId>
+			<version>1.4.0</version>
+		</dependency>
 	</dependencies>
 	<scm>
 		<connection>scm:svn:http://svn.mnode.org/base/figurate/trunk</connection>

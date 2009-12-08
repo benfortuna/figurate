@@ -37,6 +37,7 @@ import javax.swing.DefaultComboBoxModel
 import javax.swing.DefaultListModel
 import javax.swing.DefaultListCellRenderer
 import javax.swing.JFrame
+import javax.swing.JFileChooser
 import javax.swing.JTabbedPane
 import javax.swing.JScrollPane
 import javax.swing.JList
@@ -57,14 +58,15 @@ import org.mnode.base.views.tracker.TrackerRegistry;
   * @author fortuna
   *
   */
-/*@Grapes([
+  /*
+@Grapes([
     @Grab(group='org.codehaus.griffon.swingxbuilder', module='swingxbuilder', version='0.1.6'),
     @Grab(group='net.java.dev.substance', module='substance', version='5.3'),
     @Grab(group='net.java.dev.substance', module='substance-swingx', version='5.3'),
     //@Grab(group='org.swinglabs', module='swingx', version='0.9.2'),
     @Grab(group='org.mnode.base', module='base-views', version='0.0.1-SNAPSHOT'),
-    @Grab(group='jgoodies', module='forms', version='1.0.5'),
-    @Grab(group='org.codehaus.griffon.flamingobuilder', module='flamingobuilder', version='0.2'),
+    //@Grab(group='jgoodies', module='forms', version='1.0.5'),
+    //@Grab(group='org.codehaus.griffon.flamingobuilder', module='flamingobuilder', version='0.2'),
     @Grab(group='net.java.dev.flamingo', module='flamingo', version='4.2'),
     @Grab(group='org.apache.xmlgraphics', module='batik-awt-util', version='1.7')])
     */
@@ -82,11 +84,15 @@ class Figurate {
 
          def headingFont = new Font('Arial', Font.PLAIN, 14)
          def textFont = new Font('Courier', Font.PLAIN, 12)
-//         def tabCount = 0
+         def newFileCount = 0
          def newTab = { tabFile ->
 //             def breadcrumbBar = new BreadcrumbFileSelector()
 //             def userDir = new File(System.getProperty("user.dir"))
 //             breadcrumbBar.setPath(userDir)
+             
+             if (!tabFile) {
+                 tabFile = new File(FileSystemView.fileSystemView.homeDirectory, "Unsaved File ${++newFileCount}")
+             }
              
              //@Bindable String tabName = 'New Tab'
              def newPanel = swing.panel(name: tabFile.name, id: tabFile.absolutePath) {//,
@@ -147,8 +153,10 @@ class Figurate {
                              }
                          }
                          doLater {
-                             editPane.text = tabFile.text
-                             editPane.caretPosition = 0
+                             if (tabFile.exists()) {
+                                 editPane.text = tabFile.text
+                                 editPane.caretPosition = 0
+                             }
                          }
 //                     }
 //                  def fileModel = new DefaultListModel()
@@ -175,6 +183,23 @@ class Figurate {
              return newPanel
          }
          
+         def openTab = { tabs, file ->
+         
+             if (file) {
+                 for (i in 0..tabs.tabCount - 1) {
+                     if (tabs.getComponentAt(i).getClientProperty('figurate.file') == file.absolutePath) {
+                         tabs.selectedComponent = tabs.getComponentAt(i)
+                         return
+                     }
+                 }
+                 
+                 def tab = newTab(file)
+                 tabs.add(tab)
+                 tabs.setIconAt(tabs.indexOfComponent(tab), FileSystemView.fileSystemView.getSystemIcon(file))
+                 tabs.selectedComponent = tab
+             }
+         }
+         
          swing.edt {
              frame(title: 'Figurate', id: 'figurateFrame', defaultCloseOperation: JFrame.DISPOSE_ON_CLOSE,
                      size: [800, 600], show: false, locationRelativeTo: null) {
@@ -187,7 +212,17 @@ class Figurate {
                              tabs.add(newTab())
                          }
                      })
-                     action(id: 'openFileAction', name: 'Open', accelerator: shortcut('O'))
+                     action(id: 'openFileAction', name: 'Open', accelerator: shortcut('O'), closure: {
+                         if (chooser.showOpenDialog() == JFileChooser.APPROVE_OPTION) {
+                             doLater {
+                                //def tab = newTab(chooser.selectedFile)
+                                //tabs.add(tab)
+                                //tabs.setIconAt(tabs.indexOfComponent(tab), FileSystemView.fileSystemView.getSystemIcon(chooser.selectedFile))
+                                //tabs.selectedComponent = tab
+                                openTab(tabs, chooser.selectedFile)
+                             }
+                         }
+                     })
                      action(id: 'closeTabAction', name: 'Close Tab', accelerator: shortcut('W'))
                      action(id: 'closeAllTabsAction', name: 'Close All Tabs', accelerator: shortcut('shift W'))
                      action(id: 'printAction', name: 'Print', accelerator: shortcut('P'))
@@ -196,6 +231,8 @@ class Figurate {
                      action(id: 'onlineHelpAction', name: 'Online Help', accelerator: 'F1')
                  }
                  
+                 fileChooser(id: 'chooser')
+
                  menuBar() {
                      menu(text: "File", mnemonic: 'F') {
                          menuItem(newFileAction)
@@ -239,8 +276,8 @@ class Figurate {
                  borderLayout()
                  
                  def breadcrumbBar = new BreadcrumbFileSelector()
-                 def userDir = new File(System.getProperty("user.dir"))
-                 breadcrumbBar.setPath(userDir)
+                 def userDir = FileSystemView.fileSystemView.homeDirectory //new File(System.getProperty("user.dir"))
+                 breadcrumbBar.path = userDir
                  
                  panel(constraints: BorderLayout.NORTH) {
                      borderLayout()
@@ -256,7 +293,13 @@ class Figurate {
                          pathField.putClientProperty(org.jvnet.lafwidget.LafWidget.TEXT_FLIP_SELECT_ON_ESCAPE, true)
                          pathField.putClientProperty(org.jvnet.lafwidget.LafWidget.TEXT_EDIT_CONTEXT_MENU, true)
                          pathField.actionPerformed = {
-                             breadcrumbBar.path = new File(pathField.text)
+                             def newPath = new File(pathField.text)
+                             if (newPath.exists() && breadcrumbBar.model.getItem(breadcrumbBar.model.itemCount - 1).data != newPath) {
+                                 breadcrumbBar.path = newPath
+                             }
+                             else {
+                                 pathField.text = breadcrumbBar.model.getItem(breadcrumbBar.model.itemCount - 1).data.absolutePath
+                             }
                          }
                      }
                      showPathButton.putClientProperty(SubstanceLookAndFeel.BUTTON_NO_MIN_SIZE_PROPERTY, true)
@@ -276,7 +319,8 @@ class Figurate {
                          fileList.cellRenderer = new FileListCellRenderer()
                      }
                      tabbedPane(constraints: "right", tabLayoutPolicy: JTabbedPane.SCROLL_TAB_LAYOUT, id: 'tabs') {
-                         panel(name: 'Home', tabIcon: imageIcon('/note.png')) {
+                         /*
+                         panel(name: 'Home', tabIcon: imageIcon('F:/images/icons/liquidicity/note.png')) {
                              borderLayout()
                              vbox(constraints: BorderLayout.CENTER) {
                                  panel(constraints: BorderLayout.CENTER, border: emptyBorder(10)) {
@@ -312,12 +356,22 @@ class Figurate {
                                  vglue()
                              }
                          }
+                         */
+                         newTab()
                      }
                      tabs.putClientProperty(SubstanceLookAndFeel.TABBED_PANE_CONTENT_BORDER_KIND, SubstanceConstants.TabContentPaneBorderKind.SINGLE_FULL)
                      tabs.putClientProperty(SubstanceLookAndFeel.TABBED_PANE_CLOSE_CALLBACK, new TabCloseCallbackImpl())
                      tabs.putClientProperty(org.jvnet.lafwidget.LafWidget.TABBED_PANE_PREVIEW_PAINTER, org.jvnet.lafwidget.utils.LafConstants.TabOverviewKind.GRID)
                      tabs.stateChanged = {
-                        breadcrumbBar.path = new File(tabs.selectedComponent.getClientProperty("figurate.file")).parentFile
+                         if (tabs.selectedComponent) {
+                            def newPath = new File(tabs.selectedComponent.getClientProperty("figurate.file")).parentFile
+                             if (newPath.exists() && breadcrumbBar.model.getItem(breadcrumbBar.model.itemCount - 1).data != newPath) {
+                                 breadcrumbBar.path = newPath
+                             }
+                         }
+                         else {
+                             breadcrumbBar.path = FileSystemView.fileSystemView.homeDirectory //new File(System.getProperty("user.dir"))
+                         }
                      }
                  }
                  def fileModel = new DefaultListModel()
@@ -353,10 +407,11 @@ class Figurate {
                          else {
 //                             editPane.text = selectedFile.text
 //                             editPane.caretPosition = 0
-                            def tab = newTab(selectedFile)
-                            tabs.add(tab)
-                            tabs.setIconAt(tabs.indexOfComponent(tab), FileSystemView.fileSystemView.getSystemIcon(selectedFile))
-                            tabs.selectedComponent = tab
+                            //def tab = newTab(selectedFile)
+                            //tabs.add(tab)
+                            //tabs.setIconAt(tabs.indexOfComponent(tab), FileSystemView.fileSystemView.getSystemIcon(selectedFile))
+                            //tabs.selectedComponent = tab
+                            openTab(tabs, selectedFile)
 //                            tabs.add(panel(name: selectedFile.name, id: selectedFile.absolutePath,
 //                                    tabIcon: FileSystemView.fileSystemView.getSystemIcon(selectedFile)))
                          }
@@ -387,8 +442,13 @@ class FileListCellRenderer extends DefaultListCellRenderer {
     
     public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
         super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus)
-        setIcon(fsv.getSystemIcon(value))
-        setText(fsv.getSystemDisplayName(value))
+        if (value.exists()) {
+            setIcon(fsv.getSystemIcon(value))
+            setText(fsv.getSystemDisplayName(value))
+        }
+        else {
+            setIcon(null)
+        }
         return this
     }
 }

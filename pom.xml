@@ -22,6 +22,14 @@
 			</snapshots>
 		</repository>
 		<repository>
+			<id>mnode-releases</id>
+			<name>Micronode Releases</name>
+			<url>http://build.mnode.org/releases</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+		</repository>
+		<repository>
 			<id>mnode-snapshots</id>
 			<name>Micronode Snapshots</name>
 			<url>http://build.mnode.org/snapshots</url>

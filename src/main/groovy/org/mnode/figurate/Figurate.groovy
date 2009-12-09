@@ -285,7 +285,7 @@ class Figurate {
          
          swing.edt {
              frame(title: 'Figurate', id: 'figurateFrame', defaultCloseOperation: JFrame.DISPOSE_ON_CLOSE,
-                     size: [800, 600], show: false, locationRelativeTo: null) {
+                     size: [800, 600], show: false, locationRelativeTo: null, iconImage: imageIcon('/logo.png').image) {
              
 //                 lookAndFeel('substance5', 'system')
                  

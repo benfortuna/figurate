@@ -31,6 +31,7 @@ import java.awt.Color
 import java.awt.Font
 import java.awt.Insets
 import java.awt.BorderLayout
+import java.awt.Desktop
 import java.awt.FlowLayout
 import java.awt.event.MouseEvent
 import javax.swing.DefaultComboBoxModel
@@ -43,6 +44,8 @@ import javax.swing.JScrollPane
 import javax.swing.JList
 import javax.swing.UIManager
 import javax.swing.filechooser.FileSystemView
+import javax.swing.event.HyperlinkListener
+import javax.swing.event.HyperlinkEvent
 import groovy.beans.Bindable
 import groovy.swing.SwingXBuilder
 import groovy.swing.LookAndFeelHelper
@@ -50,6 +53,7 @@ import org.jvnet.substance.SubstanceLookAndFeel
 import org.jvnet.substance.api.SubstanceConstants
 import org.jvnet.substance.api.SubstanceConstants.TabCloseKind
 import org.jvnet.substance.api.tabbed.TabCloseCallback
+import org.jvnet.lafwidget.tabbed.DefaultTabPreviewPainter
 import org.jvnet.flamingo.bcb.*
 import org.jvnet.flamingo.bcb.core.BreadcrumbFileSelector
 import org.mnode.base.views.tracker.TrackerRegistry;
@@ -71,13 +75,15 @@ import org.fife.ui.rsyntaxtextarea.SyntaxConstants
     //@Grab(group='jgoodies', module='forms', version='1.0.5'),
     //@Grab(group='org.codehaus.griffon.flamingobuilder', module='flamingobuilder', version='0.2'),
     @Grab(group='net.java.dev.flamingo', module='flamingo', version='4.2'),
-    @Grab(group='org.apache.xmlgraphics', module='batik-awt-util', version='1.7')])
+    @Grab(group='org.apache.xmlgraphics', module='batik-awt-util', version='1.7'),
+    @Grab(group='com.fifesoft.rsyntaxtextarea', module='rsyntaxtextarea', version='1.4.0')])
     */
 class Figurate {
      
      static void main(args) {
          UIManager.put("TabbedPane.contentBorderInsets", new Insets(0, 0, 0, 0))
          UIManager.put(org.jvnet.lafwidget.LafWidget.ANIMATION_KIND, org.jvnet.lafwidget.utils.LafConstants.AnimationKind.FAST.derive(2))
+         UIManager.put(org.jvnet.lafwidget.LafWidget.TABBED_PANE_PREVIEW_PAINTER, new DefaultTabPreviewPainter())
          LookAndFeelHelper.instance.addLookAndFeelAlias('substance5', 'org.jvnet.substance.skin.SubstanceNebulaLookAndFeel')
         
          def swing = new SwingXBuilder()
@@ -128,9 +134,66 @@ class Figurate {
 //                             }
 //                         }
 
-                    if (tabFile.name.endsWith('.java')) {
-                        RSyntaxTextArea textArea = new RSyntaxTextArea();
-                        textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVA);
+                    RSyntaxTextArea textArea = new RSyntaxTextArea();
+                    textArea.font = textFont
+                        if (tabFile.name =~ /\.java$/) {
+                            textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVA);
+                        }
+                        else if (tabFile.name =~ /\.groovy$/) {
+                            textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_GROOVY);
+                        }
+                        else if (tabFile.name =~ /\.(properties|ini)$/) {
+                            textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_PROPERTIES_FILE);
+                        }
+                        else if (tabFile.name =~ /\.(xml|xsl|xsd|rdf|xul)$/) {
+                            textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_XML);
+                        }
+                        else if (tabFile.name =~ /\.(html|htm)$/) {
+                            textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_HTML);
+                        }
+                        else if (tabFile.name =~ /\.css$/) {
+                            textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_CSS);
+                        }
+                        else if (tabFile.name =~ /\.sql$/) {
+                            textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_SQL);
+                        }
+                        else if (tabFile.name =~ /\.js$/) {
+                            textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT);
+                        }
+                        else if (tabFile.name =~ /(?i)\.(bat|cmd)$/) {
+                            textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_WINDOWS_BATCH);
+                        }
+                        else if (tabFile.name =~ /\.(sh|.sh)$/) {
+                            textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_UNIX_SHELL);
+                        }
+                        else if (tabFile.name =~ /\.rb$/) {
+                            textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_RUBY);
+                        }
+                        else if (tabFile.name =~ /\.py$/) {
+                            textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_PYTHON);
+                        }
+                        else if (tabFile.name =~ /\.php$/) {
+                            textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_PHP);
+                        }
+                        else if (tabFile.name =~ /\.jsp$/) {
+                            textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JSP);
+                        }
+                        else if (tabFile.name =~ /^Makefile/) {
+                            textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_MAKEFILE);
+                        }
+                        else if (tabFile.name =~ /(?i)\.(cpp|cxx|h)$/) {
+                            textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_CPLUSPLUS);
+                        }
+                        else if (tabFile.name =~ /(?i)\.cs$/) {
+                            textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_CSHARP);
+                        }
+                        else if (tabFile.name =~ /(?i)\.c$/) {
+                            textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_C);
+                        }
+                        else if (tabFile.name =~ /(?i)\.pl$/) {
+                            textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_PERL);
+                        }
+                        textArea.addHyperlinkListener(new HyperlinkListenerImpl())
                         RTextScrollPane sp = new RTextScrollPane(textArea);
                         widget(sp)
                         doLater {
@@ -139,6 +202,7 @@ class Figurate {
                                 textArea.caretPosition = 0
                             }
                         }
+                        /*
                     }
                     else {
                          scrollPane(border: null) {
@@ -176,6 +240,7 @@ class Figurate {
                              }
                          }
                      }
+                     */
 //                  def fileModel = new DefaultListModel()
 //                  for (file in userDir.listFiles()) {
 //                    fileModel.addElement(file)
@@ -213,6 +278,7 @@ class Figurate {
                  def tab = newTab(file)
                  tabs.add(tab)
                  tabs.setIconAt(tabs.indexOfComponent(tab), FileSystemView.fileSystemView.getSystemIcon(file))
+                 tabs.setToolTipTextAt(tabs.indexOfComponent(tab), file.absolutePath)
                  tabs.selectedComponent = tab
              }
          }
@@ -378,7 +444,6 @@ class Figurate {
                      }
                      tabs.putClientProperty(SubstanceLookAndFeel.TABBED_PANE_CONTENT_BORDER_KIND, SubstanceConstants.TabContentPaneBorderKind.SINGLE_FULL)
                      tabs.putClientProperty(SubstanceLookAndFeel.TABBED_PANE_CLOSE_CALLBACK, new TabCloseCallbackImpl())
-                     tabs.putClientProperty(org.jvnet.lafwidget.LafWidget.TABBED_PANE_PREVIEW_PAINTER, org.jvnet.lafwidget.utils.LafConstants.TabOverviewKind.GRID)
                      tabs.stateChanged = {
                          if (tabs.selectedComponent) {
                             def newPath = new File(tabs.selectedComponent.getClientProperty("figurate.file")).parentFile
@@ -479,6 +544,13 @@ class BreadcrumbPathListenerImpl implements BreadcrumbPathListener {
     
     void breadcrumbPathEvent(BreadcrumbPathEvent event) {
         closure()
+    }
+}
+
+class HyperlinkListenerImpl implements HyperlinkListener {
+
+    void hyperlinkUpdate(HyperlinkEvent e) {
+        Desktop.desktop.browse(e.URL.toURI())
     }
 }
 

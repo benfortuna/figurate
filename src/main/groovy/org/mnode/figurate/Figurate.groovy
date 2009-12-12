@@ -396,13 +396,15 @@ class Figurate {
                      widget(reloadButton)
                      hstrut(3)
                      
-                     def findButton = new JCommandToggleButton('Find')
-                     findButton.preferredSize = new java.awt.Dimension(30, 5)
+                     def findIcon = SvgBatikResizableIcon.getSvgIcon(Figurate.class.getResource('/find.svg'), new java.awt.Dimension(16, 16))
+                     def findButton = new JCommandToggleButton(findIcon) //'Find')
+                     //findButton.preferredSize = new java.awt.Dimension(30, 5)
                      widget(findButton)
                      hstrut(3)
                      
                      //toggleButton(id: 'showPathButton', constraints: BorderLayout.WEST, text: 'Path')
-                     def showPathButton = new JCommandToggleButton('Path')
+                     def pathIcon = SvgBatikResizableIcon.getSvgIcon(Figurate.class.getResource('/path.svg'), new java.awt.Dimension(16, 16))
+                     def showPathButton = new JCommandToggleButton(pathIcon) //'Path')
                      showPathButton.preferredSize = new java.awt.Dimension(30, 5)
                      
                      //def showPathButtonGroup = new CommandToggleButtonGroup()

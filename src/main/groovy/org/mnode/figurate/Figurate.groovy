@@ -42,6 +42,7 @@ import javax.swing.JFileChooser
 import javax.swing.JTabbedPane
 import javax.swing.JScrollPane
 import javax.swing.JList
+import javax.swing.DefaultComboBoxModel
 import javax.swing.UIManager
 import javax.swing.filechooser.FileSystemView
 import javax.swing.event.HyperlinkListener
@@ -56,6 +57,10 @@ import org.jvnet.substance.api.tabbed.TabCloseCallback
 import org.jvnet.lafwidget.tabbed.DefaultTabPreviewPainter
 import org.jvnet.flamingo.bcb.*
 import org.jvnet.flamingo.bcb.core.BreadcrumbFileSelector
+import org.jvnet.flamingo.common.JCommandButton
+import org.jvnet.flamingo.common.JCommandButtonStrip
+import org.jvnet.flamingo.common.JCommandToggleButton
+import org.jvnet.flamingo.common.CommandToggleButtonGroup
 import org.mnode.base.views.tracker.TrackerRegistry;
 import org.fife.ui.rtextarea.RTextScrollPane
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea
@@ -283,6 +288,15 @@ class Figurate {
              }
          }
          
+         def updatePath = { breadcrumbBar, pathField, newPath ->
+             breadcrumbBar.path = newPath
+             if (pathField.selectedItem != newPath) {
+                 pathField.model.removeElement(newPath)
+                 pathField.model.insertElementAt(newPath, 0)
+                 pathField.selectedItem = newPath
+             }
+         }
+
          swing.edt {
              frame(title: 'Figurate', id: 'figurateFrame', defaultCloseOperation: JFrame.DISPOSE_ON_CLOSE,
                      size: [800, 600], show: false, locationRelativeTo: null, iconImage: imageIcon('/logo.png').image) {
@@ -362,32 +376,70 @@ class Figurate {
                  def userDir = FileSystemView.fileSystemView.homeDirectory //new File(System.getProperty("user.dir"))
                  breadcrumbBar.path = userDir
                  
-                 panel(constraints: BorderLayout.NORTH) {
-                     borderLayout()
-                     toggleButton(id: 'showPathButton', constraints: BorderLayout.WEST, text: 'Path')
+                 hbox(constraints: BorderLayout.NORTH, border:emptyBorder([5, 3, 3, 3])) {
+                     //borderLayout()
+
+                     def navButtons = new JCommandButtonStrip()
+                     navButtons.preferredSize = new java.awt.Dimension(50, 5)
+                     navButtons.add(new JCommandButton('Back'))
+                     navButtons.add(new JCommandButton('Forward'))
+                     
+                     widget(navButtons)
+                     hstrut(3)
+                     
+                     def reloadButton = new JCommandButton('Reload')
+                     reloadButton.preferredSize = new java.awt.Dimension(40, 5)
+                     widget(reloadButton)
+                     hstrut(3)
+                     
+                     def findButton = new JCommandToggleButton('Find')
+                     findButton.preferredSize = new java.awt.Dimension(30, 5)
+                     widget(findButton)
+                     hstrut(3)
+                     
+                     //toggleButton(id: 'showPathButton', constraints: BorderLayout.WEST, text: 'Path')
+                     def showPathButton = new JCommandToggleButton('Path')
+                     showPathButton.preferredSize = new java.awt.Dimension(30, 5)
+                     
+                     //def showPathButtonGroup = new CommandToggleButtonGroup()
+                     //showPathButtonGroup.add(showPathButton)
+                     widget(showPathButton)
+                     hstrut(3)
+                     
                      panel(id: 'togglePathPane') {
                          cardLayout()
                          panel(constraints: 'breadcrumb') {
                              borderLayout()
                              widget(breadcrumbBar)
                          }
-                         textField(id: 'pathField', constraints: 'path')
+                         //textField(id: 'pathField', constraints: 'path')
+                         //def pathFieldModel = new DefaultComboBoxModel()
+                         comboBox(id: 'pathField', constraints: 'path', editable: true, renderer: new FileListCellRenderer()) //, model: pathFieldModel)
                          pathField.putClientProperty(org.jvnet.lafwidget.LafWidget.TEXT_SELECT_ON_FOCUS, true)
                          pathField.putClientProperty(org.jvnet.lafwidget.LafWidget.TEXT_FLIP_SELECT_ON_ESCAPE, true)
                          pathField.putClientProperty(org.jvnet.lafwidget.LafWidget.TEXT_EDIT_CONTEXT_MENU, true)
                          pathField.actionPerformed = {
-                             def newPath = new File(pathField.text)
-                             if (newPath.exists() && breadcrumbBar.model.getItem(breadcrumbBar.model.itemCount - 1).data != newPath) {
-                                 breadcrumbBar.path = newPath
-                             }
-                             else {
-                                 pathField.text = breadcrumbBar.model.getItem(breadcrumbBar.model.itemCount - 1).data.absolutePath
+                             if (pathField.selectedItem) {
+                                 def newPath = pathField.selectedItem //new File(pathField.editor.item)
+                                 if (newPath instanceof String) {
+                                     newPath = new File(newPath)
+                                 }
+                                 if (newPath.exists() && breadcrumbBar.model.getItem(breadcrumbBar.model.itemCount - 1).data != newPath) {
+                                     updatePath(breadcrumbBar, pathField, newPath)
+                                     //pathField.model.removeElement(newPath)
+                                     //pathField.model.insertElementAt(newPath, 0)
+                                     //pathField.selectedItem = newPath
+                                     //breadcrumbBar.path = newPath
+                                 }
+                                 else {
+                                     pathField.selectedItem = breadcrumbBar.model.getItem(breadcrumbBar.model.itemCount - 1).data
+                                 }
                              }
                          }
                      }
                      showPathButton.putClientProperty(SubstanceLookAndFeel.BUTTON_NO_MIN_SIZE_PROPERTY, true)
                      showPathButton.actionPerformed = {
-                         if (showPathButton.selected) {
+                         if (showPathButton.actionModel.selected) {
                              togglePathPane.layout.show(togglePathPane, 'path')
                          }
                          else {
@@ -448,7 +500,11 @@ class Figurate {
                          if (tabs.selectedComponent) {
                             def newPath = new File(tabs.selectedComponent.getClientProperty("figurate.file")).parentFile
                              if (newPath.exists() && breadcrumbBar.model.getItem(breadcrumbBar.model.itemCount - 1).data != newPath) {
-                                 breadcrumbBar.path = newPath
+                                 //breadcrumbBar.path = newPath
+                                 //pathField.model.removeElement(newPath)
+                                 //pathField.model.insertElementAt(newPath, 0)
+                                 //pathField.selectedItem = newPath
+                                 updatePath(breadcrumbBar, pathField, newPath)
                              }
                          }
                          else {
@@ -475,7 +531,12 @@ class Figurate {
                          }
                          fileList.selectedIndex = -1
                          fileList.setModel(fileModel)
-                         pathField.text = userDir.absolutePath
+                         //pathField.text = userDir.absolutePath
+                         if (pathField.selectedItem != userDir) {
+                             pathField.model.removeElement(userDir)
+                             pathField.model.insertElementAt(userDir, 0)
+                             pathField.selectedItem = userDir
+                         }
                      }
                  }))
                  
@@ -484,7 +545,11 @@ class Figurate {
                          def selectedFile = fileList.selectedValue
                          if (selectedFile.isDirectory()) {
                              fileList.selectedIndex = -1
-                             breadcrumbBar.setPath(selectedFile)
+                             //breadcrumbBar.path = selectedFile
+                             //pathField.model.removeElement(selectedFile)
+                             //pathField.model.insertElementAt(selectedFile, 0)
+                             //pathField.selectedItem = selectedFile
+                             updatePath(breadcrumbBar, pathField, selectedFile)
                          }
                          else {
 //                             editPane.text = selectedFile.text

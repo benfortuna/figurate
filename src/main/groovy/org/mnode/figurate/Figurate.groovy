@@ -61,6 +61,7 @@ import org.jvnet.flamingo.common.JCommandButton
 import org.jvnet.flamingo.common.JCommandButtonStrip
 import org.jvnet.flamingo.common.JCommandToggleButton
 import org.jvnet.flamingo.common.CommandToggleButtonGroup
+import org.jvnet.flamingo.svg.SvgBatikResizableIcon
 import org.mnode.base.views.tracker.TrackerRegistry;
 import org.fife.ui.rtextarea.RTextScrollPane
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea
@@ -380,15 +381,18 @@ class Figurate {
                      //borderLayout()
 
                      def navButtons = new JCommandButtonStrip()
-                     navButtons.preferredSize = new java.awt.Dimension(50, 5)
-                     navButtons.add(new JCommandButton('Back'))
-                     navButtons.add(new JCommandButton('Forward'))
+                     //navButtons.preferredSize = new java.awt.Dimension(50, 5)
+                     def backIcon = SvgBatikResizableIcon.getSvgIcon(Figurate.class.getResource('/back.svg'), new java.awt.Dimension(16, 16))
+                     navButtons.add(new JCommandButton(backIcon)) //'Back'))
+                     def forwardIcon = SvgBatikResizableIcon.getSvgIcon(Figurate.class.getResource('/forward.svg'), new java.awt.Dimension(16, 16))
+                     navButtons.add(new JCommandButton(forwardIcon)) //'Forward'))
                      
                      widget(navButtons)
                      hstrut(3)
                      
-                     def reloadButton = new JCommandButton('Reload')
-                     reloadButton.preferredSize = new java.awt.Dimension(40, 5)
+                     def reloadIcon = SvgBatikResizableIcon.getSvgIcon(Figurate.class.getResource('/reload.svg'), new java.awt.Dimension(16, 16))
+                     def reloadButton = new JCommandButton(reloadIcon) //'Reload')
+                     //reloadButton.preferredSize = new java.awt.Dimension(40, 5)
                      widget(reloadButton)
                      hstrut(3)
                      
@@ -414,7 +418,7 @@ class Figurate {
                          }
                          //textField(id: 'pathField', constraints: 'path')
                          //def pathFieldModel = new DefaultComboBoxModel()
-                         comboBox(id: 'pathField', constraints: 'path', editable: true, renderer: new FileListCellRenderer()) //, model: pathFieldModel)
+                         comboBox(id: 'pathField', constraints: 'path', editable: true, renderer: new PathListCellRenderer()) //, model: pathFieldModel)
                          pathField.putClientProperty(org.jvnet.lafwidget.LafWidget.TEXT_SELECT_ON_FOCUS, true)
                          pathField.putClientProperty(org.jvnet.lafwidget.LafWidget.TEXT_FLIP_SELECT_ON_ESCAPE, true)
                          pathField.putClientProperty(org.jvnet.lafwidget.LafWidget.TEXT_EDIT_CONTEXT_MENU, true)
@@ -592,6 +596,22 @@ class FileListCellRenderer extends DefaultListCellRenderer {
         if (value.exists()) {
             setIcon(fsv.getSystemIcon(value))
             setText(fsv.getSystemDisplayName(value))
+        }
+        else {
+            setIcon(null)
+        }
+        return this
+    }
+}
+
+class PathListCellRenderer extends DefaultListCellRenderer {
+    def fsv = FileSystemView.fileSystemView
+    
+    public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+        super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus)
+        if (value.exists()) {
+            setIcon(fsv.getSystemIcon(value))
+            setText(value.absolutePath)
         }
         else {
             setIcon(null)

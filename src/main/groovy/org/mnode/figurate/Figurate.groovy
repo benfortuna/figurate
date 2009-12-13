@@ -455,9 +455,13 @@ class Figurate {
                  }
                  
                  splitPane(oneTouchExpandable: true, dividerLocation: 0) {
-                     scrollPane(constraints: "left", border: null) {
-                         list(id: 'fileList')
-                         fileList.cellRenderer = new FileListCellRenderer()
+                     panel(constraints: "left") {
+                         borderLayout()
+                         label(text: 'Folder Contents', constraints: BorderLayout.NORTH)
+                         scrollPane(border: null) {
+                             list(id: 'fileList')
+                             fileList.cellRenderer = new FileListCellRenderer()
+                         }
                      }
                      tabbedPane(constraints: "right", tabLayoutPolicy: JTabbedPane.SCROLL_TAB_LAYOUT, id: 'tabs') {
                          /*

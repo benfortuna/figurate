@@ -89,7 +89,7 @@ class Figurate {
      static void main(args) {
          UIManager.put("TabbedPane.contentBorderInsets", new Insets(0, 0, 0, 0))
          UIManager.put(org.jvnet.lafwidget.LafWidget.ANIMATION_KIND, org.jvnet.lafwidget.utils.LafConstants.AnimationKind.FAST.derive(2))
-         UIManager.put(org.jvnet.lafwidget.LafWidget.TABBED_PANE_PREVIEW_PAINTER, new DefaultTabPreviewPainter())
+         //UIManager.put(org.jvnet.lafwidget.LafWidget.TABBED_PANE_PREVIEW_PAINTER, new DefaultTabPreviewPainter())
          LookAndFeelHelper.instance.addLookAndFeelAlias('substance5', 'org.jvnet.substance.skin.SubstanceNebulaLookAndFeel')
         
          def swing = new SwingXBuilder()
@@ -151,7 +151,7 @@ class Figurate {
                         else if (tabFile.name =~ /\.(properties|ini)$/) {
                             textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_PROPERTIES_FILE);
                         }
-                        else if (tabFile.name =~ /\.(xml|xsl|xsd|rdf|xul)$/) {
+                        else if (tabFile.name =~ /\.(xml|xsl|xsd|rdf|xul|svg)$/) {
                             textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_XML);
                         }
                         else if (tabFile.name =~ /\.(html|htm)$/) {
@@ -386,7 +386,6 @@ class Figurate {
                      navButtons.add(new JCommandButton(backIcon)) //'Back'))
                      def forwardIcon = SvgBatikResizableIcon.getSvgIcon(Figurate.class.getResource('/forward.svg'), new java.awt.Dimension(16, 16))
                      navButtons.add(new JCommandButton(forwardIcon)) //'Forward'))
-                     
                      widget(navButtons)
                      hstrut(3)
                      
@@ -455,14 +454,24 @@ class Figurate {
                  }
                  
                  splitPane(oneTouchExpandable: true, dividerLocation: 0) {
-                     panel(constraints: "left") {
-                         borderLayout()
-                         label(text: 'Folder Contents', constraints: BorderLayout.NORTH)
-                         scrollPane(border: null) {
-                             list(id: 'fileList')
-                             fileList.cellRenderer = new FileListCellRenderer()
+                     tabbedPane(constraints: "left", tabPlacement: JTabbedPane.BOTTOM, id: 'navTabs') {
+                         panel(name: 'File System') {
+                             borderLayout()
+                             label(text: 'Folder Contents', constraints: BorderLayout.NORTH)
+                             scrollPane(border: null) {
+                                 list(id: 'fileList')
+                                 fileList.cellRenderer = new FileListCellRenderer()
+                             }
+                         }
+                         panel(name: 'Bookmarks') {
+                             borderLayout()
+                             label(text: 'Bookmarks', constraints: BorderLayout.NORTH)
+                             scrollPane(border: null) {
+                                 tree(id: 'bookmarkTree')
+                             }
                          }
                      }
+                     navTabs.putClientProperty(SubstanceLookAndFeel.TABBED_PANE_CONTENT_BORDER_KIND, SubstanceConstants.TabContentPaneBorderKind.SINGLE_FULL)
                      tabbedPane(constraints: "right", tabLayoutPolicy: JTabbedPane.SCROLL_TAB_LAYOUT, id: 'tabs') {
                          /*
                          panel(name: 'Home', tabIcon: imageIcon('F:/images/icons/liquidicity/note.png')) {
@@ -506,6 +515,8 @@ class Figurate {
                      }
                      tabs.putClientProperty(SubstanceLookAndFeel.TABBED_PANE_CONTENT_BORDER_KIND, SubstanceConstants.TabContentPaneBorderKind.SINGLE_FULL)
                      tabs.putClientProperty(SubstanceLookAndFeel.TABBED_PANE_CLOSE_CALLBACK, new TabCloseCallbackImpl())
+                     tabs.putClientProperty(org.jvnet.lafwidget.LafWidget.TABBED_PANE_PREVIEW_PAINTER, new DefaultTabPreviewPainter())
+
                      tabs.stateChanged = {
                          if (tabs.selectedComponent) {
                             def newPath = new File(tabs.selectedComponent.getClientProperty("figurate.file")).parentFile

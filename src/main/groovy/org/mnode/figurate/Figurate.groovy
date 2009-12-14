@@ -30,7 +30,9 @@ import javax.swing.text.*;
 import java.awt.Color
 import java.awt.Font
 import java.awt.Insets
+import java.awt.Dimension
 import java.awt.BorderLayout
+import java.awt.FlowLayout
 import java.awt.Desktop
 import java.awt.FlowLayout
 import java.awt.event.MouseEvent
@@ -38,6 +40,7 @@ import javax.swing.DefaultComboBoxModel
 import javax.swing.DefaultListModel
 import javax.swing.DefaultListCellRenderer
 import javax.swing.JFrame
+import javax.swing.JComboBox
 import javax.swing.JFileChooser
 import javax.swing.JTabbedPane
 import javax.swing.JScrollPane
@@ -61,6 +64,7 @@ import org.jvnet.flamingo.common.JCommandButton
 import org.jvnet.flamingo.common.JCommandButtonStrip
 import org.jvnet.flamingo.common.JCommandToggleButton
 import org.jvnet.flamingo.common.CommandToggleButtonGroup
+import org.jvnet.flamingo.common.CommandButtonDisplayState
 import org.jvnet.flamingo.svg.SvgBatikResizableIcon
 import org.mnode.base.views.tracker.TrackerRegistry;
 import org.fife.ui.rtextarea.RTextScrollPane
@@ -82,6 +86,8 @@ import org.fife.ui.rsyntaxtextarea.SyntaxConstants
     //@Grab(group='org.codehaus.griffon.flamingobuilder', module='flamingobuilder', version='0.2'),
     @Grab(group='net.java.dev.flamingo', module='flamingo', version='4.2'),
     @Grab(group='org.apache.xmlgraphics', module='batik-awt-util', version='1.7'),
+    @Grab(group='org.apache.xmlgraphics', module='batik-swing', version='1.7'),
+    @Grab(group='org.apache.xmlgraphics', module='batik-transcoder', version='1.7'),
     @Grab(group='com.fifesoft.rsyntaxtextarea', module='rsyntaxtextarea', version='1.4.0')])
     */
 class Figurate {
@@ -93,6 +99,10 @@ class Figurate {
          LookAndFeelHelper.instance.addLookAndFeelAlias('substance5', 'org.jvnet.substance.skin.SubstanceNebulaLookAndFeel')
         
          def swing = new SwingXBuilder()
+         swing.registerBeanFactory('comboBox', MaxWidthComboBox.class)
+         swing.registerBeanFactory('fileBreadcrumbBar', MaxWidthBreadcrumbFileSelector.class)
+         //swing.registerBeanFactory('syntaxTextArea', RSyntaxTextArea.class)
+
          swing.edt {
              lookAndFeel('substance5', 'system')
          }
@@ -141,6 +151,10 @@ class Figurate {
 //                         }
 
                     RSyntaxTextArea textArea = new RSyntaxTextArea();
+                    textArea.marginLineEnabled = true
+                    textArea.whitespaceVisible = true
+                    //syntaxTextArea(id: 'textArea', marginLineEnabled: true, whitespaceVisible: true, font: textFont)
+                    //textArea.marginLineColor = Color.RED
                     textArea.font = textFont
                         if (tabFile.name =~ /\.java$/) {
                             textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVA);
@@ -373,21 +387,24 @@ class Figurate {
                  
                  borderLayout()
                  
-                 def breadcrumbBar = new BreadcrumbFileSelector()
+                 //def breadcrumbBar = new BreadcrumbFileSelector()
+                 //fileBreadcrumbBar(id: 'breadcrumbBar')
+                 
                  def userDir = FileSystemView.fileSystemView.homeDirectory //new File(System.getProperty("user.dir"))
-                 breadcrumbBar.path = userDir
+                 //breadcrumbBar.path = userDir
                  
                  hbox(constraints: BorderLayout.NORTH, border:emptyBorder([5, 3, 3, 3])) {
-                     //borderLayout()
+                     //flowLayout(alignment: FlowLayout.LEADING)
 
                      def navButtons = new JCommandButtonStrip()
+                     navButtons.displayState = CommandButtonDisplayState.FIT_TO_ICON
                      //navButtons.preferredSize = new java.awt.Dimension(50, 5)
-                     def backIcon = SvgBatikResizableIcon.getSvgIcon(Figurate.class.getResource('/back.svg'), new java.awt.Dimension(16, 16))
+                     def backIcon = SvgBatikResizableIcon.getSvgIcon(Figurate.class.getResource('/back.svg'), new java.awt.Dimension(20, 20))
                      navButtons.add(new JCommandButton(backIcon)) //'Back'))
-                     def forwardIcon = SvgBatikResizableIcon.getSvgIcon(Figurate.class.getResource('/forward.svg'), new java.awt.Dimension(16, 16))
+                     def forwardIcon = SvgBatikResizableIcon.getSvgIcon(Figurate.class.getResource('/forward.svg'), new java.awt.Dimension(20, 20))
                      navButtons.add(new JCommandButton(forwardIcon)) //'Forward'))
                      widget(navButtons)
-                     hstrut(3)
+                     hstrut(5)
                      
                      def reloadIcon = SvgBatikResizableIcon.getSvgIcon(Figurate.class.getResource('/reload.svg'), new java.awt.Dimension(16, 16))
                      def reloadButton = new JCommandButton(reloadIcon) //'Reload')
@@ -404,7 +421,7 @@ class Figurate {
                      //toggleButton(id: 'showPathButton', constraints: BorderLayout.WEST, text: 'Path')
                      def pathIcon = SvgBatikResizableIcon.getSvgIcon(Figurate.class.getResource('/path.svg'), new java.awt.Dimension(16, 16))
                      def showPathButton = new JCommandToggleButton(pathIcon) //'Path')
-                     showPathButton.preferredSize = new java.awt.Dimension(30, 5)
+                     //showPathButton.preferredSize = new java.awt.Dimension(30, 5)
                      
                      //def showPathButtonGroup = new CommandToggleButtonGroup()
                      //showPathButtonGroup.add(showPathButton)
@@ -413,31 +430,40 @@ class Figurate {
                      
                      panel(id: 'togglePathPane') {
                          cardLayout()
-                         panel(constraints: 'breadcrumb') {
-                             borderLayout()
-                             widget(breadcrumbBar)
+                         hbox(constraints: 'breadcrumb') {
+                             //borderLayout()
+                             //widget(breadcrumbBar)
+                             fileBreadcrumbBar(id: 'breadcrumbBar', path: userDir)
                          }
-                         //textField(id: 'pathField', constraints: 'path')
-                         //def pathFieldModel = new DefaultComboBoxModel()
-                         comboBox(id: 'pathField', constraints: 'path', editable: true, renderer: new PathListCellRenderer()) //, model: pathFieldModel)
-                         pathField.putClientProperty(org.jvnet.lafwidget.LafWidget.TEXT_SELECT_ON_FOCUS, true)
-                         pathField.putClientProperty(org.jvnet.lafwidget.LafWidget.TEXT_FLIP_SELECT_ON_ESCAPE, true)
-                         pathField.putClientProperty(org.jvnet.lafwidget.LafWidget.TEXT_EDIT_CONTEXT_MENU, true)
-                         pathField.actionPerformed = {
-                             if (pathField.selectedItem) {
-                                 def newPath = pathField.selectedItem //new File(pathField.editor.item)
-                                 if (newPath instanceof String) {
-                                     newPath = new File(newPath)
-                                 }
-                                 if (newPath.exists() && breadcrumbBar.model.getItem(breadcrumbBar.model.itemCount - 1).data != newPath) {
-                                     updatePath(breadcrumbBar, pathField, newPath)
-                                     //pathField.model.removeElement(newPath)
-                                     //pathField.model.insertElementAt(newPath, 0)
-                                     //pathField.selectedItem = newPath
-                                     //breadcrumbBar.path = newPath
-                                 }
-                                 else {
-                                     pathField.selectedItem = breadcrumbBar.model.getItem(breadcrumbBar.model.itemCount - 1).data
+                         hbox(constraints: 'path') {
+                             //borderLayout()
+                             //textField(id: 'pathField', constraints: 'path')
+                             //def pathFieldModel = new DefaultComboBoxModel()
+                             comboBox(id: 'pathField', editable: true, renderer: new PathListCellRenderer()) //, model: pathFieldModel)
+                             //def pathField = new MaxWidthComboBox()
+                             //pathField.editable = true
+                             //pathField.renderer = new PathListCellRenderer()
+                             pathField.putClientProperty(org.jvnet.lafwidget.LafWidget.TEXT_SELECT_ON_FOCUS, true)
+                             pathField.putClientProperty(org.jvnet.lafwidget.LafWidget.TEXT_FLIP_SELECT_ON_ESCAPE, true)
+                             pathField.putClientProperty(org.jvnet.lafwidget.LafWidget.TEXT_EDIT_CONTEXT_MENU, true)
+                             widget(pathField)
+                             //pathField.maximumSize = new java.awt.Dimension(Short.MAX_VALUE, 20)
+                             pathField.actionPerformed = {
+                                 if (pathField.selectedItem) {
+                                     def newPath = pathField.selectedItem //new File(pathField.editor.item)
+                                     if (newPath instanceof String) {
+                                         newPath = new File(newPath)
+                                     }
+                                     if (newPath.exists() && breadcrumbBar.model.getItem(breadcrumbBar.model.itemCount - 1).data != newPath) {
+                                         updatePath(breadcrumbBar, pathField, newPath)
+                                         //pathField.model.removeElement(newPath)
+                                         //pathField.model.insertElementAt(newPath, 0)
+                                         //pathField.selectedItem = newPath
+                                         //breadcrumbBar.path = newPath
+                                     }
+                                     else {
+                                         pathField.selectedItem = breadcrumbBar.model.getItem(breadcrumbBar.model.itemCount - 1).data
+                                     }
                                  }
                              }
                          }
@@ -467,7 +493,7 @@ class Figurate {
                              borderLayout()
                              label(text: 'Bookmarks', constraints: BorderLayout.NORTH)
                              scrollPane(border: null) {
-                                 tree(id: 'bookmarkTree')
+                                 tree(id: 'bookmarkTree', rootVisible: false, )
                              }
                          }
                      }
@@ -809,4 +835,22 @@ class FileComparator implements Comparator<File> {
         }
         return f1.name.compareToIgnoreCase(f2.name)
     }
+}
+
+class MaxWidthComboBox extends JComboBox {
+
+  public Dimension getMaximumSize() {
+      Dimension maxSize = getPreferredSize()
+      maxSize.width = Short.MAX_VALUE
+      return maxSize
+  }
+}
+
+class MaxWidthBreadcrumbFileSelector extends BreadcrumbFileSelector {
+
+  public Dimension getMaximumSize() {
+      Dimension maxSize = getPreferredSize()
+      maxSize.width = Short.MAX_VALUE
+      return maxSize
+  }
 }

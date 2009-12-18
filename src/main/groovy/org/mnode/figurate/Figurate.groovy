@@ -68,6 +68,7 @@ import org.jvnet.flamingo.common.CommandButtonDisplayState
 import org.jvnet.flamingo.svg.SvgBatikResizableIcon
 import org.mnode.base.views.tracker.TrackerRegistry;
 import org.fife.ui.rtextarea.RTextScrollPane
+import org.fife.ui.rtextarea.Gutter
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants
 
@@ -151,11 +152,8 @@ class Figurate {
 //                         }
 
                     RSyntaxTextArea textArea = new RSyntaxTextArea();
-                    textArea.marginLineEnabled = true
-                    textArea.whitespaceVisible = true
                     //syntaxTextArea(id: 'textArea', marginLineEnabled: true, whitespaceVisible: true, font: textFont)
                     //textArea.marginLineColor = Color.RED
-                    textArea.font = textFont
                         if (tabFile.name =~ /\.java$/) {
                             textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVA);
                         }
@@ -213,8 +211,15 @@ class Figurate {
                         else if (tabFile.name =~ /(?i)\.pl$/) {
                             textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_PERL);
                         }
+                        else {
+                            textArea.whitespaceVisible = true
+                        }
+                    textArea.marginLineEnabled = true
+                    textArea.font = textFont
                         textArea.addHyperlinkListener(new HyperlinkListenerImpl())
                         RTextScrollPane sp = new RTextScrollPane(textArea);
+                        sp.gutter.bookmarkingEnabled = true
+                        sp.gutter.bookmarkIcon = imageIcon('/bookmark.png')
                         widget(sp)
                         doLater {
                             if (tabFile.exists()) {
@@ -222,6 +227,7 @@ class Figurate {
                                 textArea.caretPosition = 0
                             }
                         }
+                        //sp.gutter.addLineTrackingIcon(0, imageIcon('F:/images/icons/logo.png'))
                         /*
                     }
                     else {
@@ -340,10 +346,15 @@ class Figurate {
                      action(id: 'printAction', name: 'Print', accelerator: shortcut('P'))
                      action(id: 'exitAction', name: 'Exit', accelerator: shortcut('Q'), closure: { dispose() })
     
-                     action(id: 'onlineHelpAction', name: 'Online Help', accelerator: 'F1')
+                     action(id: 'onlineHelpAction', name: 'Online Help', accelerator: 'F1', closure: { Desktop.desktop.browse(URI.create('http://wiki.mnode.org/figurate')) })
+                     action(id: 'showTipsAction', name: 'Tips', closure: { tips.showDialog(figurateFrame) })
                  }
                  
                  fileChooser(id: 'chooser')
+                 
+                 tipOfTheDay(id: 'tips', model: defaultTipModel(tips: [
+                     defaultTip(name: 'test', tip: '<html><em>testing</em>')
+                 ]))
 
                  menuBar() {
                      menu(text: "File", mnemonic: 'F') {
@@ -379,7 +390,7 @@ class Figurate {
                      }
                      menu(text: "Help", mnemonic: 'H') {
                          menuItem(onlineHelpAction)
-                         menuItem(text: "Tips")
+                         menuItem(showTipsAction)
                      separator()
                          menuItem(text: "About")
                      }
@@ -479,7 +490,7 @@ class Figurate {
                      }
                  }
                  
-                 splitPane(oneTouchExpandable: true, dividerLocation: 0) {
+                 splitPane(id: 'splitPane', oneTouchExpandable: true, dividerLocation: 0) {
                      tabbedPane(constraints: "left", tabPlacement: JTabbedPane.BOTTOM, id: 'navTabs') {
                          panel(name: 'File System') {
                              borderLayout()
@@ -583,6 +594,10 @@ class Figurate {
                              pathField.model.removeElement(userDir)
                              pathField.model.insertElementAt(userDir, 0)
                              pathField.selectedItem = userDir
+                         }
+                         
+                         if (splitPane.dividerLocation == 0) {
+                             splitPane.dividerLocation = fileList.preferredSize.width + 20
                          }
                      }
                  }))

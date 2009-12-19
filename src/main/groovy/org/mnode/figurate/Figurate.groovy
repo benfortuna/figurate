@@ -21,7 +21,7 @@ package org.mnode.figurate
 
 import static java.lang.Math.min;
 import static java.lang.Math.max;
-import com.xduke.xswing.DataTipManager
+
 import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Rectangle;
@@ -156,65 +156,67 @@ class Figurate {
                     //syntaxTextArea(id: 'textArea', marginLineEnabled: true, whitespaceVisible: true, font: textFont)
                     //textArea.marginLineColor = Color.RED
                         if (tabFile.name =~ /\.java$/) {
-                            textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVA);
+                            textArea.syntaxEditingStyle = SyntaxConstants.SYNTAX_STYLE_JAVA
                         }
                         else if (tabFile.name =~ /\.groovy$/) {
-                            textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_GROOVY);
+                            textArea.syntaxEditingStyle = SyntaxConstants.SYNTAX_STYLE_GROOVY
                         }
                         else if (tabFile.name =~ /\.(properties|ini)$/) {
-                            textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_PROPERTIES_FILE);
+                            textArea.syntaxEditingStyle = SyntaxConstants.SYNTAX_STYLE_PROPERTIES_FILE
                         }
                         else if (tabFile.name =~ /\.(xml|xsl|xsd|rdf|xul|svg)$/) {
-                            textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_XML);
+                            textArea.syntaxEditingStyle = SyntaxConstants.SYNTAX_STYLE_XML
+//                            textArea.closeMarkupTags = true
                         }
                         else if (tabFile.name =~ /\.(html|htm)$/) {
-                            textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_HTML);
+                            textArea.syntaxEditingStyle = SyntaxConstants.SYNTAX_STYLE_HTML
+//                            textArea.closeMarkupTags = true
                         }
                         else if (tabFile.name =~ /\.css$/) {
-                            textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_CSS);
+                            textArea.syntaxEditingStyle = SyntaxConstants.SYNTAX_STYLE_CSS
                         }
                         else if (tabFile.name =~ /\.sql$/) {
-                            textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_SQL);
+                            textArea.syntaxEditingStyle = SyntaxConstants.SYNTAX_STYLE_SQL
                         }
                         else if (tabFile.name =~ /\.js$/) {
-                            textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT);
+                            textArea.syntaxEditingStyle = SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT
                         }
                         else if (tabFile.name =~ /(?i)\.(bat|cmd)$/) {
-                            textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_WINDOWS_BATCH);
+                            textArea.syntaxEditingStyle = SyntaxConstants.SYNTAX_STYLE_WINDOWS_BATCH
                         }
                         else if (tabFile.name =~ /\.(sh|.sh)$/) {
-                            textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_UNIX_SHELL);
+                            textArea.syntaxEditingStyle = SyntaxConstants.SYNTAX_STYLE_UNIX_SHELL
                         }
                         else if (tabFile.name =~ /\.rb$/) {
-                            textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_RUBY);
+                            textArea.syntaxEditingStyle = SyntaxConstants.SYNTAX_STYLE_RUBY
                         }
                         else if (tabFile.name =~ /\.py$/) {
-                            textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_PYTHON);
+                            textArea.syntaxEditingStyle = SyntaxConstants.SYNTAX_STYLE_PYTHON
                         }
                         else if (tabFile.name =~ /\.php$/) {
-                            textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_PHP);
+                            textArea.syntaxEditingStyle = SyntaxConstants.SYNTAX_STYLE_PHP
                         }
                         else if (tabFile.name =~ /\.jsp$/) {
-                            textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JSP);
+                            textArea.syntaxEditingStyle = SyntaxConstants.SYNTAX_STYLE_JSP
                         }
                         else if (tabFile.name =~ /^Makefile/) {
-                            textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_MAKEFILE);
+                            textArea.syntaxEditingStyle = SyntaxConstants.SYNTAX_STYLE_MAKEFILE
                         }
                         else if (tabFile.name =~ /(?i)\.(cpp|cxx|h)$/) {
-                            textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_CPLUSPLUS);
+                            textArea.syntaxEditingStyle = SyntaxConstants.SYNTAX_STYLE_CPLUSPLUS
                         }
                         else if (tabFile.name =~ /(?i)\.cs$/) {
-                            textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_CSHARP);
+                            textArea.syntaxEditingStyle = SyntaxConstants.SYNTAX_STYLE_CSHARP
                         }
                         else if (tabFile.name =~ /(?i)\.c$/) {
-                            textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_C);
+                            textArea.syntaxEditingStyle = SyntaxConstants.SYNTAX_STYLE_C
                         }
                         else if (tabFile.name =~ /(?i)\.pl$/) {
-                            textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_PERL);
+                            textArea.syntaxEditingStyle = SyntaxConstants.SYNTAX_STYLE_PERL
                         }
-                        else {
-                            textArea.whitespaceVisible = true
-                        }
+//                        else {
+//                            textArea.whitespaceVisible = true
+//                        }
                     textArea.marginLineEnabled = true
                     textArea.font = textFont
                         textArea.addHyperlinkListener(new HyperlinkListenerImpl())
@@ -501,7 +503,18 @@ class Figurate {
                              scrollPane(border: null) {
                                  list(id: 'fileList')
                                  fileList.cellRenderer = new FileListCellRenderer()
+//                                 fileList.autoCreateRowSorter = true
+                                 fileList.comparator = new FileComparator()
+//                                 fileList.filterEnabled = true
                                  DataTipManager.get().register(fileList)
+                                 def fileModel = new DefaultListModel()
+                                 def files = FileSystemView.fileSystemView.getFiles(userDir, false)
+//                                 def comparator = new FileComparator()
+                                 Arrays.sort(files, fileList.comparator)
+                                 for (file in files) {
+                                     fileModel.addElement(file)
+                                 }
+                                 fileList.setModel(fileModel)
                              }
                          }
                          panel(name: 'Bookmarks') {
@@ -574,20 +587,12 @@ class Figurate {
                          }
                      }
                  }
-                 def fileModel = new DefaultListModel()
-                 def files = FileSystemView.fileSystemView.getFiles(userDir, false)
-                 def comparator = new FileComparator()
-                 Arrays.sort(files, comparator)
-                 for (file in files) {
-                     fileModel.addElement(file)
-                 }
-                 fileList.setModel(fileModel)
                  breadcrumbBar.model.addPathListener(new BreadcrumbPathListenerImpl({
                      doLater() {
                          userDir = breadcrumbBar.model.getItem(breadcrumbBar.model.itemCount - 1).data
-                         fileModel = new DefaultListModel()
-                         files = FileSystemView.fileSystemView.getFiles(userDir, false)
-                         Arrays.sort(files, comparator)
+                         def fileModel = new DefaultListModel()
+                         def files = FileSystemView.fileSystemView.getFiles(userDir, false)
+                         Arrays.sort(files, fileList.comparator)
                          for (file in files) {
                              fileModel.addElement(file)
                          }

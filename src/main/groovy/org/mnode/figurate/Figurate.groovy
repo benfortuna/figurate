@@ -99,6 +99,7 @@ class Figurate {
          UIManager.put(org.jvnet.lafwidget.LafWidget.ANIMATION_KIND, org.jvnet.lafwidget.utils.LafConstants.AnimationKind.FAST.derive(2))
          //UIManager.put(org.jvnet.lafwidget.LafWidget.TABBED_PANE_PREVIEW_PAINTER, new DefaultTabPreviewPainter())
          LookAndFeelHelper.instance.addLookAndFeelAlias('substance5', 'org.jvnet.substance.skin.SubstanceNebulaLookAndFeel')
+         LookAndFeelHelper.instance.addLookAndFeelAlias('seaglass', 'com.seaglasslookandfeel.SeaGlassLookAndFeel')
         
          def swing = new SwingXBuilder()
          swing.registerBeanFactory('comboBox', MaxWidthComboBox.class)
@@ -106,7 +107,7 @@ class Figurate {
          //swing.registerBeanFactory('syntaxTextArea', RSyntaxTextArea.class)
 
          swing.edt {
-             lookAndFeel('substance5', 'system')
+             lookAndFeel('seaglass', 'substance5', 'system')
          }
 
          def headingFont = new Font('Arial', Font.PLAIN, 14)

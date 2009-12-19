@@ -40,6 +40,11 @@
 				<enabled>false</enabled>
 			</releases>
 		</repository>
+		<repository>
+	        <id>seaglasslookandfeel</id>
+	        <name>Sea Glass Look and Feel Repository</name>
+	        <url>http://seaglass.googlecode.com/svn/repo</url>
+	    </repository>
 	</repositories>
 	<dependencies>
 		<!-- 
@@ -156,6 +161,11 @@
 			<artifactId>datatips</artifactId>
 			<version>20091219</version>
 		</dependency>
+		<dependency>
+	        <groupId>com.seaglasslookandfeel</groupId>
+	        <artifactId>seaglasslookandfeel</artifactId>
+	        <version>0.1.1</version>
+	    </dependency>
 	</dependencies>
 	<scm>
 		<connection>scm:svn:http://svn.mnode.org/base/figurate/trunk</connection>

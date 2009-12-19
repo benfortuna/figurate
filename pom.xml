@@ -42,6 +42,7 @@
 		</repository>
 	</repositories>
 	<dependencies>
+		<!-- 
 		<dependency>
 			<groupId>org.codehaus.groovy</groupId>
 			<artifactId>groovy</artifactId>
@@ -61,11 +62,14 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
+		 -->
 		<dependency>
             <groupId>org.codehaus.groovy.maven.runtime</groupId>
             <artifactId>gmaven-runtime-1.6</artifactId>
-            <version>1.0-rc-5</version>
+            <version>1.0</version>
+            <!-- 
             <scope>provided</scope>
+             -->
         </dependency>
 		<dependency>
 			<groupId>org.apache.xmlgraphics</groupId>
@@ -288,7 +292,7 @@
 
 								<sshexec host="mnode.org" username="modularity"
 									keyfile="${user.home}/.ssh/id_rsa" passphrase=""
-									command="unzip -o basetools.org/figurate/${pom.build.finalName}.zip -d basetools.org/figurate/webstart" />
+									command="rm -rf basetools.org/figurate/webstart/*; unzip -o basetools.org/figurate/${pom.build.finalName}.zip -d basetools.org/figurate/webstart" />
 							</tasks>
 						</configuration>
 						<goals>

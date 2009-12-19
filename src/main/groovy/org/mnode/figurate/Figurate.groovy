@@ -294,10 +294,12 @@ class Figurate {
          def openTab = { tabs, file ->
          
              if (file) {
-                 for (i in 0..tabs.tabCount - 1) {
-                     if (tabs.getComponentAt(i).getClientProperty('figurate.file') == file.absolutePath) {
-                         tabs.selectedComponent = tabs.getComponentAt(i)
-                         return
+                 if (tabs.tabCount > 0) {
+                     for (i in 0..tabs.tabCount - 1) {
+                         if (tabs.getComponentAt(i).getClientProperty('figurate.file') == file.absolutePath) {
+                             tabs.selectedComponent = tabs.getComponentAt(i)
+                             return
+                         }
                      }
                  }
                  

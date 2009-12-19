@@ -21,7 +21,7 @@ package org.mnode.figurate
 
 import static java.lang.Math.min;
 import static java.lang.Math.max;
-
+import com.xduke.xswing.DataTipManager
 import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Rectangle;
@@ -71,6 +71,7 @@ import org.fife.ui.rtextarea.RTextScrollPane
 import org.fife.ui.rtextarea.Gutter
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants
+import com.xduke.xswing.DataTipManager
 
  /**
   * @author fortuna
@@ -500,6 +501,7 @@ class Figurate {
                              scrollPane(border: null) {
                                  list(id: 'fileList')
                                  fileList.cellRenderer = new FileListCellRenderer()
+                                 DataTipManager.get().register(fileList)
                              }
                          }
                          panel(name: 'Bookmarks') {

@@ -573,7 +573,7 @@ class Figurate {
                      }
                  }
                  def fileModel = new DefaultListModel()
-                 def files = userDir.listFiles()
+                 def files = FileSystemView.fileSystemView.getFiles(userDir, false)
                  def comparator = new FileComparator()
                  Arrays.sort(files, comparator)
                  for (file in files) {
@@ -584,7 +584,7 @@ class Figurate {
                      doLater() {
                          userDir = breadcrumbBar.model.getItem(breadcrumbBar.model.itemCount - 1).data
                          fileModel = new DefaultListModel()
-                         files = userDir.listFiles()
+                         files = FileSystemView.fileSystemView.getFiles(userDir, false)
                          Arrays.sort(files, comparator)
                          for (file in files) {
                              fileModel.addElement(file)

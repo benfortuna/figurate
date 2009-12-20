@@ -21,7 +21,7 @@ package org.mnode.figurate
 
 import static java.lang.Math.min;
 import static java.lang.Math.max;
-
+import java.awt.SystemTrayimport java.awt.TrayIcon
 import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Rectangle;
@@ -326,7 +326,7 @@ class Figurate {
 
          swing.edt {
              frame(title: 'Figurate', id: 'figurateFrame', defaultCloseOperation: JFrame.DISPOSE_ON_CLOSE,
-                     size: [800, 600], show: false, locationRelativeTo: null, iconImage: imageIcon('/logo.png').image) {
+                     size: [800, 600], show: false, locationRelativeTo: null, iconImage: imageIcon('/logo.png', id: 'logoIcon').image) {
              
 //                 lookAndFeel('substance5', 'system')
                  
@@ -638,6 +638,11 @@ class Figurate {
 //                     else {
 //                         editPane.text = null
 //                     }
+                 }
+                 
+                 if (SystemTray.isSupported()) {
+                     TrayIcon trayIcon = new TrayIcon(logoIcon.image, 'Figurate')
+                     SystemTray.systemTray.add(trayIcon)
                  }
              }
              TrackerRegistry.instance.register(figurateFrame, 'figurateFrame');

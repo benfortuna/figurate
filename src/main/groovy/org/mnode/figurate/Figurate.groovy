@@ -21,7 +21,11 @@ package org.mnode.figurate
 
 import static java.lang.Math.min;
 import static java.lang.Math.max;
-import java.awt.SystemTrayimport java.awt.TrayIcon
+import java.awt.SystemTray
+import java.awt.PopupMenu
+import java.awt.MenuItem
+import java.awt.event.MouseEvent;
+import java.awt.TrayIcon
 import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Rectangle;
@@ -90,6 +94,7 @@ import com.xduke.xswing.DataTipManager
     @Grab(group='org.apache.xmlgraphics', module='batik-awt-util', version='1.7'),
     @Grab(group='org.apache.xmlgraphics', module='batik-swing', version='1.7'),
     @Grab(group='org.apache.xmlgraphics', module='batik-transcoder', version='1.7'),
+    @Grab(group='net.java.dev.datatips', module='datatips', version='20091219'),
     @Grab(group='com.fifesoft.rsyntaxtextarea', module='rsyntaxtextarea', version='1.4.0')])
     */
 class Figurate {
@@ -223,7 +228,7 @@ class Figurate {
                         textArea.addHyperlinkListener(new HyperlinkListenerImpl())
                         RTextScrollPane sp = new RTextScrollPane(textArea);
                         sp.gutter.bookmarkingEnabled = true
-                        sp.gutter.bookmarkIcon = imageIcon('/bookmark.png')
+                        sp.gutter.bookmarkIcon = imageIcon('/bookmark.png', id: 'bookmarkIcon')
                         widget(sp)
                         doLater {
                             if (tabFile.exists()) {
@@ -231,6 +236,11 @@ class Figurate {
                                 textArea.caretPosition = 0
                             }
                         }
+                        
+                        textArea.focusGained = {
+                            splitPane.dividerLocation = 0
+                        }
+                        
                         //sp.gutter.addLineTrackingIcon(0, imageIcon('F:/images/icons/logo.png'))
                         /*
                     }
@@ -325,7 +335,7 @@ class Figurate {
          }
 
          swing.edt {
-             frame(title: 'Figurate', id: 'figurateFrame', defaultCloseOperation: JFrame.DISPOSE_ON_CLOSE,
+             frame(title: 'Figurate', id: 'figurateFrame', defaultCloseOperation: JFrame.HIDE_ON_CLOSE,
                      size: [800, 600], show: false, locationRelativeTo: null, iconImage: imageIcon('/logo.png', id: 'logoIcon').image) {
              
 //                 lookAndFeel('substance5', 'system')
@@ -641,7 +651,30 @@ class Figurate {
                  }
                  
                  if (SystemTray.isSupported()) {
-                     TrayIcon trayIcon = new TrayIcon(logoIcon.image, 'Figurate')
+                     TrayIcon trayIcon = new TrayIcon(bookmarkIcon.image, 'Figurate')
+                     trayIcon.imageAutoSize = false
+                     trayIcon.mousePressed = { event ->
+                         if (event.button == MouseEvent.BUTTON1) {
+                             figurateFrame.visible = true
+                         }
+                     }
+                     
+                     PopupMenu popupMenu = new PopupMenu('Figurate')
+                     MenuItem openMenuItem = new MenuItem('Open')
+                     openMenuItem.actionPerformed = {
+                        figurateFrame.visible = true
+                     }
+                     popupMenu.add(openMenuItem)
+                     //openMenuItem.addNotify()
+                     //openMenuItem.font = openMenuItem.font.deriveFont(Font.BOLD)
+                     popupMenu.addSeparator()
+                     MenuItem exitMenuItem = new MenuItem('Exit')
+                     exitMenuItem.actionPerformed = {
+                         System.exit(0)
+                     }
+                     popupMenu.add(exitMenuItem)
+                     trayIcon.popupMenu = popupMenu
+                     
                      SystemTray.systemTray.add(trayIcon)
                  }
              }

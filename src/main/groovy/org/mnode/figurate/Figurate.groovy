@@ -99,6 +99,10 @@ import com.xduke.xswing.DataTipManager
     */
 class Figurate {
      
+    static void exit() {
+        System.exit(0)
+    }
+    
      static void main(args) {
          UIManager.put("TabbedPane.contentBorderInsets", new Insets(0, 0, 0, 0))
          UIManager.put(org.jvnet.lafwidget.LafWidget.ANIMATION_KIND, org.jvnet.lafwidget.utils.LafConstants.AnimationKind.FAST.derive(2))
@@ -360,7 +364,7 @@ class Figurate {
                      action(id: 'closeTabAction', name: 'Close Tab', accelerator: shortcut('W'))
                      action(id: 'closeAllTabsAction', name: 'Close All Tabs', accelerator: shortcut('shift W'))
                      action(id: 'printAction', name: 'Print', accelerator: shortcut('P'))
-                     action(id: 'exitAction', name: 'Exit', accelerator: shortcut('Q'), closure: { dispose() })
+                     action(id: 'exitAction', name: 'Exit', accelerator: shortcut('Q'), closure: { exit() })
     
                      action(id: 'onlineHelpAction', name: 'Online Help', accelerator: 'F1', closure: { Desktop.desktop.browse(URI.create('http://wiki.mnode.org/figurate')) })
                      action(id: 'showTipsAction', name: 'Tips', closure: { tips.showDialog(figurateFrame) })
@@ -651,7 +655,7 @@ class Figurate {
                  }
                  
                  if (SystemTray.isSupported()) {
-                     TrayIcon trayIcon = new TrayIcon(bookmarkIcon.image, 'Figurate')
+                     TrayIcon trayIcon = new TrayIcon(imageIcon('/bookmark.gif').image, 'Figurate')
                      trayIcon.imageAutoSize = false
                      trayIcon.mousePressed = { event ->
                          if (event.button == MouseEvent.BUTTON1) {
@@ -670,7 +674,7 @@ class Figurate {
                      popupMenu.addSeparator()
                      MenuItem exitMenuItem = new MenuItem('Exit')
                      exitMenuItem.actionPerformed = {
-                         System.exit(0)
+                         exit()
                      }
                      popupMenu.add(exitMenuItem)
                      trayIcon.popupMenu = popupMenu

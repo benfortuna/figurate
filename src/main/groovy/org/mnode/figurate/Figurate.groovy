@@ -99,8 +99,13 @@ import com.xduke.xswing.DataTipManager
     */
 class Figurate {
      
-    static void exit() {
-        System.exit(0)
+    static void close(def frame, def exit) {
+        if (exit) {
+            System.exit(0)
+        }
+        else {
+            frame.visible = false
+        }
     }
     
      static void main(args) {
@@ -339,7 +344,7 @@ class Figurate {
          }
 
          swing.edt {
-             frame(title: 'Figurate', id: 'figurateFrame', defaultCloseOperation: JFrame.HIDE_ON_CLOSE,
+             frame(title: 'Figurate', id: 'figurateFrame', defaultCloseOperation: JFrame.DO_NOTHING_ON_CLOSE,
                      size: [800, 600], show: false, locationRelativeTo: null, iconImage: imageIcon('/logo.png', id: 'logoIcon').image) {
              
 //                 lookAndFeel('substance5', 'system')
@@ -364,7 +369,7 @@ class Figurate {
                      action(id: 'closeTabAction', name: 'Close Tab', accelerator: shortcut('W'))
                      action(id: 'closeAllTabsAction', name: 'Close All Tabs', accelerator: shortcut('shift W'))
                      action(id: 'printAction', name: 'Print', accelerator: shortcut('P'))
-                     action(id: 'exitAction', name: 'Exit', accelerator: shortcut('Q'), closure: { exit() })
+                     action(id: 'exitAction', name: 'Exit', accelerator: shortcut('Q'), closure: { close(figurateFrame, true) })
     
                      action(id: 'onlineHelpAction', name: 'Online Help', accelerator: 'F1', closure: { Desktop.desktop.browse(URI.create('http://wiki.mnode.org/figurate')) })
                      action(id: 'showTipsAction', name: 'Tips', closure: { tips.showDialog(figurateFrame) })
@@ -674,7 +679,7 @@ class Figurate {
                      popupMenu.addSeparator()
                      MenuItem exitMenuItem = new MenuItem('Exit')
                      exitMenuItem.actionPerformed = {
-                         exit()
+                         close(figurateFrame, true)
                      }
                      popupMenu.add(exitMenuItem)
                      trayIcon.popupMenu = popupMenu
@@ -683,6 +688,9 @@ class Figurate {
                  }
              }
              TrackerRegistry.instance.register(figurateFrame, 'figurateFrame');
+             figurateFrame.windowClosing = {
+                     close(figurateFrame, !SystemTray.isSupported())
+             }
              figurateFrame.visible = true
          }
      }

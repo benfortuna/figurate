@@ -315,7 +315,6 @@ class Figurate {
          }
          
          def openTab = { tabs, file ->
-         
              if (file) {
                  if (tabs.tabCount > 0) {
                      for (i in 0..tabs.tabCount - 1) {
@@ -352,7 +351,11 @@ class Figurate {
                  actions() {
                      action(id: 'newFileAction', name: 'New', accelerator: shortcut('N'), closure: {
                          doLater {
-                             tabs.add(newTab())
+                             def tab = newTab()
+                             tabs.add(tab)
+//                             tabs.setIconAt(tabs.indexOfComponent(tab), FileSystemView.fileSystemView.getSystemIcon(file))
+//                             tabs.setToolTipTextAt(tabs.indexOfComponent(tab), file.absolutePath)
+                             tabs.selectedComponent = tab
                          }
                      })
                      action(id: 'openFileAction', name: 'Open', accelerator: shortcut('O'), closure: {

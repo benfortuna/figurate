@@ -13,7 +13,7 @@
    height="744.09448"
    id="svg2"
    version="1.1"
-   inkscape:version="0.47 r22583"
+   inkscape:version="0.47pre4 r22446"
    sodipodi:docname="logo2.svg">
   <defs
      id="defs4">
@@ -69,16 +69,16 @@
      inkscape:pageshadow="2"
      inkscape:zoom="0.7"
      inkscape:cx="375"
-     inkscape:cy="520"
+     inkscape:cy="405.71429"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
      inkscape:snap-global="true"
      inkscape:snap-grids="true"
-     inkscape:window-width="1680"
-     inkscape:window-height="1000"
-     inkscape:window-x="-8"
-     inkscape:window-y="-8"
+     inkscape:window-width="1018"
+     inkscape:window-height="523"
+     inkscape:window-x="0"
+     inkscape:window-y="26"
      inkscape:window-maximized="1">
     <inkscape:grid
        type="xygrid"
@@ -105,16 +105,19 @@
      inkscape:groupmode="layer"
      id="layer1"
      transform="translate(0,-308.2677)">
+    <rect
+       style="fill:#ffffff;fill-opacity:0.1254902"
+       id="rect3683"
+       width="920"
+       height="400"
+       x="40"
+       y="452.36218" />
     <g
-       id="g2860">
-      <rect
-         y="452.36218"
-         x="40"
-         height="400"
-         width="920"
-         id="rect3683"
-         style="fill:#ffffff;fill-opacity:0.1254902" />
+       id="g2975">
       <g
+         inkscape:export-ydpi="15.75"
+         inkscape:export-xdpi="15.75"
+         inkscape:export-filename="/media/2C47-5097/Development/figurate/src/main/resources/logo-48.png"
          id="g2851">
         <path
            transform="translate(160,128.57145)"

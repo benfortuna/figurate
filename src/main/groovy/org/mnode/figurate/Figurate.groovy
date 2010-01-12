@@ -76,6 +76,8 @@ import org.fife.ui.rtextarea.Gutter
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants
 import com.xduke.xswing.DataTipManager
+import org.jdesktop.swingx.JXStatusBar.Constraint
+
 
  /**
   * @author fortuna
@@ -135,6 +137,8 @@ class Figurate {
              if (!tabFile) {
                  tabFile = new File(FileSystemView.fileSystemView.homeDirectory, "Unsaved File ${++newFileCount}")
              }
+
+             RSyntaxTextArea textArea = new RSyntaxTextArea();
              
              //@Bindable String tabName = 'New Tab'
              def newPanel = swing.panel(name: tabFile.name, id: tabFile.absolutePath) {//,
@@ -167,7 +171,6 @@ class Figurate {
 //                             }
 //                         }
 
-                    RSyntaxTextArea textArea = new RSyntaxTextArea();
                     //syntaxTextArea(id: 'textArea', marginLineEnabled: true, whitespaceVisible: true, font: textFont)
                     //textArea.marginLineColor = Color.RED
                         if (tabFile.name =~ /\.java$/) {
@@ -176,7 +179,7 @@ class Figurate {
                         else if (tabFile.name =~ /\.groovy$/) {
                             textArea.syntaxEditingStyle = SyntaxConstants.SYNTAX_STYLE_GROOVY
                         }
-                        else if (tabFile.name =~ /\.(properties|ini)$/) {
+                        else if (tabFile.name =~ /(?i)\.(properties|ini)$/) {
                             textArea.syntaxEditingStyle = SyntaxConstants.SYNTAX_STYLE_PROPERTIES_FILE
                         }
                         else if (tabFile.name =~ /\.(xml|xsl|xsd|rdf|xul|svg)$/) {
@@ -250,6 +253,19 @@ class Figurate {
                             splitPane.dividerLocation = 0
                         }
                         
+                        textArea.caretUpdate = {
+                            def line = textArea.getLineOfOffset(textArea.caretPosition) + 1
+                            def column = textArea.caretPosition - textArea.getLineStartOffset(line - 1)
+                            def lineCount = textArea.lineCount
+                            def lineLength = textArea.getLineEndOffset(line - 1) - textArea.getLineStartOffset(line - 1)
+                            caretPosLabel.text = "${line}:${column} (${lineCount}:${lineLength})"
+                            //updateCaretPosLabel(textArea, caretPosLabel)
+                        }
+                        
+                        bind(source: viewWordWrap, sourceProperty:'selected', target: textArea, targetProperty: 'lineWrap')
+                        bind(source: viewWhitespace, sourceProperty:'selected', target: textArea, targetProperty: 'whitespaceVisible')
+                        bind(source: viewLineNumbers, sourceProperty:'selected', target: sp, targetProperty: 'lineNumbersEnabled')
+
                         //sp.gutter.addLineTrackingIcon(0, imageIcon('F:/images/icons/logo.png'))
                         /*
                     }
@@ -310,7 +326,8 @@ class Figurate {
              }
 
              newPanel.putClientProperty(SubstanceLookAndFeel.TABBED_PANE_CLOSE_BUTTONS_PROPERTY, true)
-             newPanel.putClientProperty("figurate.file", tabFile.absolutePath)
+             newPanel.putClientProperty("figurate.file", tabFile)
+             newPanel.putClientProperty("figurate.textArea", textArea)
              return newPanel
          }
          
@@ -318,7 +335,7 @@ class Figurate {
              if (file) {
                  if (tabs.tabCount > 0) {
                      for (i in 0..tabs.tabCount - 1) {
-                         if (tabs.getComponentAt(i).getClientProperty('figurate.file') == file.absolutePath) {
+                         if (tabs.getComponentAt(i).getClientProperty('figurate.file').absolutePath == file.absolutePath) {
                              tabs.selectedComponent = tabs.getComponentAt(i)
                              return
                          }
@@ -342,6 +359,14 @@ class Figurate {
              }
          }
 
+        def updateCaretPosLabel = { textArea, caretPosLabel ->
+            def line = textArea.getLineOfOffset(textArea.caretPosition) + 1
+            def column = textArea.caretPosition - textArea.getLineStartOffset(line - 1)
+            def lineCount = textArea.lineCount
+            def lineLength = textArea.getLineEndOffset(line - 1) - textArea.getLineStartOffset(line - 1)
+            caretPosLabel.text = "${line}:${column} (${lineCount}:${lineLength})"
+        }
+        
          swing.edt {
              frame(title: 'Figurate', id: 'figurateFrame', defaultCloseOperation: JFrame.DO_NOTHING_ON_CLOSE,
                      size: [800, 600], show: false, locationRelativeTo: null, iconImage: imageIcon('/logo.png', id: 'logoIcon').image) {
@@ -409,7 +434,11 @@ class Figurate {
                          menuItem(text: "Preferences")
                      }
                      menu(text: "View", mnemonic: 'V') {
-                         menuItem(text: "Status Bar")
+                         checkBoxMenuItem(text: "Word Wrap", id: 'viewWordWrap')
+                         checkBoxMenuItem(text: "Whitespace", id: 'viewWhitespace')
+                         checkBoxMenuItem(text: "Line Numbers", id: 'viewLineNumbers')
+                         separator()
+                         checkBoxMenuItem(text: "Status Bar", id: 'viewStatusBar')
                      }
                      menu(text: "Tools", mnemonic: 'T') {
                          menu(text: "Search") {
@@ -596,7 +625,8 @@ class Figurate {
 
                      tabs.stateChanged = {
                          if (tabs.selectedComponent) {
-                            def newPath = new File(tabs.selectedComponent.getClientProperty("figurate.file")).parentFile
+                             def tabFile = tabs.selectedComponent.getClientProperty("figurate.file")
+                            def newPath = tabFile.parentFile
                              if (newPath.exists() && breadcrumbBar.model.getItem(breadcrumbBar.model.itemCount - 1).data != newPath) {
                                  //breadcrumbBar.path = newPath
                                  //pathField.model.removeElement(newPath)
@@ -604,9 +634,22 @@ class Figurate {
                                  //pathField.selectedItem = newPath
                                  updatePath(breadcrumbBar, pathField, newPath)
                              }
+                             
+                             // update syntax status..
+                             syntaxLabel.text = tabs.selectedComponent.getClientProperty("figurate.textArea").syntaxEditingStyle
+                             updateCaretPosLabel(tabs.selectedComponent.getClientProperty("figurate.textArea"), caretPosLabel)
+                             
+                             if (tabFile.exists()) {
+                                 lastModLabel.text = new Date(tabFile.lastModified()).dateTimeString
+                             }
+                             else {
+                                 lastModLabel.text = '<unsaved>'
+                             }
                          }
                          else {
                              breadcrumbBar.path = FileSystemView.fileSystemView.homeDirectory //new File(System.getProperty("user.dir"))
+                             syntaxLabel.text = 'none'
+                             lastModLabel.text = ''
                          }
                      }
                  }
@@ -689,6 +732,14 @@ class Figurate {
                      
                      SystemTray.systemTray.add(trayIcon)
                  }
+                 
+                statusBar(constraints: BorderLayout.SOUTH, border:emptyBorder([5, 3, 3, 3]), id: 'fStatusBar') {
+                    label(id: 'statusMessage', text: 'Ready') //, constraints: new JXStatusBar.Constraint(JXStatusBar.Constraint.ResizeBehavior.FILL))
+                    label(id: 'syntaxLabel', text: 'text/plain') //, constraints: new JXStatusBar.Constraint(50))
+                    label(id: 'caretPosLabel', text: '1:0')
+                    label(id: 'lastModLabel', text: '<Unsaved>')
+                }
+                bind(source: viewStatusBar, sourceProperty:'selected', target:fStatusBar, targetProperty:'visible')
              }
              TrackerRegistry.instance.register(figurateFrame, 'figurateFrame');
              figurateFrame.windowClosing = {

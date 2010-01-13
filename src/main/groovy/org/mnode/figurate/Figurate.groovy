@@ -129,6 +129,7 @@ class Figurate {
          def headingFont = new Font('Arial', Font.PLAIN, 14)
          def textFont = new Font('Courier', Font.PLAIN, 12)
          def newFileCount = 0
+         def navController = new NavController()
          def newTab = { tabFile ->
 //             def breadcrumbBar = new BreadcrumbFileSelector()
 //             def userDir = new File(System.getProperty("user.dir"))
@@ -336,6 +337,7 @@ class Figurate {
                  if (tabs.tabCount > 0) {
                      for (i in 0..tabs.tabCount - 1) {
                          if (tabs.getComponentAt(i).getClientProperty('figurate.file').absolutePath == file.absolutePath) {
+                             navController.addMark(tabs.selectedComponent)
                              tabs.selectedComponent = tabs.getComponentAt(i)
                              return
                          }
@@ -346,6 +348,7 @@ class Figurate {
                  tabs.add(tab)
                  tabs.setIconAt(tabs.indexOfComponent(tab), FileSystemView.fileSystemView.getSystemIcon(file))
                  tabs.setToolTipTextAt(tabs.indexOfComponent(tab), file.absolutePath)
+                 navController.addMark(tabs.selectedComponent)
                  tabs.selectedComponent = tab
              }
          }
@@ -468,9 +471,13 @@ class Figurate {
                      navButtons.displayState = CommandButtonDisplayState.FIT_TO_ICON
                      //navButtons.preferredSize = new java.awt.Dimension(50, 5)
                      def backIcon = SvgBatikResizableIcon.getSvgIcon(Figurate.class.getResource('/back.svg'), new java.awt.Dimension(20, 20))
-                     navButtons.add(new JCommandButton(backIcon)) //'Back'))
+                     def backButton = new JCommandButton(backIcon) //'Back')
+                     bind(source: navController, sourceProperty: 'hasPrevious', target: backButton, targetProperty: 'enabled')
+                     navButtons.add(backButton)
+                     
                      def forwardIcon = SvgBatikResizableIcon.getSvgIcon(Figurate.class.getResource('/forward.svg'), new java.awt.Dimension(20, 20))
-                     navButtons.add(new JCommandButton(forwardIcon)) //'Forward'))
+                     def forwardButton = new JCommandButton(forwardIcon) //'Forward')
+                     navButtons.add(forwardButton)
                      widget(navButtons)
                      hstrut(5)
                      
@@ -748,6 +755,27 @@ class Figurate {
              figurateFrame.visible = true
          }
      }
+}
+
+class NavController {
+    def history = []
+    @Bindable def hasPrevious = false
+    @Bindable def hasNext = false
+    
+    void addMark(def editor) {
+        println "Adding mark.. ${!history.isEmpty()}"
+        def mark = new HistoryMark()
+        mark.editor = editor
+        mark.cursorPos = editor.getClientProperty('figurate.textArea').caretPosition
+        hasPrevious = !history.isEmpty()
+        hasNext = false
+        history.add(mark)
+    }
+}
+
+class HistoryMark {
+    def editor
+    def cursorPos
 }
 
 class FigurateModel {

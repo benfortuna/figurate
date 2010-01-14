@@ -404,6 +404,27 @@ class Figurate {
     
                      action(id: 'onlineHelpAction', name: 'Online Help', accelerator: 'F1', closure: { Desktop.desktop.browse(URI.create('http://wiki.mnode.org/figurate')) })
                      action(id: 'showTipsAction', name: 'Tips', closure: { tips.showDialog(figurateFrame) })
+                     action(id: 'aboutAction', name: 'About', closure: {
+                         dialog(title: 'About Coucou', size: [300, 200], show: true, owner: figurateFrame, modal: true, locationRelativeTo: figurateFrame) {
+                             borderLayout()
+                             label(text: 'Coucou 1.0', constraints: BorderLayout.NORTH, border: emptyBorder(10))
+                             panel(constraints: BorderLayout.CENTER, border: emptyBorder(10)) {
+                                 borderLayout()
+                                 scrollPane(horizontalScrollBarPolicy: JScrollPane.HORIZONTAL_SCROLLBAR_NEVER, border: null) {
+                                     table(editable: false) {
+                                         def systemProps = []
+                                         for (propName in System.properties.keySet()) {
+                                             systemProps.add([property: propName, value: System.properties.getProperty(propName)])
+                                         }
+                                         tableModel(list: systemProps) {
+                                             propertyColumn(header:'Property', propertyName:'property')
+                                             propertyColumn(header:'Value', propertyName:'value')
+                                         }
+                                     }
+                                 }
+                             }
+                         }
+                     })
                  }
                  
                  fileChooser(id: 'chooser')
@@ -452,7 +473,7 @@ class Figurate {
                          menuItem(onlineHelpAction)
                          menuItem(showTipsAction)
                      separator()
-                         menuItem(text: "About")
+                         menuItem(aboutAction)
                      }
                  }
                  

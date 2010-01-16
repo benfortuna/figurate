@@ -76,6 +76,7 @@ import org.fife.ui.rtextarea.Gutter
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants
 import com.xduke.xswing.DataTipManager
+import org.jdesktop.swingx.JXStatusBar
 import org.jdesktop.swingx.JXStatusBar.Constraint
 
 
@@ -762,9 +763,9 @@ class Figurate {
                  }
                  
                 statusBar(constraints: BorderLayout.SOUTH, border:emptyBorder([5, 3, 3, 3]), id: 'fStatusBar') {
-                    label(id: 'statusMessage', text: 'Ready') //, constraints: new JXStatusBar.Constraint(JXStatusBar.Constraint.ResizeBehavior.FILL))
-                    label(id: 'syntaxLabel', text: 'text/plain') //, constraints: new JXStatusBar.Constraint(50))
+                    label(id: 'statusMessage', text: 'Ready', constraints: new JXStatusBar.Constraint(JXStatusBar.Constraint.ResizeBehavior.FILL))
                     label(id: 'caretPosLabel', text: '1:0')
+                    label(id: 'syntaxLabel', text: 'text/plain') //, constraints: new JXStatusBar.Constraint(50))
                     label(id: 'lastModLabel', text: '<Unsaved>')
                 }
                 bind(source: viewStatusBar, sourceProperty:'selected', target:fStatusBar, targetProperty:'visible')

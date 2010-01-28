@@ -403,10 +403,10 @@ class Figurate {
                      action(id: 'printAction', name: 'Print', accelerator: shortcut('P'))
                      action(id: 'exitAction', name: 'Exit', accelerator: shortcut('Q'), closure: { close(figurateFrame, true) })
     
-                     action(id: 'onlineHelpAction', name: 'Online Help', accelerator: 'F1', closure: { Desktop.desktop.browse(URI.create('http://wiki.mnode.org/figurate')) })
+                     action(id: 'onlineHelpAction', name: 'Online Help', accelerator: 'F1', closure: { Desktop.desktop.browse(URI.create('http://basetools.org/figurate')) })
                      action(id: 'showTipsAction', name: 'Tips', closure: { tips.showDialog(figurateFrame) })
                      action(id: 'aboutAction', name: 'About', closure: {
-                         dialog(title: 'About Figurate', size: [300, 200], show: true, owner: figurateFrame, modal: true, locationRelativeTo: figurateFrame) {
+                         dialog(title: 'About Figurate', size: [350, 250], show: true, owner: figurateFrame, modal: true, locationRelativeTo: figurateFrame) {
                              borderLayout()
                              label(text: 'Figurate 1.0', constraints: BorderLayout.NORTH, border: emptyBorder(10))
                              panel(constraints: BorderLayout.CENTER, border: emptyBorder(10)) {

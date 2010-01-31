@@ -117,7 +117,10 @@ class Figurate {
          //UIManager.put(org.jvnet.lafwidget.LafWidget.TABBED_PANE_PREVIEW_PAINTER, new DefaultTabPreviewPainter())
          LookAndFeelHelper.instance.addLookAndFeelAlias('substance5', 'org.jvnet.substance.skin.SubstanceNebulaLookAndFeel')
          LookAndFeelHelper.instance.addLookAndFeelAlias('seaglass', 'com.seaglasslookandfeel.SeaGlassLookAndFeel')
-        
+
+         System.setProperty("apple.laf.useScreenMenuBar", "true");
+         System.setProperty("com.apple.mrj.application.apple.menu.about.name", "Figurate");
+         
          def swing = new SwingXBuilder()
          swing.registerBeanFactory('comboBox', MaxWidthComboBox.class)
          swing.registerBeanFactory('fileBreadcrumbBar', MaxWidthBreadcrumbFileSelector.class)

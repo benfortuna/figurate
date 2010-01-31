@@ -111,7 +111,7 @@ class Figurate {
         }
     }
     
-     static void main(args) {
+    static void main(args) {
          UIManager.put("TabbedPane.contentBorderInsets", new Insets(0, 0, 0, 0))
          UIManager.put(org.jvnet.lafwidget.LafWidget.ANIMATION_KIND, org.jvnet.lafwidget.utils.LafConstants.AnimationKind.FAST.derive(2))
          //UIManager.put(org.jvnet.lafwidget.LafWidget.TABBED_PANE_PREVIEW_PAINTER, new DefaultTabPreviewPainter())
@@ -401,6 +401,22 @@ class Figurate {
                              }
                          }
                      })
+                     action(id: 'saveFileAction', name: 'Save', accelerator: shortcut('S'), closure: {
+                         def editor = navController.history[-1].editor
+                         if (editor.getClientProperty('figurate.file').exists()) {
+                             
+                         }
+                         else if (chooser.showSaveDialog() == JFileChooser.APPROVE_OPTION) {
+                         }
+                     })
+                     action(id: 'saveAsFileAction', name: 'Save As..', closure: {
+                         def editor = navController.history[-1].editor
+                         if (editor.getClientProperty('figurate.file').exists()) {
+                             chooser.selectedFile = editor.getClientProperty('figurate.file')
+                         }
+                         if (chooser.showSaveDialog() == JFileChooser.APPROVE_OPTION) {
+                         }
+                     })
                      action(id: 'closeTabAction', name: 'Close Tab', accelerator: shortcut('W'))
                      action(id: 'closeAllTabsAction', name: 'Close All Tabs', accelerator: shortcut('shift W'))
                      action(id: 'printAction', name: 'Print', accelerator: shortcut('P'))
@@ -445,6 +461,10 @@ class Figurate {
                          menuItem(closeTabAction)
                          menuItem(text: "Close Other Tabs")
                          menuItem(closeAllTabsAction)
+                         separator()
+                         menuItem(saveFileAction)
+                         menuItem(saveAsFileAction)
+                         menuItem(text: "Save All")
                          separator()
                          menuItem(printAction)
                          separator()
@@ -650,6 +670,7 @@ class Figurate {
                          }
                          */
                          newTab()
+                         navController.addMark(tabs.selectedComponent)
                      }
                      tabs.putClientProperty(SubstanceLookAndFeel.TABBED_PANE_CONTENT_BORDER_KIND, SubstanceConstants.TabContentPaneBorderKind.SINGLE_FULL)
                      tabs.putClientProperty(SubstanceLookAndFeel.TABBED_PANE_CLOSE_CALLBACK, new TabCloseCallbackImpl())
@@ -657,6 +678,8 @@ class Figurate {
 
                      tabs.stateChanged = {
                          if (tabs.selectedComponent) {
+                             navController.addMark(tabs.selectedComponent)
+                             
                              def tabFile = tabs.selectedComponent.getClientProperty("figurate.file")
                             def newPath = tabFile.parentFile
                              if (newPath.exists() && breadcrumbBar.model.getItem(breadcrumbBar.model.itemCount - 1).data != newPath) {
@@ -784,8 +807,8 @@ class Figurate {
 
 class NavController {
     def history = []
-    @Bindable def hasPrevious = false
-    @Bindable def hasNext = false
+    @Bindable Boolean hasPrevious = false
+    @Bindable Boolean hasNext = false
     
     void addMark(def editor) {
         println "Adding mark.. ${!history.isEmpty()}"

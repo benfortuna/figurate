@@ -404,9 +404,13 @@ class Figurate {
                      action(id: 'saveFileAction', name: 'Save', accelerator: shortcut('S'), closure: {
                          def editor = navController.history[-1].editor
                          if (editor.getClientProperty('figurate.file').exists()) {
-                             
+                             editor.getClientProperty('figurate.file').text = editor.getClientProperty('figurate.textArea').text
                          }
                          else if (chooser.showSaveDialog() == JFileChooser.APPROVE_OPTION) {
+                             chooser.selectedFile.text = editor.getClientProperty('figurate.textArea').text
+                             editor.putClientProperty('figurate.file', chooser.selectedFile)
+                             editor.name = chooser.selectedFile.name
+                             tabs.setTitleAt(tabs.selectedIndex, editor.name)
                          }
                      })
                      action(id: 'saveAsFileAction', name: 'Save As..', closure: {
@@ -415,6 +419,10 @@ class Figurate {
                              chooser.selectedFile = editor.getClientProperty('figurate.file')
                          }
                          if (chooser.showSaveDialog() == JFileChooser.APPROVE_OPTION) {
+                             chooser.selectedFile.text = editor.getClientProperty('figurate.textArea').text
+                             editor.putClientProperty('figurate.file', chooser.selectedFile)
+                             editor.name = chooser.selectedFile.name
+                             tabs.setTitleAt(tabs.selectedIndex, editor.name)
                          }
                      })
                      action(id: 'closeTabAction', name: 'Close Tab', accelerator: shortcut('W'))

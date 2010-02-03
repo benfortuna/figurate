@@ -73,6 +73,7 @@ import org.jvnet.flamingo.svg.SvgBatikResizableIcon
 import org.mnode.base.views.tracker.TrackerRegistry;
 import org.fife.ui.rtextarea.RTextScrollPane
 import org.fife.ui.rtextarea.Gutter
+import org.fife.ui.rtextarea.RTextArea
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants
 import com.xduke.xswing.DataTipManager
@@ -479,13 +480,17 @@ class Figurate {
                          menuItem(exitAction)
                      }
                      menu(text: "Edit", mnemonic: 'E') {
-                         menuItem(text: "Undo")
-                         menuItem(text: "Redo")
+                         // XXX: hack to initialise text actions..
+                         new RTextArea()
+                         menuItem(RTextArea.getAction(RTextArea.UNDO_ACTION))
+                         menuItem(RTextArea.getAction(RTextArea.REDO_ACTION))
                          separator()
-                         menuItem(text: "Cut")
-                         menuItem(text: "Copy")
-                         menuItem(text: "Paste")
-                         menuItem(text: "Delete")
+                         menuItem(RTextArea.getAction(RTextArea.CUT_ACTION))
+                         menuItem(RTextArea.getAction(RTextArea.COPY_ACTION))
+                         menuItem(RTextArea.getAction(RTextArea.PASTE_ACTION))
+                         menuItem(RTextArea.getAction(RTextArea.DELETE_ACTION))
+                         separator()
+                         menuItem(RTextArea.getAction(RTextArea.SELECT_ALL_ACTION))
                          separator()
                          menuItem(text: "Preferences")
                      }

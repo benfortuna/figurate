@@ -456,7 +456,8 @@ class Figurate {
                      }
 
                      action(new IncreaseFontSizeAction(), id: 'increaseFontAction', name: 'Increase Font Size')
-                     action(new DecreaseFontSizeAction(), id: 'decreaseFontAction', name: 'Decrease Font Size')
+                     //increaseFontAction.putValue(Action.ACCELERATOR_KEY, shortcut('='))
+                     action(new DecreaseFontSizeAction(), id: 'decreaseFontAction', name: 'Decrease Font Size', accelerator: shortcut('-'))
                      
                      action(editorKitActions.get(RTextAreaEditorKit.rtaUpperSelectionCaseAction), id: 'upperCaseAction', name: 'Upper Case')
                      action(editorKitActions.get(RTextAreaEditorKit.rtaLowerSelectionCaseAction), id: 'lowerCaseAction', name: 'Lower Case')

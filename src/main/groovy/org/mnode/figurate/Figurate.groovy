@@ -39,10 +39,13 @@ import java.awt.BorderLayout
 import java.awt.FlowLayout
 import java.awt.Desktop
 import java.awt.FlowLayout
+import java.awt.event.KeyEvent
 import java.awt.event.MouseEvent
+import javax.swing.Action
 import javax.swing.DefaultComboBoxModel
 import javax.swing.DefaultListModel
 import javax.swing.DefaultListCellRenderer
+import javax.swing.Icon
 import javax.swing.JFrame
 import javax.swing.JComboBox
 import javax.swing.JFileChooser
@@ -74,12 +77,14 @@ import org.mnode.base.views.tracker.TrackerRegistry;
 import org.fife.ui.rtextarea.RTextScrollPane
 import org.fife.ui.rtextarea.Gutter
 import org.fife.ui.rtextarea.RTextArea
+import org.fife.ui.rtextarea.RTextAreaEditorKit
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants
 import com.xduke.xswing.DataTipManager
 import org.jdesktop.swingx.JXStatusBar
 import org.jdesktop.swingx.JXStatusBar.Constraint
-
+import org.fife.ui.rsyntaxtextarea.RSyntaxTextAreaEditorKit.IncreaseFontSizeActionimport org.fife.ui.rsyntaxtextarea.RSyntaxTextAreaEditorKit.DecreaseFontSizeAction
+import org.fife.ui.rtextarea.RTextAreaEditorKit.TimeDateAction
 
  /**
   * @author fortuna
@@ -243,6 +248,7 @@ class Figurate {
 //                        }
                     textArea.marginLineEnabled = true
                     textArea.font = textFont
+                    textArea.markAllHighlightColor = new Color(textArea.markAllHighlightColor.red, textArea.markAllHighlightColor.green, textArea.markAllHighlightColor.blue, 64)
                         textArea.addHyperlinkListener(new HyperlinkListenerImpl())
                         RTextScrollPane sp = new RTextScrollPane(textArea);
                         sp.gutter.bookmarkingEnabled = true
@@ -252,6 +258,7 @@ class Figurate {
                             if (tabFile.exists()) {
                                 textArea.text = tabFile.text
                                 textArea.caretPosition = 0
+                                textArea.discardAllEdits()
                             }
                         }
                         
@@ -267,6 +274,18 @@ class Figurate {
                             caretPosLabel.text = "${line}:${column} (${lineCount}:${lineLength})"
                             //updateCaretPosLabel(textArea, caretPosLabel)
                         }
+                        /* XXX: this is buggy..
+                        textArea.keyPressed = { e ->
+                            if (e.keyCode == KeyEvent.VK_SHIFT && textArea.selectedText) {
+                                textArea.markAll("(?<=\\W)${textArea.selectedText}(?=\\W)", true, false, true)
+                            }
+                        }
+                        textArea.keyReleased = { e ->
+                            if (e.keyCode == KeyEvent.VK_SHIFT && textArea.selectedText) {
+                                textArea.clearMarkAllHighlights()
+                            }
+                        }
+                        */
                         
                         bind(source: viewWordWrap, sourceProperty:'selected', target: textArea, targetProperty: 'lineWrap')
                         bind(source: viewWhitespace, sourceProperty:'selected', target: textArea, targetProperty: 'whitespaceVisible')
@@ -351,7 +370,7 @@ class Figurate {
                  
                  def tab = newTab(file)
                  tabs.add(tab)
-                 tabs.setIconAt(tabs.indexOfComponent(tab), FileSystemView.fileSystemView.getSystemIcon(file))
+                 tabs.setIconAt(tabs.indexOfComponent(tab), new OverlayIcon(FileSystemView.fileSystemView.getSystemIcon(file), 16, 18))
                  tabs.setToolTipTextAt(tabs.indexOfComponent(tab), file.absolutePath)
                  navController.addMark(tabs.selectedComponent)
                  tabs.selectedComponent = tab
@@ -430,7 +449,21 @@ class Figurate {
                      action(id: 'closeAllTabsAction', name: 'Close All Tabs', accelerator: shortcut('shift W'))
                      action(id: 'printAction', name: 'Print', accelerator: shortcut('P'))
                      action(id: 'exitAction', name: 'Exit', accelerator: shortcut('Q'), closure: { close(figurateFrame, true) })
-    
+                     
+                     def editorKitActions = [:]
+                     for (action in new RSyntaxTextArea().actions) {
+                         editorKitActions.put(action.getValue(Action.NAME), action)
+                     }
+
+                     action(new IncreaseFontSizeAction(), id: 'increaseFontAction', name: 'Increase Font Size')
+                     action(new DecreaseFontSizeAction(), id: 'decreaseFontAction', name: 'Decrease Font Size')
+                     
+                     action(editorKitActions.get(RTextAreaEditorKit.rtaUpperSelectionCaseAction), id: 'upperCaseAction', name: 'Upper Case')
+                     action(editorKitActions.get(RTextAreaEditorKit.rtaLowerSelectionCaseAction), id: 'lowerCaseAction', name: 'Lower Case')
+                     action(editorKitActions.get(RTextAreaEditorKit.rtaInvertSelectionCaseAction), id: 'invertCaseAction', name: 'Invert Case')
+
+                     action(new TimeDateAction(), id: 'timeDateAction', name: 'Time / Date')
+                     
                      action(id: 'onlineHelpAction', name: 'Online Help', accelerator: 'F1', closure: { Desktop.desktop.browse(URI.create('http://basetools.org/figurate')) })
                      action(id: 'showTipsAction', name: 'Tips', closure: { tips.showDialog(figurateFrame) })
                      action(id: 'aboutAction', name: 'About', closure: {
@@ -495,6 +528,9 @@ class Figurate {
                          menuItem(text: "Preferences")
                      }
                      menu(text: "View", mnemonic: 'V') {
+                         menuItem(increaseFontAction)
+                         menuItem(decreaseFontAction)
+                         separator()
                          checkBoxMenuItem(text: "Word Wrap", id: 'viewWordWrap')
                          checkBoxMenuItem(text: "Whitespace", id: 'viewWhitespace')
                          checkBoxMenuItem(text: "Line Numbers", id: 'viewLineNumbers')
@@ -502,8 +538,13 @@ class Figurate {
                          checkBoxMenuItem(text: "Status Bar", id: 'viewStatusBar')
                      }
                      menu(text: "Tools", mnemonic: 'T') {
-                         menu(text: "Search") {
-                             menuItem(text: "New Search..")
+                         menu(text: "Transform") {
+                             menuItem(upperCaseAction)
+                             menuItem(lowerCaseAction)
+                             menuItem(invertCaseAction)
+                         }
+                         menu(text: "Insert") {
+                             menuItem(timeDateAction)
                          }
                      }
                      menu(text: "Help", mnemonic: 'H') {
@@ -1071,4 +1112,29 @@ class MaxWidthBreadcrumbFileSelector extends BreadcrumbFileSelector {
       maxSize.width = Short.MAX_VALUE
       return maxSize
   }
+}
+
+class OverlayIcon implements Icon {
+    
+    int height
+    int width
+    Icon baseIcon
+    
+    OverlayIcon(Icon icon, int width, int height) {
+        baseIcon = icon
+        this.width = width
+        this.height = height
+    }
+    
+    int getIconHeight() {
+        return height
+    }
+    
+    int getIconWidth() {
+        return width
+    }
+    
+    void paintIcon(Component c, Graphics g, int x, int y) {
+        baseIcon.paintIcon(c, g, (int) (x + (width - baseIcon.iconWidth) / 2), (int) (y + (height - baseIcon.iconHeight) / 2))
+    }
 }

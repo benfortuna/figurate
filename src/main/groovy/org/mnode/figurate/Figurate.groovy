@@ -83,8 +83,10 @@ import org.fife.ui.rsyntaxtextarea.SyntaxConstants
 import com.xduke.xswing.DataTipManager
 import org.jdesktop.swingx.JXStatusBar
 import org.jdesktop.swingx.JXStatusBar.Constraint
-import org.fife.ui.rsyntaxtextarea.RSyntaxTextAreaEditorKit.IncreaseFontSizeActionimport org.fife.ui.rsyntaxtextarea.RSyntaxTextAreaEditorKit.DecreaseFontSizeAction
+import org.fife.ui.rsyntaxtextarea.RSyntaxTextAreaEditorKit.IncreaseFontSizeAction
+import org.fife.ui.rsyntaxtextarea.RSyntaxTextAreaEditorKit.DecreaseFontSizeAction
 import org.fife.ui.rtextarea.RTextAreaEditorKit.TimeDateAction
+import org.fife.ui.rtextarea.RTextAreaEditorKit.BeginRecordingMacroAction
 
  /**
   * @author fortuna
@@ -455,15 +457,18 @@ class Figurate {
                          editorKitActions.put(action.getValue(Action.NAME), action)
                      }
 
-                     action(new IncreaseFontSizeAction(), id: 'increaseFontAction', name: 'Increase Font Size')
-                     //increaseFontAction.putValue(Action.ACCELERATOR_KEY, shortcut('='))
-                     action(new DecreaseFontSizeAction(), id: 'decreaseFontAction', name: 'Decrease Font Size', accelerator: shortcut('-'))
+                     action(new IncreaseFontSizeAction(), id: 'increaseFontAction', name: 'Increase Font Size', accelerator: shortcut(KeyEvent.VK_EQUALS))
+                     action(new DecreaseFontSizeAction(), id: 'decreaseFontAction', name: 'Decrease Font Size', accelerator: shortcut(KeyEvent.VK_MINUS))
                      
-                     action(editorKitActions.get(RTextAreaEditorKit.rtaUpperSelectionCaseAction), id: 'upperCaseAction', name: 'Upper Case')
-                     action(editorKitActions.get(RTextAreaEditorKit.rtaLowerSelectionCaseAction), id: 'lowerCaseAction', name: 'Lower Case')
-                     action(editorKitActions.get(RTextAreaEditorKit.rtaInvertSelectionCaseAction), id: 'invertCaseAction', name: 'Invert Case')
+                     action(editorKitActions.get(RTextAreaEditorKit.rtaUpperSelectionCaseAction), id: 'upperCaseAction', name: 'Upper Case', accelerator: shortcut("shift U"))
+                     action(editorKitActions.get(RTextAreaEditorKit.rtaLowerSelectionCaseAction), id: 'lowerCaseAction', name: 'Lower Case', accelerator: shortcut("shift L"))
+                     action(editorKitActions.get(RTextAreaEditorKit.rtaInvertSelectionCaseAction), id: 'invertCaseAction', name: 'Invert Case', accelerator: shortcut("shift I"))
+                     
+                     action(new BeginRecordingMacroAction(), id: 'beginMacroAction', name: 'Begin Recording')
+                     action(editorKitActions.get(RTextAreaEditorKit.rtaEndRecordingMacroAction), id: 'endMacroAction', name: 'End Recording')
+                     action(editorKitActions.get(RTextAreaEditorKit.rtaPlaybackLastMacroAction), id: 'playLastMacroAction', name: 'Playback Last', accelerator: shortcut("shift P"))
 
-                     action(new TimeDateAction(), id: 'timeDateAction', name: 'Time / Date')
+                     action(new TimeDateAction(), id: 'timeDateAction', name: 'Date / Time')
                      
                      action(id: 'onlineHelpAction', name: 'Online Help', accelerator: 'F1', closure: { Desktop.desktop.browse(URI.create('http://basetools.org/figurate')) })
                      action(id: 'showTipsAction', name: 'Tips', closure: { tips.showDialog(figurateFrame) })
@@ -547,6 +552,11 @@ class Figurate {
                          menu(text: "Insert") {
                              menuItem(timeDateAction)
                          }
+                         menu(text: "Macro") {
+                             menuItem(beginMacroAction)
+                             menuItem(endMacroAction)
+                             menuItem(playLastMacroAction)
+                         }
                      }
                      menu(text: "Help", mnemonic: 'H') {
                          menuItem(onlineHelpAction)
@@ -572,11 +582,16 @@ class Figurate {
                      //navButtons.preferredSize = new java.awt.Dimension(50, 5)
                      def backIcon = SvgBatikResizableIcon.getSvgIcon(Figurate.class.getResource('/back.svg'), new java.awt.Dimension(20, 20))
                      def backButton = new JCommandButton(backIcon) //'Back')
-                     bind(source: navController, sourceProperty: 'hasPrevious', target: backButton, targetProperty: 'enabled')
+//                     bind(source: navController, sourceProperty: 'currentMark', target: backButton, targetProperty: 'enabled', converter: { it?.previous != null })
+                     //backButton enabled: bind { navController.currentMark && navController.currentMark.previous }
+                     backButton.actionPerformed = { navController.setCurrentMark navController.currentMark?.previous }
                      navButtons.add(backButton)
                      
                      def forwardIcon = SvgBatikResizableIcon.getSvgIcon(Figurate.class.getResource('/forward.svg'), new java.awt.Dimension(20, 20))
                      def forwardButton = new JCommandButton(forwardIcon) //'Forward')
+                     //forwardButton.enabled = bind { navController.currentMark && navController.currentMark?.next }
+//                     bind(source: navController, sourceProperty: 'currentMark', target: forwardButton, targetProperty: 'enabled', converter: { it?.next != null })
+                     forwardButton.actionPerformed = { navController.setCurrentMark navController.currentMark?.next }
                      navButtons.add(forwardButton)
                      widget(navButtons)
                      hstrut(5)
@@ -861,26 +876,38 @@ class Figurate {
 }
 
 class NavController {
-    def history = []
-    @Bindable Boolean hasPrevious = false
-    @Bindable Boolean hasNext = false
+    //def history = []
+    //@Bindable Boolean hasPrevious = false
+    //@Bindable Boolean hasNext = false
+    @Bindable HistoryMark currentMark
     
     void addMark(def editor) {
-        println "Adding mark.. ${!history.isEmpty()}"
+        //println "Adding mark.. ${!history.isEmpty()}"
         def mark = new HistoryMark()
         mark.editor = editor
         mark.cursorPos = editor.getClientProperty('figurate.textArea').caretPosition
-        hasPrevious = !history.isEmpty()
-        hasNext = false
-        history.add(mark)
+        //hasPrevious = !history.isEmpty()
+        //hasNext = false
+        //history.add(mark)
+        mark.previous = currentMark
+        if (currentMark) {
+          currentMark.next = mark
+        }
+        setCurrentMark mark
+    }
+    
+    void setCurrentMark(def mark) {
+        currentMark = mark
     }
 }
 
 class HistoryMark {
     def editor
     def cursorPos
+    def previous
+    def next
 }
-
+/*
 class FigurateModel {
     @Bindable Map activeDocument = null  
     List openDocuments = []  
@@ -890,6 +917,7 @@ class FigurateModel {
 @Bindable class DocumentState {  
     boolean isDirty = false  
 }
+*/
 
 class FileListCellRenderer extends DefaultListCellRenderer {
     def fsv = FileSystemView.fileSystemView

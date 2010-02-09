@@ -424,7 +424,7 @@ class Figurate {
                          }
                      })
                      action(id: 'saveFileAction', name: 'Save', accelerator: shortcut('S'), closure: {
-                         def editor = navController.history[-1].editor
+                         def editor = navController.currentMark.editor
                          if (editor.getClientProperty('figurate.file').exists()) {
                              editor.getClientProperty('figurate.file').text = editor.getClientProperty('figurate.textArea').text
                          }
@@ -436,7 +436,7 @@ class Figurate {
                          }
                      })
                      action(id: 'saveAsFileAction', name: 'Save As..', closure: {
-                         def editor = navController.history[-1].editor
+                         def editor = navController.currentMark.editor
                          if (editor.getClientProperty('figurate.file').exists()) {
                              chooser.selectedFile = editor.getClientProperty('figurate.file')
                          }

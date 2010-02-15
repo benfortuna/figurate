@@ -27,6 +27,7 @@ import java.awt.MenuItem
 import java.awt.event.MouseEvent;
 import java.awt.TrayIcon
 import java.awt.Component;
+import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.Shape;
@@ -87,6 +88,7 @@ import org.fife.ui.rsyntaxtextarea.RSyntaxTextAreaEditorKit.IncreaseFontSizeActi
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextAreaEditorKit.DecreaseFontSizeAction
 import org.fife.ui.rtextarea.RTextAreaEditorKit.TimeDateAction
 import org.fife.ui.rtextarea.RTextAreaEditorKit.BeginRecordingMacroAction
+import org.springframework.context.support.ClassPathXmlApplicationContext
 
  /**
   * @author fortuna
@@ -94,6 +96,7 @@ import org.fife.ui.rtextarea.RTextAreaEditorKit.BeginRecordingMacroAction
   */
   /*
 @Grapes([
+    @Grab(group='org.springframework', module='spring-context', version='3.0.0.RELEASE'),
     @Grab(group='org.codehaus.griffon.swingxbuilder', module='swingxbuilder', version='0.1.6'),
     @Grab(group='net.java.dev.substance', module='substance', version='5.3'),
     @Grab(group='net.java.dev.substance', module='substance-swingx', version='5.3'),
@@ -120,6 +123,16 @@ class Figurate {
     }
     
     static void main(args) {
+    
+        // try to connect to existing control..
+        //def context = new ClassPathXmlApplicationContext("/FigurateControlProxy.xml", Figurate.class)
+        //def control = context.getBean("FigurateControl")
+        
+        //if (!control) {
+        //    context = new ClassPathXmlApplicationContext("/FigurateControl.xml", Figurate.class)
+        //    control = context.getBean("FigurateControl")
+        //}
+        
          UIManager.put("TabbedPane.contentBorderInsets", new Insets(0, 0, 0, 0))
          UIManager.put(org.jvnet.lafwidget.LafWidget.ANIMATION_KIND, org.jvnet.lafwidget.utils.LafConstants.AnimationKind.FAST.derive(2))
          //UIManager.put(org.jvnet.lafwidget.LafWidget.TABBED_PANE_PREVIEW_PAINTER, new DefaultTabPreviewPainter())
@@ -797,7 +810,8 @@ class Figurate {
                          }
                          
                          if (splitPane.dividerLocation == 0) {
-                             splitPane.dividerLocation = fileList.preferredSize.width + 20
+                             //splitPane.dividerLocation = fileList.preferredSize.width + 20
+                             splitPane.resetToPreferredSizes()
                          }
                      }
                  }))
@@ -869,6 +883,11 @@ class Figurate {
              TrackerRegistry.instance.register(figurateFrame, 'figurateFrame');
              figurateFrame.windowClosing = {
                      close(figurateFrame, !SystemTray.isSupported())
+             }
+             figurateFrame.windowStateChanged = {
+                 if ((figurateFrame.extendedState & Frame.MAXIMIZED_BOTH) != 0) {
+                     splitPane.dividerLocation = -1
+                 }
              }
              figurateFrame.visible = true
          }
@@ -1166,4 +1185,7 @@ class OverlayIcon implements Icon {
     void paintIcon(Component c, Graphics g, int x, int y) {
         baseIcon.paintIcon(c, g, (int) (x + (width - baseIcon.iconWidth) / 2), (int) (y + (height - baseIcon.iconHeight) / 2))
     }
+}
+
+class FigurateControl {
 }

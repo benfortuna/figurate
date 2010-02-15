@@ -166,6 +166,11 @@
 	        <artifactId>seaglasslookandfeel</artifactId>
 	        <version>0.1.1</version>
 	    </dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context</artifactId>
+			<version>3.0.0.RELEASE</version>
+		</dependency>
 	</dependencies>
 	<scm>
 		<connection>scm:svn:http://svn.mnode.org/base/figurate/trunk</connection>

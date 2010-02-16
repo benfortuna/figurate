@@ -250,7 +250,7 @@ class Figurate {
                         else if (tabFile.name =~ /(?i)\.(bat|cmd)$/) {
                             textArea.syntaxEditingStyle = SyntaxConstants.SYNTAX_STYLE_WINDOWS_BATCH
                         }
-                        else if (tabFile.name =~ /\.(sh|.sh)$/) {
+                        else if (tabFile.name =~ /\.(sh|.sh|.*rc|bash.*|profile)$/) {
                             textArea.syntaxEditingStyle = SyntaxConstants.SYNTAX_STYLE_UNIX_SHELL
                         }
                         else if (tabFile.name =~ /\.rb$/) {

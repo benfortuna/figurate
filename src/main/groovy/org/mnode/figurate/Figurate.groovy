@@ -138,17 +138,39 @@ class Figurate {
          //UIManager.put(org.jvnet.lafwidget.LafWidget.TABBED_PANE_PREVIEW_PAINTER, new DefaultTabPreviewPainter())
          LookAndFeelHelper.instance.addLookAndFeelAlias('substance5', 'org.jvnet.substance.skin.SubstanceNebulaLookAndFeel')
          LookAndFeelHelper.instance.addLookAndFeelAlias('seaglass', 'com.seaglasslookandfeel.SeaGlassLookAndFeel')
-
-         System.setProperty("apple.laf.useScreenMenuBar", "true");
-         System.setProperty("com.apple.mrj.application.apple.menu.about.name", "Figurate");
          
          def swing = new SwingXBuilder()
          swing.registerBeanFactory('comboBox', MaxWidthComboBox.class)
          swing.registerBeanFactory('fileBreadcrumbBar', MaxWidthBreadcrumbFileSelector.class)
          //swing.registerBeanFactory('syntaxTextArea', RSyntaxTextArea.class)
 
-         swing.edt {
-             lookAndFeel('seaglass', 'substance5', 'system')
+         // mac-specific settings..
+         if (System.getProperty("os.name")  =~ /^Mac/) {
+             System.setProperty("apple.laf.useScreenMenuBar", "true");
+             System.setProperty("com.apple.mrj.application.apple.menu.about.name", "Figurate");
+
+             swing.edt {
+                 lookAndFeel('system')
+                 def menuBarUI = UIManager.get('MenuBarUI')
+                 def menuUI = UIManager.get('MenuUI')
+                 def menuItemUI = UIManager.get('MenuItemUI')
+                 def checkBoxMenuItemUI = UIManager.get('CheckBoxMenuItemUI')
+                 def radioButtonMenuItemUI = UIManager.get('RadioButtonMenuItemUI')
+                 def popupMenuUI = UIManager.get('PopupMenuUI')
+                 
+                 lookAndFeel('seaglass', 'substance5', 'system')
+                 UIManager.put('MenuBarUI', menuBarUI)
+                 UIManager.put('MenuUI', menuUI)
+                 UIManager.put('MenuItemUI', menuItemUI)
+                 UIManager.put('CheckBoxMenuItemUI', checkBoxMenuItemUI)
+                 UIManager.put('RadioButtonMenuItemUI', radioButtonMenuItemUI)
+                 UIManager.put('PopupMenuUI', popupMenuUI)
+             }
+         }
+         else {
+             swing.edt {
+                 lookAndFeel('seaglass', 'substance5', 'system')
+             }
          }
 
          def headingFont = new Font('Arial', Font.PLAIN, 14)

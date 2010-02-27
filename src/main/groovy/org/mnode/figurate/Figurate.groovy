@@ -53,11 +53,17 @@ import javax.swing.JFileChooser
 import javax.swing.JTabbedPane
 import javax.swing.JScrollPane
 import javax.swing.JList
+import javax.swing.JOptionPane
 import javax.swing.DefaultComboBoxModel
 import javax.swing.UIManager
 import javax.swing.filechooser.FileSystemView
 import javax.swing.event.HyperlinkListener
 import javax.swing.event.HyperlinkEvent
+import javax.swing.event.UndoableEditListener
+import javax.swing.event.UndoableEditEvent
+import javax.swing.event.DocumentListener
+import javax.swing.event.DocumentEvent
+import javax.swing.undo.UndoManager
 import groovy.beans.Bindable
 import groovy.swing.SwingXBuilder
 import groovy.swing.LookAndFeelHelper
@@ -65,6 +71,7 @@ import org.jvnet.substance.SubstanceLookAndFeel
 import org.jvnet.substance.api.SubstanceConstants
 import org.jvnet.substance.api.SubstanceConstants.TabCloseKind
 import org.jvnet.substance.api.tabbed.TabCloseCallback
+import org.jvnet.substance.api.tabbed.VetoableTabCloseListener
 import org.jvnet.lafwidget.tabbed.DefaultTabPreviewPainter
 import org.jvnet.flamingo.bcb.*
 import org.jvnet.flamingo.bcb.core.BreadcrumbFileSelector
@@ -386,7 +393,16 @@ class Figurate {
 //             }))
 //                 }
              }
+             
+             swing.doLater {
 
+                 // record changes for modified flag..
+                 EditListener editListener = new EditListener(newPanel)
+                 textArea.document.addUndoableEditListener(editListener);
+                 //editListener.discardAllEdits()
+                 textArea.document.addDocumentListener(editListener)
+             }
+             
              newPanel.putClientProperty(SubstanceLookAndFeel.TABBED_PANE_CLOSE_BUTTONS_PROPERTY, true)
              newPanel.putClientProperty("figurate.file", tabFile)
              newPanel.putClientProperty("figurate.textArea", textArea)
@@ -405,12 +421,33 @@ class Figurate {
                      }
                  }
                  
-                 def tab = newTab(file)
-                 tabs.add(tab)
-                 tabs.setIconAt(tabs.indexOfComponent(tab), new OverlayIcon(FileSystemView.fileSystemView.getSystemIcon(file), 16, 18))
-                 tabs.setToolTipTextAt(tabs.indexOfComponent(tab), file.absolutePath)
+                 def editor = newTab(file)
+                 tabs.add(editor)
+                 def tabIndex = tabs.indexOfComponent(editor)
+                 tabs.setIconAt(tabIndex, new OverlayIcon(FileSystemView.fileSystemView.getSystemIcon(file), 16, 18))
+                 tabs.setToolTipTextAt(tabIndex, file.absolutePath)
+
+                 //def tabPopupMenu = swing.popupMenu {
+                 //    checkBoxMenuItem(text: 'Show Title')
+                 //}
+                 //tabs.getTabComponentAt(tabIndex).mouseClicked {
+                 //    println 'Mouse cliked'
+                 //    tabPopupMenu.show(tabs.getTabComponentAt(tabIndex), 0, 0)
+                 //}
+                 
+                 swing.edt {
+                 bind(source: viewTabNames, sourceProperty:'selected', converter: {
+                     if (it) {
+                         tabs.setTitleAt(tabIndex, 'Test')
+                     }
+                     else {
+                         tabs.setTitleAt(tabIndex, null)
+                     }
+                 })
+                 }
+                 
                  navController.addMark(tabs.selectedComponent)
-                 tabs.selectedComponent = tab
+                 tabs.selectedComponent = editor
              }
          }
          
@@ -575,6 +612,7 @@ class Figurate {
                          checkBoxMenuItem(text: "Word Wrap", id: 'viewWordWrap')
                          checkBoxMenuItem(text: "Whitespace", id: 'viewWhitespace')
                          checkBoxMenuItem(text: "Line Numbers", id: 'viewLineNumbers')
+                         checkBoxMenuItem(text: "Tab Names", id: 'viewTabNames')
                          separator()
                          checkBoxMenuItem(text: "Status Bar", id: 'viewStatusBar')
                      }
@@ -780,6 +818,7 @@ class Figurate {
                      tabs.putClientProperty(SubstanceLookAndFeel.TABBED_PANE_CONTENT_BORDER_KIND, SubstanceConstants.TabContentPaneBorderKind.SINGLE_FULL)
                      tabs.putClientProperty(SubstanceLookAndFeel.TABBED_PANE_CLOSE_CALLBACK, new TabCloseCallbackImpl())
                      tabs.putClientProperty(org.jvnet.lafwidget.LafWidget.TABBED_PANE_PREVIEW_PAINTER, new DefaultTabPreviewPainter())
+                     SubstanceLookAndFeel.registerTabCloseChangeListener(tabs, new VetoableTabCloseListenerImpl())
 
                      tabs.stateChanged = {
                          if (tabs.selectedComponent) {
@@ -1206,6 +1245,80 @@ class OverlayIcon implements Icon {
     
     void paintIcon(Component c, Graphics g, int x, int y) {
         baseIcon.paintIcon(c, g, (int) (x + (width - baseIcon.iconWidth) / 2), (int) (y + (height - baseIcon.iconHeight) / 2))
+    }
+}
+
+class VetoableTabCloseListenerImpl implements VetoableTabCloseListener {
+    
+    public boolean vetoTabClosing(JTabbedPane tabbedPane, Component tabComponent) {
+        boolean unsaved = tabComponent.getClientProperty(SubstanceLookAndFeel.WINDOW_MODIFIED)
+        if (unsaved) {
+            def file = tabComponent.getClientProperty("figurate.file")
+            def selection = JOptionPane.showConfirmDialog(tabbedPane, "Save changes to ${file.name}?")
+            if (selection == JOptionPane.YES_OPTION) {
+                file.text = tabComponent.getClientProperty('figurate.textArea').text
+            }
+            else if (selection == JOptionPane.CANCEL_OPTION) {
+                return true
+            }
+        }
+        return false
+    }
+    
+    public void tabClosing(JTabbedPane tabbedPane, Component tabComponent) {}
+    
+    public void tabClosed(JTabbedPane tabbedPane, Component tabComponent) {}
+}
+
+class EditListener extends UndoManager implements DocumentListener {
+
+    def component
+    
+    def changeDetected
+    
+    public EditListener(def component) {
+        this.component = component
+    }
+
+    void undoableEditHappened(UndoableEditEvent e) {
+        //if (lastEdit()) {
+            component.putClientProperty(SubstanceLookAndFeel.WINDOW_MODIFIED, true)
+        //}
+        //else {
+        //    component.putClientProperty(SubstanceLookAndFeel.WINDOW_MODIFIED, false)
+        //}
+        changeDetected = false
+        super.undoableEditHappened(e)
+    }
+
+    void changedUpdate(DocumentEvent e) {
+        if (canUndo()) {
+            component.putClientProperty(SubstanceLookAndFeel.WINDOW_MODIFIED, true)
+        }
+        else {
+            component.putClientProperty(SubstanceLookAndFeel.WINDOW_MODIFIED, false)
+        }
+        changeDetected = true
+    }
+    
+    void insertUpdate(DocumentEvent e) {
+        if (canUndo()) {
+            component.putClientProperty(SubstanceLookAndFeel.WINDOW_MODIFIED, true)
+        }
+        else {
+            component.putClientProperty(SubstanceLookAndFeel.WINDOW_MODIFIED, false)
+        }
+        changeDetected = true
+    }
+    
+    void removeUpdate(DocumentEvent e) {
+        if (canUndo()) {
+            component.putClientProperty(SubstanceLookAndFeel.WINDOW_MODIFIED, true)
+        }
+        else {
+            component.putClientProperty(SubstanceLookAndFeel.WINDOW_MODIFIED, false)
+        }
+        changeDetected = true
     }
 }
 

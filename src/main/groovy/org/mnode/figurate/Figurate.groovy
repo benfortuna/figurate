@@ -96,7 +96,7 @@ import org.fife.ui.rsyntaxtextarea.RSyntaxTextAreaEditorKit.DecreaseFontSizeActi
 import org.fife.ui.rtextarea.RTextAreaEditorKit.TimeDateAction
 import org.fife.ui.rtextarea.RTextAreaEditorKit.BeginRecordingMacroAction
 import org.springframework.context.support.ClassPathXmlApplicationContext
-
+import org.jvnet.substance.api.tabbed.VetoableMultipleTabCloseListener
  /**
   * @author fortuna
   *
@@ -435,6 +435,7 @@ class Figurate {
                  //    tabPopupMenu.show(tabs.getTabComponentAt(tabIndex), 0, 0)
                  //}
                  
+                 /*
                  swing.bind(source: viewTabNames, sourceProperty:'selected', converter: {
                      println "Show tab titles: ${it}"
                      if (it) {
@@ -444,6 +445,7 @@ class Figurate {
                          tabs.setTitleAt(tabIndex, null)
                      }
                  })
+                 */
                  
                  navController.addMark(tabs.selectedComponent)
                  tabs.selectedComponent = editor
@@ -817,7 +819,8 @@ class Figurate {
                      tabs.putClientProperty(SubstanceLookAndFeel.TABBED_PANE_CONTENT_BORDER_KIND, SubstanceConstants.TabContentPaneBorderKind.SINGLE_FULL)
                      tabs.putClientProperty(SubstanceLookAndFeel.TABBED_PANE_CLOSE_CALLBACK, new TabCloseCallbackImpl())
                      tabs.putClientProperty(org.jvnet.lafwidget.LafWidget.TABBED_PANE_PREVIEW_PAINTER, new DefaultTabPreviewPainter())
-                     SubstanceLookAndFeel.registerTabCloseChangeListener(tabs, new VetoableTabCloseListenerImpl())
+//                     SubstanceLookAndFeel.registerTabCloseChangeListener(tabs, new VetoableTabCloseListenerImpl())
+                     SubstanceLookAndFeel.registerTabCloseChangeListener(tabs, new VetoableMultipleTabCloseListenerImpl())
 
                      tabs.stateChanged = {
                          if (tabs.selectedComponent) {
@@ -1267,6 +1270,30 @@ class VetoableTabCloseListenerImpl implements VetoableTabCloseListener {
     public void tabClosing(JTabbedPane tabbedPane, Component tabComponent) {}
     
     public void tabClosed(JTabbedPane tabbedPane, Component tabComponent) {}
+}
+
+class VetoableMultipleTabCloseListenerImpl implements VetoableMultipleTabCloseListener {
+    
+    boolean vetoTabsClosing(JTabbedPane tabbedPane, Set tabComponents) {
+        for (tabComponent in tabComponents) {
+            boolean unsaved = tabComponent.getClientProperty(SubstanceLookAndFeel.WINDOW_MODIFIED)
+            if (unsaved) {
+                def file = tabComponent.getClientProperty("figurate.file")
+                def selection = JOptionPane.showConfirmDialog(tabbedPane, "Save changes to ${file.name}?")
+                if (selection == JOptionPane.YES_OPTION) {
+                    file.text = tabComponent.getClientProperty('figurate.textArea').text
+                }
+                else if (selection == JOptionPane.CANCEL_OPTION) {
+                    return true
+                }
+            }
+        }
+        return false
+    }
+    
+    void tabsClosing(JTabbedPane tabbedPane, Set tabComponents) {}
+    
+    void tabsClosed(JTabbedPane tabbedPane, Set tabComponents) {}
 }
 
 class EditListener extends UndoManager implements DocumentListener {

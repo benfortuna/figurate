@@ -435,8 +435,8 @@ class Figurate {
                  //    tabPopupMenu.show(tabs.getTabComponentAt(tabIndex), 0, 0)
                  //}
                  
-                 swing.edt {
-                 bind(source: viewTabNames, sourceProperty:'selected', converter: {
+                 swing.bind(source: viewTabNames, sourceProperty:'selected', converter: {
+                     println "Show tab titles: ${it}"
                      if (it) {
                          tabs.setTitleAt(tabIndex, 'Test')
                      }
@@ -444,7 +444,6 @@ class Figurate {
                          tabs.setTitleAt(tabIndex, null)
                      }
                  })
-                 }
                  
                  navController.addMark(tabs.selectedComponent)
                  tabs.selectedComponent = editor
@@ -1274,51 +1273,49 @@ class EditListener extends UndoManager implements DocumentListener {
 
     def component
     
-    def changeDetected
-    
     public EditListener(def component) {
         this.component = component
     }
 
     void undoableEditHappened(UndoableEditEvent e) {
-        //if (lastEdit()) {
-            component.putClientProperty(SubstanceLookAndFeel.WINDOW_MODIFIED, true)
-        //}
-        //else {
-        //    component.putClientProperty(SubstanceLookAndFeel.WINDOW_MODIFIED, false)
-        //}
-        changeDetected = false
+        component.putClientProperty(SubstanceLookAndFeel.WINDOW_MODIFIED, true)
         super.undoableEditHappened(e)
     }
 
     void changedUpdate(DocumentEvent e) {
-        if (canUndo()) {
+        if (canUndoAny()) {
             component.putClientProperty(SubstanceLookAndFeel.WINDOW_MODIFIED, true)
         }
         else {
             component.putClientProperty(SubstanceLookAndFeel.WINDOW_MODIFIED, false)
         }
-        changeDetected = true
     }
     
     void insertUpdate(DocumentEvent e) {
-        if (canUndo()) {
+        if (canUndoAny()) {
             component.putClientProperty(SubstanceLookAndFeel.WINDOW_MODIFIED, true)
         }
         else {
             component.putClientProperty(SubstanceLookAndFeel.WINDOW_MODIFIED, false)
         }
-        changeDetected = true
     }
     
     void removeUpdate(DocumentEvent e) {
-        if (canUndo()) {
+        if (canUndoAny()) {
             component.putClientProperty(SubstanceLookAndFeel.WINDOW_MODIFIED, true)
         }
         else {
             component.putClientProperty(SubstanceLookAndFeel.WINDOW_MODIFIED, false)
         }
-        changeDetected = true
+    }
+    
+    boolean canUndoAny() {
+        for (edit in edits) {
+            if (edit.canUndo()) {
+                return true
+            }
+        }
+        return false
     }
 }
 

@@ -36,6 +36,7 @@ import java.awt.Color
 import java.awt.Font
 import java.awt.Insets
 import java.awt.Dimension
+import java.awt.Point
 import java.awt.BorderLayout
 import java.awt.FlowLayout
 import java.awt.Desktop
@@ -97,6 +98,10 @@ import org.fife.ui.rtextarea.RTextAreaEditorKit.TimeDateAction
 import org.fife.ui.rtextarea.RTextAreaEditorKit.BeginRecordingMacroAction
 import org.springframework.context.support.ClassPathXmlApplicationContext
 import org.jvnet.substance.api.tabbed.VetoableMultipleTabCloseListener
+import org.jdesktop.jxlayer.JXLayer
+import org.jdesktop.jxlayer.plaf.AbstractLayerUI
+import java.awt.Graphics2D
+
  /**
   * @author fortuna
   *
@@ -116,6 +121,7 @@ import org.jvnet.substance.api.tabbed.VetoableMultipleTabCloseListener
     @Grab(group='org.apache.xmlgraphics', module='batik-swing', version='1.7'),
     @Grab(group='org.apache.xmlgraphics', module='batik-transcoder', version='1.7'),
     @Grab(group='net.java.dev.datatips', module='datatips', version='20091219'),
+    @Grab(group='org.swinglabs', module='jxlayer', version='3.0.4'),
     @Grab(group='com.fifesoft.rsyntaxtextarea', module='rsyntaxtextarea', version='1.4.0')])
     */
 class Figurate {
@@ -297,7 +303,13 @@ class Figurate {
                         RTextScrollPane sp = new RTextScrollPane(textArea);
                         sp.gutter.bookmarkingEnabled = true
                         sp.gutter.bookmarkIcon = imageIcon('/bookmark.png', id: 'bookmarkIcon')
-                        widget(sp)
+                        //widget(sp)
+                        
+                        // add layer..
+                        JXLayer<RTextScrollPane> layer = new JXLayer<RTextScrollPane>(sp)
+                        layer.setUI(new RTextAreaLayerUI())
+                        widget(layer)
+
                         doLater {
                             if (tabFile.exists()) {
                                 textArea.text = tabFile.text
@@ -1347,4 +1359,31 @@ class EditListener extends UndoManager implements DocumentListener {
 }
 
 class FigurateControl {
+}
+
+class RTextAreaLayerUI extends AbstractLayerUI<RTextScrollPane> {
+
+    protected void paintLayer(Graphics2D g2, JXLayer<RTextScrollPane> l) {
+        super.paintLayer(g2, l);
+        /*
+        def textArea = l.view.textArea
+        if (textArea.selectedText) {
+            def origColour = g2.color
+            g2.color = new Color(0, 128, 0, 128)
+            
+            Rectangle viewRect = l.view.viewport.viewRect
+            Point viewPos = l.view.viewport.location
+            //println "viewport: ${l.view.viewport.x}, ${l.view.viewport.y}"
+            //println "viewRect: ${viewRect}, ${viewPos}"
+            //g2.fillRect(0, 0, l.getWidth(), l.getHeight());
+            g2.fillRect((int) viewPos.x, (int) viewPos.y, (int) viewRect.width, (int) viewRect.height)
+//            println "layer painted: ${viewRect}, ${viewPos}"
+
+//            g2.color = origColour
+            def selectRect = textArea.modelToView(textArea.selectionStart) //.add(textArea.modelToView(textArea.selectionEnd))
+            println "selected rect: ${selectRect}"
+            g2.clearRect((int) (viewPos.x + selectRect.x), (int) (viewPos.y + selectRect.y), (int) selectRect.width, (int) selectRect.height)
+        }
+        */
+    }
 }

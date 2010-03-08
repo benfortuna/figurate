@@ -117,7 +117,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.mnode.base</groupId>
-			<artifactId>base-views</artifactId>
+			<artifactId>base-desktop</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>

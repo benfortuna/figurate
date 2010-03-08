@@ -82,7 +82,7 @@ import org.jvnet.flamingo.common.JCommandToggleButton
 import org.jvnet.flamingo.common.CommandToggleButtonGroup
 import org.jvnet.flamingo.common.CommandButtonDisplayState
 import org.jvnet.flamingo.svg.SvgBatikResizableIcon
-import org.mnode.base.views.tracker.TrackerRegistry;
+import org.mnode.base.desktop.tracker.TrackerRegistry;
 import org.fife.ui.rtextarea.RTextScrollPane
 import org.fife.ui.rtextarea.Gutter
 import org.fife.ui.rtextarea.RTextArea

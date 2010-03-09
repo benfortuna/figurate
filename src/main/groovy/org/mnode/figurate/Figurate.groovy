@@ -101,7 +101,7 @@ import org.jvnet.substance.api.tabbed.VetoableMultipleTabCloseListener
 import org.jdesktop.jxlayer.JXLayer
 import org.jdesktop.jxlayer.plaf.AbstractLayerUI
 import java.awt.Graphics2D
-
+import org.mnode.base.desktop.PaddedIcon
  /**
   * @author fortuna
   *
@@ -436,7 +436,7 @@ class Figurate {
                  def editor = newTab(file)
                  tabs.add(editor)
                  def tabIndex = tabs.indexOfComponent(editor)
-                 tabs.setIconAt(tabIndex, new OverlayIcon(FileSystemView.fileSystemView.getSystemIcon(file), 16, 18))
+                 tabs.setIconAt(tabIndex, new PaddedIcon(FileSystemView.fileSystemView.getSystemIcon(file), 16, 18))
                  tabs.setToolTipTextAt(tabIndex, file.absolutePath)
 
                  //def tabPopupMenu = swing.popupMenu {
@@ -1235,31 +1235,6 @@ class MaxWidthBreadcrumbFileSelector extends BreadcrumbFileSelector {
       maxSize.width = Short.MAX_VALUE
       return maxSize
   }
-}
-
-class OverlayIcon implements Icon {
-    
-    int height
-    int width
-    Icon baseIcon
-    
-    OverlayIcon(Icon icon, int width, int height) {
-        baseIcon = icon
-        this.width = width
-        this.height = height
-    }
-    
-    int getIconHeight() {
-        return height
-    }
-    
-    int getIconWidth() {
-        return width
-    }
-    
-    void paintIcon(Component c, Graphics g, int x, int y) {
-        baseIcon.paintIcon(c, g, (int) (x + (width - baseIcon.iconWidth) / 2), (int) (y + (height - baseIcon.iconHeight) / 2))
-    }
 }
 
 class VetoableTabCloseListenerImpl implements VetoableTabCloseListener {

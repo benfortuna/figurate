@@ -1207,18 +1207,6 @@ class TabCloseCallbackImpl implements TabCloseCallback {
       }
 }
 
-class FileComparator implements Comparator<File> {
-    public int compare(def f1, def f2) {
-        if (f1.directory && !f2.directory) {
-            return Integer.MIN_VALUE
-        }
-        else if (f2.directory && !f1.directory) {
-            return Integer.MAX_VALUE
-        }
-        return f1.name.compareToIgnoreCase(f2.name)
-    }
-}
-
 class MaxWidthComboBox extends JComboBox {
 
   public Dimension getMaximumSize() {

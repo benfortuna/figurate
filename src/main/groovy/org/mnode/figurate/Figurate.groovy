@@ -1013,38 +1013,6 @@ class FigurateModel {
 }
 */
 
-class FileListCellRenderer extends DefaultListCellRenderer {
-    def fsv = FileSystemView.fileSystemView
-    
-    public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-        super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus)
-        if (value.exists()) {
-            setIcon(fsv.getSystemIcon(value))
-            setText(fsv.getSystemDisplayName(value))
-        }
-        else {
-            setIcon(null)
-        }
-        return this
-    }
-}
-
-class PathListCellRenderer extends DefaultListCellRenderer {
-    def fsv = FileSystemView.fileSystemView
-    
-    public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-        super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus)
-        if (value.exists()) {
-            setIcon(fsv.getSystemIcon(value))
-            setText(value.absolutePath)
-        }
-        else {
-            setIcon(null)
-        }
-        return this
-    }
-}
-
 class BreadcrumbPathListenerImpl implements BreadcrumbPathListener {
     def closure
     
@@ -1054,13 +1022,6 @@ class BreadcrumbPathListenerImpl implements BreadcrumbPathListener {
     
     void breadcrumbPathEvent(BreadcrumbPathEvent event) {
         closure()
-    }
-}
-
-class HyperlinkListenerImpl implements HyperlinkListener {
-
-    void hyperlinkUpdate(HyperlinkEvent e) {
-        Desktop.desktop.browse(e.URL.toURI())
     }
 }
 

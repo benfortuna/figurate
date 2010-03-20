@@ -1287,7 +1287,7 @@ class FigurateControl {
 
 class RTextAreaLayerUI extends AbstractLayerUI<RTextScrollPane> {
 
-    protected void paintLayer(Graphics2D g2, JXLayer<RTextScrollPane> l) {
+    protected void paintLayer(Graphics2D g2, JXLayer<? extends RTextScrollPane> l) {
         super.paintLayer(g2, l);
         /*
         def textArea = l.view.textArea

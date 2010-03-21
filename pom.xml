@@ -139,11 +139,6 @@
 			<artifactId>spring-context</artifactId>
 			<version>3.0.0.RELEASE</version>
 		</dependency>
-		<dependency>
-			<groupId>org.swinglabs</groupId>
-			<artifactId>jxlayer</artifactId>
-			<version>3.0.4</version>
-		</dependency>
 	</dependencies>
 	<scm>
 		<connection>scm:svn:http://svn.mnode.org/base/figurate/trunk</connection>
@@ -297,7 +292,7 @@
 						<dnameL>Melbourne</dnameL>
 						<dnameSt>Victoria</dnameSt>
 						<dnameC>AU</dnameC>
-						<verify>true</verify> <!-- verify that the signing operation succeeded -->
+						<verify>false</verify> <!-- verify that the signing operation succeeded -->
 
 						<!-- KEYSTORE MANAGEMENT -->
 						<keystoreConfig>

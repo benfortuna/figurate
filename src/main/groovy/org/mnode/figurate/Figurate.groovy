@@ -102,7 +102,8 @@ import org.jdesktop.jxlayer.JXLayer
 import org.jdesktop.jxlayer.plaf.AbstractLayerUI
 import java.awt.Graphics2D
 import org.mnode.base.desktop.PaddedIcon
- /**
+import org.mnode.base.commons.FileComparator
+ /**
   * @author fortuna
   *
   */

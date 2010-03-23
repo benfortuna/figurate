@@ -139,6 +139,11 @@
 			<artifactId>spring-context</artifactId>
 			<version>3.0.0.RELEASE</version>
 		</dependency>
+		<dependency>
+			<groupId>org.mnode.base</groupId>
+			<artifactId>base-commons</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
 	<scm>
 		<connection>scm:svn:http://svn.mnode.org/base/figurate/trunk</connection>

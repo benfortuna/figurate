@@ -48,6 +48,21 @@
 	</repositories>
 	<dependencies>
 		<dependency>
+			<groupId>org.mnode.base</groupId>
+			<artifactId>base-commons</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.mnode.base</groupId>
+			<artifactId>base-desktop</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.mnode.base</groupId>
+			<artifactId>base-substance</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
 	        <groupId>org.codehaus.groovy</groupId>
 	        <artifactId>groovy-all</artifactId>
 	        <version>1.7.1</version>
@@ -59,44 +74,9 @@
 	        </exclusions>
     	</dependency>
 		<dependency>
-			<groupId>org.apache.xmlgraphics</groupId>
-			<artifactId>batik-awt-util</artifactId>
-			<version>1.7</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.codehaus.griffon.swingxbuilder</groupId>
-			<artifactId>swingxbuilder</artifactId>
-			<version>0.1.6</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>net.java.dev.substance</groupId>
-			<artifactId>substance</artifactId>
-			<version>5.3</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>net.java.dev.substance</groupId>
-			<artifactId>substance-swingx</artifactId>
-			<version>5.3</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
 			<groupId>net.java.dev.flamingo</groupId>
 			<artifactId>flamingo</artifactId>
 			<version>4.2</version>
-		</dependency>
-		<dependency>
-			<groupId>org.mnode.base</groupId>
-			<artifactId>base-desktop</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>net.java.dev.substance</groupId>
-			<artifactId>swingx</artifactId>
-			<version>5.3</version>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.fifesoft.rsyntaxtextarea</groupId>
@@ -104,58 +84,9 @@
 			<version>1.4.0</version>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.xmlgraphics</groupId>
-			<artifactId>batik-swing</artifactId>
-			<version>1.7</version>
-			<scope>provided</scope>
-			<exclusions>
-				<exclusion>
-					<artifactId>xalan</artifactId>
-					<groupId>xalan</groupId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.xmlgraphics</groupId>
-			<artifactId>batik-transcoder</artifactId>
-			<version>1.7</version>
-			<scope>provided</scope>
-			<exclusions>
-				<exclusion>
-					<artifactId>xalan</artifactId>
-					<groupId>xalan</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>org.apache.xmlgraphics</artifactId>
-					<groupId>fop</groupId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>net.java.dev.datatips</groupId>
-			<artifactId>datatips</artifactId>
-			<version>20091219</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-	        <groupId>com.seaglasslookandfeel</groupId>
-	        <artifactId>seaglasslookandfeel</artifactId>
-	        <version>0.1.1</version>
-	    </dependency>
-		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-context</artifactId>
 			<version>3.0.0.RELEASE</version>
-		</dependency>
-		<dependency>
-			<groupId>org.mnode.base</groupId>
-			<artifactId>base-commons</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>org.mnode.base</groupId>
-			<artifactId>base-substance</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 	<scm>

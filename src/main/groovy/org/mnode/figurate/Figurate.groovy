@@ -103,6 +103,8 @@ import org.jdesktop.jxlayer.plaf.AbstractLayerUI
 import java.awt.Graphics2D
 import org.mnode.base.desktop.PaddedIcon
 import org.mnode.base.commons.FileComparator
+import org.mnode.base.substance.TabCloseCallbackImpl
+import org.mnode.base.substance.VetoableMultipleTabCloseListenerImpl
  /**
   * @author fortuna
   *
@@ -1025,96 +1027,6 @@ class BreadcrumbPathListenerImpl implements BreadcrumbPathListener {
         closure()
     }
 }
-
-class NumberedEditorKit extends StyledEditorKit {
-    public ViewFactory getViewFactory() {
-        return new NumberedViewFactory();
-    }
-}
-
-class NumberedViewFactory implements ViewFactory {
-    public View create(Element elem) {
-        String kind = elem.getName();
-        if (kind != null)
-            if (kind.equals(AbstractDocument.ContentElementName)) {
-                return new LabelView(elem);
-            }
-            else if (kind.equals(AbstractDocument.ParagraphElementName)) {
-//              return new ParagraphView(elem);
-                return new NumberedParagraphView(elem);
-            }
-            else if (kind.equals(AbstractDocument.SectionElementName)) {
-                return new NoWrapBoxView(elem, View.Y_AXIS);
-            }
-            else if (kind.equals(StyleConstants.ComponentElementName)) {
-                return new ComponentView(elem);
-            }
-            else if (kind.equals(StyleConstants.IconElementName)) {
-                return new IconView(elem);
-            }
-        // default to text display
-        return new LabelView(elem);
-    }
-}
-
-class NoWrapBoxView extends BoxView {
-        public NoWrapBoxView(Element elem, int axis)
-        {
-            super(elem, axis);
-        }
- 
-        public void layout(int width, int height)
-        {
-            super.layout(32768, height);
-        }
-        
-        public float getMinimumSpan(int axis) {
-            return super.getPreferredSpan(axis);
-        }
-}
-    
-class NumberedParagraphView extends ParagraphView {
-    public static short NUMBERS_WIDTH=25;
-
-    public NumberedParagraphView(Element e) {
-        super(e);
-        short top = 0;
-        short left = 0;
-        short bottom = 0;
-        short right = 0;
-        this.setInsets(top, left, bottom, right);
-    }
-
-    protected void setInsets(short top, short left, short bottom,
-                             short right) {
-        super.setInsets(top,(short)(left+NUMBERS_WIDTH),bottom,right);
-    }
-
-    public void paintChild(Graphics g, Rectangle r, int n) {
-        super.paintChild(g, r, n);
-        int previousLineCount = getPreviousLineCount();
-        int numberX = r.x - getLeftInset();
-        int numberY = r.y + r.height - 5;
-        g.color = Color.LIGHT_GRAY
-        g.drawString(Integer.toString(previousLineCount + n + 1), numberX, numberY);
-    }
-
-    public int getPreviousLineCount() {
-        int lineCount = 0;
-        View parent = this.getParent();
-        int count = parent.getViewCount();
-        for (int i = 0; i < count; i++) {
-            if (parent.getView(i) == this) {
-                break;
-            }
-            else {
-                lineCount += parent.getView(i).getViewCount();
-            }
-        }
-        return lineCount;
-    }
-}
-
     
 class LineHighlightPainter extends DefaultHighlighter.DefaultHighlightPainter {
         
@@ -1126,47 +1038,6 @@ class LineHighlightPainter extends DefaultHighlighter.DefaultHighlightPainter {
         void paint(Graphics g, int offs0, int offs1, Shape bounds, JTextComponent c) {
             super.paint(g, offs0, offs1, bounds, c);
         }
-}
-
-class TabCloseCallbackImpl implements TabCloseCallback {
-
-      public TabCloseKind onAreaClick(JTabbedPane tabbedPane, int tabIndex, MouseEvent mouseEvent) {
-        if (mouseEvent.getButton() != MouseEvent.BUTTON2)
-          return TabCloseKind.NONE;
-        if (mouseEvent.isShiftDown()) {
-          return TabCloseKind.ALL;
-        }
-        return TabCloseKind.THIS;
-      }
-
-      public TabCloseKind onCloseButtonClick(JTabbedPane tabbedPane,
-          int tabIndex, MouseEvent mouseEvent) {
-        if (mouseEvent.isAltDown()) {
-          return TabCloseKind.ALL_BUT_THIS;
-        }
-        if (mouseEvent.isShiftDown()) {
-          return TabCloseKind.ALL;
-        }
-        return TabCloseKind.THIS;
-      }
-
-      public String getAreaTooltip(JTabbedPane tabbedPane, int tabIndex) {
-        return null;
-      }
-
-      public String getCloseButtonTooltip(JTabbedPane tabbedPane,
-          int tabIndex) {
-        StringBuffer result = new StringBuffer();
-        result.append("<html><body>");
-        result.append("Mouse click closes <b>"
-            + tabbedPane.getTitleAt(tabIndex) + "</b> tab");
-        result
-            .append("<br><b>Alt</b>-Mouse click closes all tabs but <b>"
-                + tabbedPane.getTitleAt(tabIndex) + "</b> tab");
-        result.append("<br><b>Shift</b>-Mouse click closes all tabs");
-        result.append("</body></html>");
-        return result.toString();
-      }
 }
 
 class MaxWidthComboBox extends JComboBox {

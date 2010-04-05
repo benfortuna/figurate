@@ -1104,56 +1104,6 @@ class VetoableMultipleTabCloseListenerImpl implements VetoableMultipleTabCloseLi
     void tabsClosed(JTabbedPane tabbedPane, Set tabComponents) {}
 }
 
-class EditListener extends UndoManager implements DocumentListener {
-
-    def component
-    
-    public EditListener(def component) {
-        this.component = component
-    }
-
-    void undoableEditHappened(UndoableEditEvent e) {
-        component.putClientProperty(SubstanceLookAndFeel.WINDOW_MODIFIED, true)
-        super.undoableEditHappened(e)
-    }
-
-    void changedUpdate(DocumentEvent e) {
-        if (canUndoAny()) {
-            component.putClientProperty(SubstanceLookAndFeel.WINDOW_MODIFIED, true)
-        }
-        else {
-            component.putClientProperty(SubstanceLookAndFeel.WINDOW_MODIFIED, false)
-        }
-    }
-    
-    void insertUpdate(DocumentEvent e) {
-        if (canUndoAny()) {
-            component.putClientProperty(SubstanceLookAndFeel.WINDOW_MODIFIED, true)
-        }
-        else {
-            component.putClientProperty(SubstanceLookAndFeel.WINDOW_MODIFIED, false)
-        }
-    }
-    
-    void removeUpdate(DocumentEvent e) {
-        if (canUndoAny()) {
-            component.putClientProperty(SubstanceLookAndFeel.WINDOW_MODIFIED, true)
-        }
-        else {
-            component.putClientProperty(SubstanceLookAndFeel.WINDOW_MODIFIED, false)
-        }
-    }
-    
-    boolean canUndoAny() {
-        for (edit in edits) {
-            if (edit.canUndo()) {
-                return true
-            }
-        }
-        return false
-    }
-}
-
 class FigurateControl {
 }
 

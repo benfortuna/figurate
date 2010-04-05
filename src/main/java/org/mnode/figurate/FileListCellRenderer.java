@@ -32,6 +32,8 @@ import javax.swing.filechooser.FileSystemView;
  */
 public class FileListCellRenderer extends DefaultListCellRenderer {
 
+    private static final long serialVersionUID = 1L;
+    
     private final FileSystemView fsv = FileSystemView.getFileSystemView();
     
     @Override

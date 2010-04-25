@@ -105,7 +105,7 @@ import org.mnode.base.desktop.PaddedIcon
 import org.mnode.base.commons.FileComparator
 import org.mnode.base.substance.TabCloseCallbackImpl
 import org.mnode.base.substance.VetoableMultipleTabCloseListenerImpl
- /**
+import org.mnode.base.desktop.HyperlinkListenerImpl /**
   * @author fortuna
   *
   */

@@ -105,26 +105,32 @@ import org.mnode.base.desktop.PaddedIcon
 import org.mnode.base.commons.FileComparator
 import org.mnode.base.substance.TabCloseCallbackImpl
 import org.mnode.base.substance.VetoableMultipleTabCloseListenerImpl
-import org.mnode.base.desktop.HyperlinkListenerImpl /**
+import org.mnode.base.desktop.HyperlinkListenerImpl
+
+ /**
   * @author fortuna
   *
   */
   /*
 @Grapes([
+    @Grab(group='org.mnode.figurate', module='figurate', version='0.0.1-SNAPSHOT'),
     @Grab(group='org.springframework', module='spring-context', version='3.0.0.RELEASE'),
-    @Grab(group='org.codehaus.griffon.swingxbuilder', module='swingxbuilder', version='0.1.6'),
-    @Grab(group='net.java.dev.substance', module='substance', version='5.3'),
-    @Grab(group='net.java.dev.substance', module='substance-swingx', version='5.3'),
+    @Grab(group='org.mnode.base', module='base-commons', version='0.0.1-SNAPSHOT'),
+    @Grab(group='org.mnode.base', module='base-desktop', version='0.0.1-SNAPSHOT'),
+    @Grab(group='org.mnode.base', module='base-substance', version='0.0.1-SNAPSHOT'),
+//    @Grab(group='org.codehaus.griffon.swingxbuilder', module='swingxbuilder', version='0.1.6'),
+//    @Grab(group='net.java.dev.substance', module='substance', version='5.3'),
+//    @Grab(group='net.java.dev.substance', module='substance-swingx', version='5.3'),
     //@Grab(group='org.swinglabs', module='swingx', version='0.9.2'),
-    @Grab(group='org.mnode.base', module='base-views', version='0.0.1-SNAPSHOT'),
+//    @Grab(group='org.mnode.base', module='base-views', version='0.0.1-SNAPSHOT'),
     //@Grab(group='jgoodies', module='forms', version='1.0.5'),
     //@Grab(group='org.codehaus.griffon.flamingobuilder', module='flamingobuilder', version='0.2'),
     @Grab(group='net.java.dev.flamingo', module='flamingo', version='4.2'),
-    @Grab(group='org.apache.xmlgraphics', module='batik-awt-util', version='1.7'),
-    @Grab(group='org.apache.xmlgraphics', module='batik-swing', version='1.7'),
-    @Grab(group='org.apache.xmlgraphics', module='batik-transcoder', version='1.7'),
+//    @Grab(group='org.apache.xmlgraphics', module='batik-awt-util', version='1.7'),
+//    @Grab(group='org.apache.xmlgraphics', module='batik-swing', version='1.7'),
+//    @Grab(group='org.apache.xmlgraphics', module='batik-transcoder', version='1.7'),
     @Grab(group='net.java.dev.datatips', module='datatips', version='20091219'),
-    @Grab(group='org.swinglabs', module='jxlayer', version='3.0.4'),
+//    @Grab(group='org.swinglabs', module='jxlayer', version='3.0.4'),
     @Grab(group='com.fifesoft.rsyntaxtextarea', module='rsyntaxtextarea', version='1.4.0')])
     */
 class Figurate {
@@ -484,6 +490,30 @@ class Figurate {
             caretPosLabel.text = "${line}:${column} (${lineCount}:${lineLength})"
         }
         
+        def closeCurrentTab = { tabs ->
+            if (tabs.selectedIndex > 0) {
+                tabs.removeTabAt tabs.selectedIndex
+            }
+        }
+        
+        def closeOtherTabs = { tabs ->
+            if (tabs.tabCount > 1) {
+                for (index in (tabs.tabCount - 1)..1) {
+                    if (index != tabs.selectedIndex) {
+                        tabs.removeTabAt index
+                    }
+                }
+            }
+        }
+        
+        def closeAllTabs = { tabs ->
+            if (tabs.tabCount > 1) {
+                for (index in (tabs.tabCount - 1)..1) {
+                    tabs.removeTabAt index
+                }
+            }
+        }
+        
          swing.edt {
              frame(title: 'Figurate', id: 'figurateFrame', defaultCloseOperation: JFrame.DO_NOTHING_ON_CLOSE,
                      size: [800, 600], show: false, locationRelativeTo: null, iconImage: imageIcon('/logo.png', id: 'logoIcon').image) {
@@ -535,8 +565,19 @@ class Figurate {
                              tabs.setTitleAt(tabs.selectedIndex, editor.name)
                          }
                      })
-                     action(id: 'closeTabAction', name: 'Close Tab', accelerator: shortcut('W'))
-                     action(id: 'closeAllTabsAction', name: 'Close All Tabs', accelerator: shortcut('shift W'))
+                     action(id: 'saveCopyFileAction', name: 'Save a Copy..', closure: {
+                         def editor = navController.currentMark.editor
+                         if (editor.getClientProperty('figurate.file').exists()) {
+                             chooser.selectedFile = editor.getClientProperty('figurate.file')
+                         }
+                         if (chooser.showSaveDialog() == JFileChooser.APPROVE_OPTION) {
+                             chooser.selectedFile.text = editor.getClientProperty('figurate.textArea').text
+                         }
+                     })
+                     action(id: 'closeTabAction', name: 'Close Tab', accelerator: shortcut('W'), closure: { closeCurrentTab(tabs) })
+                     action(id: 'closeOtherTabsAction', name: 'Close Other Tabs', closure: { closeOtherTabs(tabs) })
+                     action(id: 'closeAllTabsAction', name: 'Close All Tabs', accelerator: shortcut('shift W'), closure: { closeAllTabs(tabs) })
+
                      action(id: 'printAction', name: 'Print', accelerator: shortcut('P'))
                      action(id: 'exitAction', name: 'Exit', accelerator: shortcut('Q'), closure: { close(figurateFrame, true) })
                      
@@ -600,6 +641,7 @@ class Figurate {
                          separator()
                          menuItem(saveFileAction)
                          menuItem(saveAsFileAction)
+                         menuItem(saveCopyFileAction)
                          menuItem(text: "Save All")
                          separator()
                          menuItem(printAction)

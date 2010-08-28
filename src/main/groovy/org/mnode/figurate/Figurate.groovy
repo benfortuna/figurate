@@ -66,14 +66,17 @@ import javax.swing.event.DocumentListener
 import javax.swing.event.DocumentEvent
 import javax.swing.undo.UndoManager
 import groovy.beans.Bindable
-import groovy.swing.SwingXBuilder
+//import groovy.swing.SwingXBuilder
 import groovy.swing.LookAndFeelHelper
-import org.jvnet.substance.SubstanceLookAndFeel
-import org.jvnet.substance.api.SubstanceConstants
-import org.jvnet.substance.api.SubstanceConstants.TabCloseKind
-import org.jvnet.substance.api.tabbed.TabCloseCallback
-import org.jvnet.substance.api.tabbed.VetoableTabCloseListener
-import org.jvnet.lafwidget.tabbed.DefaultTabPreviewPainter
+import groovy.swing.SwingBuilder;
+
+import org.pushingpixels.substance.api.SubstanceLookAndFeel
+import org.pushingpixels.substance.api.SubstanceConstants
+import org.pushingpixels.substance.api.SubstanceConstants.TabCloseKind
+import org.pushingpixels.substance.api.tabbed.TabCloseCallback
+import org.pushingpixels.substance.api.tabbed.VetoableTabCloseListener
+import org.pushingpixels.lafwidget.LafWidget;
+import org.pushingpixels.lafwidget.tabbed.DefaultTabPreviewPainter
 import org.jvnet.flamingo.bcb.*
 import org.jvnet.flamingo.bcb.core.BreadcrumbFileSelector
 import org.jvnet.flamingo.common.JCommandButton
@@ -82,7 +85,7 @@ import org.jvnet.flamingo.common.JCommandToggleButton
 import org.jvnet.flamingo.common.CommandToggleButtonGroup
 import org.jvnet.flamingo.common.CommandButtonDisplayState
 import org.jvnet.flamingo.svg.SvgBatikResizableIcon
-import org.mnode.base.desktop.tracker.TrackerRegistry;
+//import org.mnode.base.desktop.tracker.TrackerRegistry;
 import org.fife.ui.rtextarea.RTextScrollPane
 import org.fife.ui.rtextarea.Gutter
 import org.fife.ui.rtextarea.RTextArea
@@ -97,15 +100,15 @@ import org.fife.ui.rsyntaxtextarea.RSyntaxTextAreaEditorKit.DecreaseFontSizeActi
 import org.fife.ui.rtextarea.RTextAreaEditorKit.TimeDateAction
 import org.fife.ui.rtextarea.RTextAreaEditorKit.BeginRecordingMacroAction
 import org.springframework.context.support.ClassPathXmlApplicationContext
-import org.jvnet.substance.api.tabbed.VetoableMultipleTabCloseListener
+import org.pushingpixels.substance.api.tabbed.VetoableMultipleTabCloseListener
 import org.jdesktop.jxlayer.JXLayer
 import org.jdesktop.jxlayer.plaf.AbstractLayerUI
 import java.awt.Graphics2D
-import org.mnode.base.desktop.PaddedIcon
+//import org.mnode.base.desktop.PaddedIcon
 import org.mnode.base.commons.FileComparator
-import org.mnode.base.substance.TabCloseCallbackImpl
-import org.mnode.base.substance.VetoableMultipleTabCloseListenerImpl
-import org.mnode.base.desktop.HyperlinkListenerImpl
+//import org.mnode.base.substance.TabCloseCallbackImpl
+import org.mnode.ousia.HyperlinkBrowser;
+import org.mnode.ousia.OusiaBuilder;
 
  /**
   * @author fortuna
@@ -155,13 +158,14 @@ class Figurate {
         //    control = context.getBean("FigurateControl")
         //}
         
-         UIManager.put("TabbedPane.contentBorderInsets", new Insets(0, 0, 0, 0))
-         UIManager.put(org.jvnet.lafwidget.LafWidget.ANIMATION_KIND, org.jvnet.lafwidget.utils.LafConstants.AnimationKind.FAST.derive(2))
+//         UIManager.put("TabbedPane.contentBorderInsets", new Insets(0, 0, 0, 0))
+//         UIManager.put(org.pushingpixels.lafwidget.LafWidget.ANIMATION_KIND, org.pushingpixels.lafwidget.utils.LafConstants.AnimationKind.FAST.derive(2))
          //UIManager.put(org.jvnet.lafwidget.LafWidget.TABBED_PANE_PREVIEW_PAINTER, new DefaultTabPreviewPainter())
-         LookAndFeelHelper.instance.addLookAndFeelAlias('substance5', 'org.jvnet.substance.skin.SubstanceNebulaLookAndFeel')
-         LookAndFeelHelper.instance.addLookAndFeelAlias('seaglass', 'com.seaglasslookandfeel.SeaGlassLookAndFeel')
+//         LookAndFeelHelper.instance.addLookAndFeelAlias('substance6', 'org.pushingpixels.substance.api.skin.SubstanceNebulaLookAndFeel')
+//         LookAndFeelHelper.instance.addLookAndFeelAlias('seaglass', 'com.seaglasslookandfeel.SeaGlassLookAndFeel')
          
-         def swing = new SwingXBuilder()
+//         def swing = new SwingXBuilder()
+         def swing = new OusiaBuilder()
          swing.registerBeanFactory('comboBox', MaxWidthComboBox.class)
          swing.registerBeanFactory('fileBreadcrumbBar', MaxWidthBreadcrumbFileSelector.class)
          //swing.registerBeanFactory('syntaxTextArea', RSyntaxTextArea.class)
@@ -180,7 +184,8 @@ class Figurate {
                  def radioButtonMenuItemUI = UIManager.get('RadioButtonMenuItemUI')
                  def popupMenuUI = UIManager.get('PopupMenuUI')
                  
-                 lookAndFeel('seaglass', 'substance5', 'system')
+//                 lookAndFeel('seaglass', 'substance6', 'system')
+                 lookAndFeel('substance-nebula')
                  UIManager.put('MenuBarUI', menuBarUI)
                  UIManager.put('MenuUI', menuUI)
                  UIManager.put('MenuItemUI', menuItemUI)
@@ -191,7 +196,9 @@ class Figurate {
          }
          else {
              swing.edt {
-                 lookAndFeel('seaglass', 'substance5', 'system')
+//                 lookAndFeel('seaglass', 'substance5', 'system')
+//                 lookAndFeel('substance6')
+                 lookAndFeel('substance-office-blue-2007')
              }
          }
 
@@ -308,7 +315,7 @@ class Figurate {
                     textArea.marginLineEnabled = true
                     textArea.font = textFont
                     textArea.markAllHighlightColor = new Color(textArea.markAllHighlightColor.red, textArea.markAllHighlightColor.green, textArea.markAllHighlightColor.blue, 64)
-                        textArea.addHyperlinkListener(new HyperlinkListenerImpl())
+                        textArea.addHyperlinkListener(new HyperlinkBrowser())
                         RTextScrollPane sp = new RTextScrollPane(textArea);
                         sp.gutter.bookmarkingEnabled = true
                         sp.gutter.bookmarkIcon = imageIcon('/bookmark.png', id: 'bookmarkIcon')
@@ -445,7 +452,7 @@ class Figurate {
                  def editor = newTab(file)
                  tabs.add(editor)
                  def tabIndex = tabs.indexOfComponent(editor)
-                 tabs.setIconAt(tabIndex, new PaddedIcon(FileSystemView.fileSystemView.getSystemIcon(file), 16, 18))
+//                 tabs.setIconAt(tabIndex, new PaddedIcon(FileSystemView.fileSystemView.getSystemIcon(file), 16, 18))
                  tabs.setToolTipTextAt(tabIndex, file.absolutePath)
 
                  //def tabPopupMenu = swing.popupMenu {
@@ -608,7 +615,7 @@ class Figurate {
                              panel(constraints: BorderLayout.CENTER, border: emptyBorder(10)) {
                                  borderLayout()
                                  scrollPane(horizontalScrollBarPolicy: JScrollPane.HORIZONTAL_SCROLLBAR_NEVER, border: null) {
-                                     table(editable: false) {
+                                     table() {
                                          def systemProps = []
                                          for (propName in System.properties.keySet()) {
                                              systemProps.add([property: propName, value: System.properties.getProperty(propName)])
@@ -626,9 +633,9 @@ class Figurate {
                  
                  fileChooser(id: 'chooser')
                  
-                 tipOfTheDay(id: 'tips', model: defaultTipModel(tips: [
-                     defaultTip(name: 'test', tip: '<html><em>testing</em>')
-                 ]))
+//                 tipOfTheDay(id: 'tips', model: defaultTipModel(tips: [
+//                     defaultTip(name: 'test', tip: '<html><em>testing</em>')
+//                 ]))
 
                  menuBar() {
                      menu(text: "File", mnemonic: 'F') {
@@ -764,9 +771,9 @@ class Figurate {
                              //def pathField = new MaxWidthComboBox()
                              //pathField.editable = true
                              //pathField.renderer = new PathListCellRenderer()
-                             pathField.putClientProperty(org.jvnet.lafwidget.LafWidget.TEXT_SELECT_ON_FOCUS, true)
-                             pathField.putClientProperty(org.jvnet.lafwidget.LafWidget.TEXT_FLIP_SELECT_ON_ESCAPE, true)
-                             pathField.putClientProperty(org.jvnet.lafwidget.LafWidget.TEXT_EDIT_CONTEXT_MENU, true)
+                             pathField.putClientProperty(LafWidget.TEXT_SELECT_ON_FOCUS, true)
+                             pathField.putClientProperty(LafWidget.TEXT_FLIP_SELECT_ON_ESCAPE, true)
+                             pathField.putClientProperty(LafWidget.TEXT_EDIT_CONTEXT_MENU, true)
                              widget(pathField)
                              //pathField.maximumSize = new java.awt.Dimension(Short.MAX_VALUE, 20)
                              pathField.actionPerformed = {
@@ -809,13 +816,13 @@ class Figurate {
                                  list(id: 'fileList')
                                  fileList.cellRenderer = new FileListCellRenderer()
 //                                 fileList.autoCreateRowSorter = true
-                                 fileList.comparator = new FileComparator()
+//                                 fileList.comparator = new FileComparator()
 //                                 fileList.filterEnabled = true
                                  DataTipManager.get().register(fileList)
                                  def fileModel = new DefaultListModel()
                                  def files = FileSystemView.fileSystemView.getFiles(userDir, false)
 //                                 def comparator = new FileComparator()
-                                 Arrays.sort(files, fileList.comparator)
+//                                 Arrays.sort(files, fileList.comparator)
                                  for (file in files) {
                                      fileModel.addElement(file)
                                  }
@@ -874,8 +881,8 @@ class Figurate {
                          navController.addMark(tabs.selectedComponent)
                      }
                      tabs.putClientProperty(SubstanceLookAndFeel.TABBED_PANE_CONTENT_BORDER_KIND, SubstanceConstants.TabContentPaneBorderKind.SINGLE_FULL)
-                     tabs.putClientProperty(SubstanceLookAndFeel.TABBED_PANE_CLOSE_CALLBACK, new TabCloseCallbackImpl())
-                     tabs.putClientProperty(org.jvnet.lafwidget.LafWidget.TABBED_PANE_PREVIEW_PAINTER, new DefaultTabPreviewPainter())
+//                     tabs.putClientProperty(SubstanceLookAndFeel.TABBED_PANE_CLOSE_CALLBACK, new TabCloseCallbackImpl())
+                     tabs.putClientProperty(LafWidget.TABBED_PANE_PREVIEW_PAINTER, new DefaultTabPreviewPainter())
 //                     SubstanceLookAndFeel.registerTabCloseChangeListener(tabs, new VetoableTabCloseListenerImpl())
                      SubstanceLookAndFeel.registerTabCloseChangeListener(tabs, new VetoableMultipleTabCloseListenerImpl())
 
@@ -916,7 +923,7 @@ class Figurate {
                          userDir = breadcrumbBar.model.getItem(breadcrumbBar.model.itemCount - 1).data
                          def fileModel = new DefaultListModel()
                          def files = FileSystemView.fileSystemView.getFiles(userDir, false)
-                         Arrays.sort(files, fileList.comparator)
+//                         Arrays.sort(files, fileList.comparator)
                          for (file in files) {
                              fileModel.addElement(file)
                          }
@@ -992,15 +999,22 @@ class Figurate {
                      SystemTray.systemTray.add(trayIcon)
                  }
                  
-                statusBar(constraints: BorderLayout.SOUTH, border:emptyBorder([5, 3, 3, 3]), id: 'fStatusBar') {
-                    label(id: 'statusMessage', text: 'Ready', constraints: new JXStatusBar.Constraint(JXStatusBar.Constraint.ResizeBehavior.FILL))
-                    label(id: 'caretPosLabel', text: '1:0')
-                    label(id: 'syntaxLabel', text: 'text/plain') //, constraints: new JXStatusBar.Constraint(50))
-                    label(id: 'lastModLabel', text: '<Unsaved>')
-                }
-                bind(source: viewStatusBar, sourceProperty:'selected', target:fStatusBar, targetProperty:'visible')
+                 JXStatusBar fStatusBar = new JXStatusBar()
+                 fStatusBar.add(label(id: 'statusMessage', text: 'Ready'), new JXStatusBar.Constraint(JXStatusBar.Constraint.ResizeBehavior.FILL))
+                 fStatusBar.add(label(id: 'caretPosLabel', text: '1:0'))
+                 fStatusBar.add(label(id: 'syntaxLabel', text: 'text/plain')) //, constraints: new JXStatusBar.Constraint(50))
+                 fStatusBar.add(label(id: 'lastModLabel', text: '<Unsaved>'))
+                 widget(fStatusBar, constraints: BorderLayout.SOUTH, border:emptyBorder([5, 3, 3, 3]), id: 'fStatusBar')
+                 
+//                statusBar(constraints: BorderLayout.SOUTH, border:emptyBorder([5, 3, 3, 3]), id: 'fStatusBar') {
+//                    label(id: 'statusMessage', text: 'Ready', constraints: new JXStatusBar.Constraint(JXStatusBar.Constraint.ResizeBehavior.FILL))
+//                    label(id: 'caretPosLabel', text: '1:0')
+//                    label(id: 'syntaxLabel', text: 'text/plain') //, constraints: new JXStatusBar.Constraint(50))
+//                    label(id: 'lastModLabel', text: '<Unsaved>')
+//                }
+//                bind(source: viewStatusBar, sourceProperty:'selected', target:fStatusBar, targetProperty:'visible')
              }
-             TrackerRegistry.instance.register(figurateFrame, 'figurateFrame');
+//             TrackerRegistry.instance.register(figurateFrame, 'figurateFrame');
              figurateFrame.windowClosing = {
                      close(figurateFrame, !SystemTray.isSupported())
              }

@@ -74,7 +74,7 @@ new OusiaBuilder().edt {
                     editor.syntaxEditingStyle = MimeUtil.getMimeTypes(chooser.selectedFile).iterator().next()
 					syntaxStatus.text = editor.syntaxEditingStyle
                     editor.caretPosition = 0
-                    frame.title = "${editor.fileFullPath} - Text Editor"
+                    frame.title = "${editor.fileFullPath} - Figurate"
                  }
              }
          }
@@ -130,7 +130,9 @@ new OusiaBuilder().edt {
     
     fileChooser(id: 'chooser')
     
-    frame(title: 'Text Editor', size: [640, 480], show: true, locationRelativeTo: null, defaultCloseOperation: JFrame.EXIT_ON_CLOSE, id: 'frame') {
+    frame(title: 'Figurate', size: [640, 480], show: true, locationRelativeTo: null,
+		 defaultCloseOperation: JFrame.EXIT_ON_CLOSE, id: 'frame', iconImage: imageIcon('/logo.png', id: 'logoIcon').image) {
+		 
         menuBar {
             menu(text: "File", mnemonic: 'F') {
                 menuItem(openFileAction)

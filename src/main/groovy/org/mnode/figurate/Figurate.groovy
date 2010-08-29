@@ -65,6 +65,8 @@ import javax.swing.event.UndoableEditEvent
 import javax.swing.event.DocumentListener
 import javax.swing.event.DocumentEvent
 import javax.swing.undo.UndoManager
+
+import eu.medsea.mimeutil.MimeUtil;
 import groovy.beans.Bindable
 //import groovy.swing.SwingXBuilder
 import groovy.swing.LookAndFeelHelper
@@ -75,16 +77,15 @@ import org.pushingpixels.substance.api.SubstanceConstants
 import org.pushingpixels.substance.api.SubstanceConstants.TabCloseKind
 import org.pushingpixels.substance.api.tabbed.TabCloseCallback
 import org.pushingpixels.substance.api.tabbed.VetoableTabCloseListener
+import org.pushingpixels.flamingo.api.bcb.BreadcrumbPathEvent;
+import org.pushingpixels.flamingo.api.bcb.BreadcrumbPathListener;
+import org.pushingpixels.flamingo.api.bcb.core.BreadcrumbFileSelector;
+import org.pushingpixels.flamingo.api.common.CommandButtonDisplayState;
+import org.pushingpixels.flamingo.api.common.JCommandButton;
+import org.pushingpixels.flamingo.api.common.JCommandButtonStrip;
+import org.pushingpixels.flamingo.api.common.JCommandToggleButton;
 import org.pushingpixels.lafwidget.LafWidget;
 import org.pushingpixels.lafwidget.tabbed.DefaultTabPreviewPainter
-import org.jvnet.flamingo.bcb.*
-import org.jvnet.flamingo.bcb.core.BreadcrumbFileSelector
-import org.jvnet.flamingo.common.JCommandButton
-import org.jvnet.flamingo.common.JCommandButtonStrip
-import org.jvnet.flamingo.common.JCommandToggleButton
-import org.jvnet.flamingo.common.CommandToggleButtonGroup
-import org.jvnet.flamingo.common.CommandButtonDisplayState
-import org.jvnet.flamingo.svg.SvgBatikResizableIcon
 //import org.mnode.base.desktop.tracker.TrackerRegistry;
 import org.fife.ui.rtextarea.RTextScrollPane
 import org.fife.ui.rtextarea.Gutter
@@ -107,8 +108,10 @@ import java.awt.Graphics2D
 //import org.mnode.base.desktop.PaddedIcon
 import org.mnode.base.commons.FileComparator
 //import org.mnode.base.substance.TabCloseCallbackImpl
+import org.mnode.ousia.FileListCellRenderer;
 import org.mnode.ousia.HyperlinkBrowser;
 import org.mnode.ousia.OusiaBuilder;
+import org.mnode.ousia.substance.EditListener;
 
  /**
   * @author fortuna
@@ -163,9 +166,11 @@ class Figurate {
          //UIManager.put(org.jvnet.lafwidget.LafWidget.TABBED_PANE_PREVIEW_PAINTER, new DefaultTabPreviewPainter())
 //         LookAndFeelHelper.instance.addLookAndFeelAlias('substance6', 'org.pushingpixels.substance.api.skin.SubstanceNebulaLookAndFeel')
 //         LookAndFeelHelper.instance.addLookAndFeelAlias('seaglass', 'com.seaglasslookandfeel.SeaGlassLookAndFeel')
-         
-//         def swing = new SwingXBuilder()
-         def swing = new OusiaBuilder()
+
+		MimeUtil.registerMimeDetector("eu.medsea.mimeutil.detector.ExtensionMimeDetector")
+		
+//         def swing = new SwingBuilder()
+         OusiaBuilder swing = new OusiaBuilder()
          swing.registerBeanFactory('comboBox', MaxWidthComboBox.class)
          swing.registerBeanFactory('fileBreadcrumbBar', MaxWidthBreadcrumbFileSelector.class)
          //swing.registerBeanFactory('syntaxTextArea', RSyntaxTextArea.class)
@@ -175,7 +180,7 @@ class Figurate {
              System.setProperty("apple.laf.useScreenMenuBar", "true");
              System.setProperty("com.apple.mrj.application.apple.menu.about.name", "Figurate");
 
-             swing.edt {
+			 swing.edt {
                  lookAndFeel('system')
                  def menuBarUI = UIManager.get('MenuBarUI')
                  def menuUI = UIManager.get('MenuUI')
@@ -215,9 +220,9 @@ class Figurate {
                  tabFile = new File(FileSystemView.fileSystemView.homeDirectory, "Unsaved File ${++newFileCount}")
              }
 
-             RSyntaxTextArea textArea = new RSyntaxTextArea();
-             
-             //@Bindable String tabName = 'New Tab'
+//             RSyntaxTextArea textArea = new RSyntaxTextArea();
+
+			              //@Bindable String tabName = 'New Tab'
              def newPanel = swing.panel(name: tabFile.name, id: tabFile.absolutePath) {//,
 //                     tabIcon: FileSystemView.fileSystemView.getSystemIcon(tabFile)) {
                      borderLayout()
@@ -248,8 +253,19 @@ class Figurate {
 //                             }
 //                         }
 
+					 textEditorPane(marginLineEnabled: true, id: 'editor')
+             
+					 doLater {
+						 editor.load(FileLocation.create(tabFile), null)
+						 editor.syntaxEditingStyle = MimeUtil.getMimeTypes(tabFile).iterator().next()
+						 syntaxStatus.text = editor.syntaxEditingStyle
+						 editor.caretPosition = 0
+						 figurateFrame.title = "${editor.fileFullPath} - Figurate"
+					  }
+ 
                     //syntaxTextArea(id: 'textArea', marginLineEnabled: true, whitespaceVisible: true, font: textFont)
                     //textArea.marginLineColor = Color.RED
+					 /*
                         if (tabFile.name =~ /\.java$/) {
                             textArea.syntaxEditingStyle = SyntaxConstants.SYNTAX_STYLE_JAVA
                         }
@@ -312,11 +328,13 @@ class Figurate {
 //                        else {
 //                            textArea.whitespaceVisible = true
 //                        }
-                    textArea.marginLineEnabled = true
-                    textArea.font = textFont
-                    textArea.markAllHighlightColor = new Color(textArea.markAllHighlightColor.red, textArea.markAllHighlightColor.green, textArea.markAllHighlightColor.blue, 64)
-                        textArea.addHyperlinkListener(new HyperlinkBrowser())
-                        RTextScrollPane sp = new RTextScrollPane(textArea);
+ * 
+ */
+//                    textArea.marginLineEnabled = true
+                    editor.font = textFont
+                    editor.markAllHighlightColor = new Color(editor.markAllHighlightColor.red, editor.markAllHighlightColor.green, editor.markAllHighlightColor.blue, 64)
+                        editor.addHyperlinkListener(new HyperlinkBrowser())
+                        RTextScrollPane sp = new RTextScrollPane(editor);
                         sp.gutter.bookmarkingEnabled = true
                         sp.gutter.bookmarkIcon = imageIcon('/bookmark.png', id: 'bookmarkIcon')
                         //widget(sp)
@@ -326,23 +344,23 @@ class Figurate {
                         layer.setUI(new RTextAreaLayerUI())
                         widget(layer)
 
-                        doLater {
-                            if (tabFile.exists()) {
-                                textArea.text = tabFile.text
-                                textArea.caretPosition = 0
-                                textArea.discardAllEdits()
-                            }
-                        }
+//                        doLater {
+//                            if (tabFile.exists()) {
+//                                textArea.text = tabFile.text
+//                                textArea.caretPosition = 0
+//                                textArea.discardAllEdits()
+//                            }
+//                        }
                         
-                        textArea.focusGained = {
+                        editor.focusGained = {
                             splitPane.dividerLocation = 0
                         }
                         
-                        textArea.caretUpdate = {
-                            def line = textArea.getLineOfOffset(textArea.caretPosition) + 1
-                            def column = textArea.caretPosition - textArea.getLineStartOffset(line - 1)
-                            def lineCount = textArea.lineCount
-                            def lineLength = textArea.getLineEndOffset(line - 1) - textArea.getLineStartOffset(line - 1)
+                        editor.caretUpdate = {
+                            def line = editor.getLineOfOffset(editor.caretPosition) + 1
+                            def column = editor.caretPosition - editor.getLineStartOffset(line - 1)
+                            def lineCount = editor.lineCount
+                            def lineLength = editor.getLineEndOffset(line - 1) - editor.getLineStartOffset(line - 1)
                             caretPosLabel.text = "${line}:${column} (${lineCount}:${lineLength})"
                             //updateCaretPosLabel(textArea, caretPosLabel)
                         }
@@ -359,8 +377,8 @@ class Figurate {
                         }
                         */
                         
-                        bind(source: viewWordWrap, sourceProperty:'selected', target: textArea, targetProperty: 'lineWrap')
-                        bind(source: viewWhitespace, sourceProperty:'selected', target: textArea, targetProperty: 'whitespaceVisible')
+                        bind(source: viewWordWrap, sourceProperty:'selected', target: editor, targetProperty: 'lineWrap')
+                        bind(source: viewWhitespace, sourceProperty:'selected', target: editor, targetProperty: 'whitespaceVisible')
                         bind(source: viewLineNumbers, sourceProperty:'selected', target: sp, targetProperty: 'lineNumbersEnabled')
 
                         //sp.gutter.addLineTrackingIcon(0, imageIcon('F:/images/icons/logo.png'))
@@ -420,20 +438,20 @@ class Figurate {
 //                }
 //             }))
 //                 }
+             
+	             newPanel.putClientProperty(SubstanceLookAndFeel.TABBED_PANE_CLOSE_BUTTONS_PROPERTY, true)
+	             newPanel.putClientProperty("figurate.file", tabFile)
+	             newPanel.putClientProperty("figurate.textArea", editor)
              }
              
              swing.doLater {
 
                  // record changes for modified flag..
                  EditListener editListener = new EditListener(newPanel)
-                 textArea.document.addUndoableEditListener(editListener);
+                 editor.document.addUndoableEditListener(editListener);
                  //editListener.discardAllEdits()
-                 textArea.document.addDocumentListener(editListener)
+                 editor.document.addDocumentListener(editListener)
              }
-             
-             newPanel.putClientProperty(SubstanceLookAndFeel.TABBED_PANE_CLOSE_BUTTONS_PROPERTY, true)
-             newPanel.putClientProperty("figurate.file", tabFile)
-             newPanel.putClientProperty("figurate.textArea", textArea)
              return newPanel
          }
          
@@ -718,14 +736,14 @@ class Figurate {
                      def navButtons = new JCommandButtonStrip()
                      navButtons.displayState = CommandButtonDisplayState.FIT_TO_ICON
                      //navButtons.preferredSize = new java.awt.Dimension(50, 5)
-                     def backIcon = SvgBatikResizableIcon.getSvgIcon(Figurate.class.getResource('/back.svg'), new java.awt.Dimension(20, 20))
+                     def backIcon = resizableIcon('/back.svg', size: new java.awt.Dimension(20, 20))
                      def backButton = new JCommandButton(backIcon) //'Back')
 //                     bind(source: navController, sourceProperty: 'currentMark', target: backButton, targetProperty: 'enabled', converter: { it?.previous != null })
                      //backButton enabled: bind { navController.currentMark && navController.currentMark.previous }
                      backButton.actionPerformed = { navController.setCurrentMark navController.currentMark?.previous }
                      navButtons.add(backButton)
                      
-                     def forwardIcon = SvgBatikResizableIcon.getSvgIcon(Figurate.class.getResource('/forward.svg'), new java.awt.Dimension(20, 20))
+                     def forwardIcon = resizableIcon('/forward.svg', size: new java.awt.Dimension(20, 20))
                      def forwardButton = new JCommandButton(forwardIcon) //'Forward')
                      //forwardButton.enabled = bind { navController.currentMark && navController.currentMark?.next }
 //                     bind(source: navController, sourceProperty: 'currentMark', target: forwardButton, targetProperty: 'enabled', converter: { it?.next != null })
@@ -734,20 +752,20 @@ class Figurate {
                      widget(navButtons)
                      hstrut(5)
                      
-                     def reloadIcon = SvgBatikResizableIcon.getSvgIcon(Figurate.class.getResource('/reload.svg'), new java.awt.Dimension(16, 16))
+                     def reloadIcon = resizableIcon('/reload.svg', size: new java.awt.Dimension(16, 16))
                      def reloadButton = new JCommandButton(reloadIcon) //'Reload')
                      //reloadButton.preferredSize = new java.awt.Dimension(40, 5)
                      widget(reloadButton)
                      hstrut(3)
                      
-                     def findIcon = SvgBatikResizableIcon.getSvgIcon(Figurate.class.getResource('/find.svg'), new java.awt.Dimension(16, 16))
+                     def findIcon = resizableIcon('/find.svg', size: new java.awt.Dimension(16, 16))
                      def findButton = new JCommandToggleButton(findIcon) //'Find')
                      //findButton.preferredSize = new java.awt.Dimension(30, 5)
                      widget(findButton)
                      hstrut(3)
                      
                      //toggleButton(id: 'showPathButton', constraints: BorderLayout.WEST, text: 'Path')
-                     def pathIcon = SvgBatikResizableIcon.getSvgIcon(Figurate.class.getResource('/path.svg'), new java.awt.Dimension(16, 16))
+                     def pathIcon = resizableIcon('/path.svg', size: new java.awt.Dimension(16, 16))
                      def showPathButton = new JCommandToggleButton(pathIcon) //'Path')
                      //showPathButton.preferredSize = new java.awt.Dimension(30, 5)
                      
@@ -767,7 +785,7 @@ class Figurate {
                              //borderLayout()
                              //textField(id: 'pathField', constraints: 'path')
                              //def pathFieldModel = new DefaultComboBoxModel()
-                             comboBox(id: 'pathField', editable: true, renderer: new PathListCellRenderer()) //, model: pathFieldModel)
+                             comboBox(id: 'pathField', editable: true, renderer: new FileListCellRenderer(true)) //, model: pathFieldModel)
                              //def pathField = new MaxWidthComboBox()
                              //pathField.editable = true
                              //pathField.renderer = new PathListCellRenderer()

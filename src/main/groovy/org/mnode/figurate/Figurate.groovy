@@ -157,13 +157,13 @@ new OusiaBuilder().edt {
             menu(text: "View", mnemonic: 'V') {
                 menuItem(increaseFontAction)
                 menuItem(decreaseFontAction)
-//                separator()
-//                checkBoxMenuItem(text: "Word Wrap", id: 'viewWordWrap')
-//                checkBoxMenuItem(text: "Whitespace", id: 'viewWhitespace')
-//                checkBoxMenuItem(text: "Line Numbers", id: 'viewLineNumbers')
+                separator()
+                checkBoxMenuItem(text: "Word Wrap", id: 'viewWordWrap')
+                checkBoxMenuItem(text: "Whitespace", id: 'viewWhitespace')
+                checkBoxMenuItem(text: "Line Numbers", id: 'viewLineNumbers')
 //                checkBoxMenuItem(text: "Tab Names", id: 'viewTabNames')
-//                separator()
-//                checkBoxMenuItem(text: "Status Bar", id: 'viewStatusBar')
+                separator()
+                checkBoxMenuItem(text: "Status Bar", id: 'viewStatusBar')
             }
             menu(text: "Tools", mnemonic: 'T') {
                 menu(text: "Transform") {
@@ -202,13 +202,17 @@ new OusiaBuilder().edt {
 						caretPositionStatus.text = "${line}:${column} (${lineCount}:${lineLength})"
 					}
 				}
+                bind(source: viewWordWrap, sourceProperty:'selected', target: editor, targetProperty: 'lineWrap')
+                bind(source: viewWhitespace, sourceProperty:'selected', target: editor, targetProperty: 'whitespaceVisible')
             }
+            bind(source: viewLineNumbers, sourceProperty:'selected', target: sp, targetProperty: 'lineNumbersEnabled')
         }
 		
-		statusBar(constraints: BorderLayout.SOUTH) {
+		statusBar(constraints: BorderLayout.SOUTH, id: 'statusBar') {
 			label(text: 'Ready', constraints: new JXStatusBar.Constraint(FILL))
 			label(text: '1:0', id: 'caretPositionStatus')
 			label(text: 'text/plain', id: 'syntaxStatus')
+			bind(source: viewStatusBar, sourceProperty:'selected', target:statusBar, targetProperty:'visible')
 		}
     }
 }

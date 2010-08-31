@@ -67,19 +67,19 @@ new OusiaBuilder().edt {
     lookAndFeel('substance-mariner')
     
     actions {
-        action id: 'openFileAction', name: 'Open', accelerator: shortcut('O'), closure: {
+        action id: 'openFileAction', name: rs('Open'), accelerator: shortcut('O'), closure: {
              if (chooser.showOpenDialog() == JFileChooser.APPROVE_OPTION) {
                  doLater {
                     editor.load(FileLocation.create(chooser.selectedFile), null)
                     editor.syntaxEditingStyle = MimeUtil.getMimeTypes(chooser.selectedFile).iterator().next()
 					syntaxStatus.text = editor.syntaxEditingStyle
                     editor.caretPosition = 0
-                    frame.title = "${editor.fileFullPath} - Figurate"
+                    frame.title = "${editor.fileFullPath} - ${rs('Figurate')}"
                  }
              }
          }
         
-        action id: 'exitAction', name: 'Exit', accelerator: shortcut('Q'), closure: {
+        action id: 'exitAction', name: rs('Exit'), accelerator: shortcut('Q'), closure: {
             System.exit(0)
         }
 		
@@ -88,27 +88,27 @@ new OusiaBuilder().edt {
 			editorKitActions[it.getValue(Action.NAME)] = it
 		}
 
-		action(new IncreaseFontSizeAction(), id: 'increaseFontAction', name: 'Increase Font Size', accelerator: shortcut(KeyEvent.VK_EQUALS))
-		action(new DecreaseFontSizeAction(), id: 'decreaseFontAction', name: 'Decrease Font Size', accelerator: shortcut(KeyEvent.VK_MINUS))
+		action(new IncreaseFontSizeAction(), id: 'increaseFontAction', name: rs('Increase Font Size'), accelerator: shortcut(KeyEvent.VK_EQUALS))
+		action(new DecreaseFontSizeAction(), id: 'decreaseFontAction', name: rs('Decrease Font Size'), accelerator: shortcut(KeyEvent.VK_MINUS))
 		
-		action(editorKitActions.get(RTextAreaEditorKit.rtaUpperSelectionCaseAction), id: 'upperCaseAction', name: 'Upper Case', accelerator: shortcut("shift U"))
-		action(editorKitActions.get(RTextAreaEditorKit.rtaLowerSelectionCaseAction), id: 'lowerCaseAction', name: 'Lower Case', accelerator: shortcut("shift L"))
-		action(editorKitActions.get(RTextAreaEditorKit.rtaInvertSelectionCaseAction), id: 'invertCaseAction', name: 'Invert Case', accelerator: shortcut("shift I"))
+		action(editorKitActions.get(RTextAreaEditorKit.rtaUpperSelectionCaseAction), id: 'upperCaseAction', name: rs('Upper Case'), accelerator: shortcut("shift U"))
+		action(editorKitActions.get(RTextAreaEditorKit.rtaLowerSelectionCaseAction), id: 'lowerCaseAction', name: rs('Lower Case'), accelerator: shortcut("shift L"))
+		action(editorKitActions.get(RTextAreaEditorKit.rtaInvertSelectionCaseAction), id: 'invertCaseAction', name: rs('Invert Case'), accelerator: shortcut("shift I"))
 		
-		action(new BeginRecordingMacroAction(), id: 'beginMacroAction', name: 'Begin Recording')
-		action(editorKitActions.get(RTextAreaEditorKit.rtaEndRecordingMacroAction), id: 'endMacroAction', name: 'End Recording')
-		action(editorKitActions.get(RTextAreaEditorKit.rtaPlaybackLastMacroAction), id: 'playLastMacroAction', name: 'Playback Last', accelerator: shortcut("shift P"))
+		action(new BeginRecordingMacroAction(), id: 'beginMacroAction', name: rs('Begin Recording'))
+		action(editorKitActions.get(RTextAreaEditorKit.rtaEndRecordingMacroAction), id: 'endMacroAction', name: rs('End Recording'))
+		action(editorKitActions.get(RTextAreaEditorKit.rtaPlaybackLastMacroAction), id: 'playLastMacroAction', name: rs('Playback Last'), accelerator: shortcut("shift P"))
 
-		action(new TimeDateAction(), id: 'timeDateAction', name: 'Date / Time')
+		action(new TimeDateAction(), id: 'timeDateAction', name: rs('Date / Time'))
 		
-		action id: 'onlineHelpAction', name: 'Online Help', accelerator: 'F1', closure: {
+		action id: 'onlineHelpAction', name: rs('Online Help'), accelerator: 'F1', closure: {
 			Desktop.desktop.browse(URI.create('http://basetools.org/figurate'))
 		}
 		
-		action id: 'aboutAction', name: 'About', closure: {
-			dialog(title: 'About Figurate', size: [350, 250], show: true, owner: frame, modal: true, locationRelativeTo: frame) {
+		action id: 'aboutAction', name: rs('About'), closure: {
+			dialog(title: rs('About Figurate'), size: [350, 250], show: true, owner: frame, modal: true, locationRelativeTo: frame) {
 				borderLayout()
-				label(text: 'Figurate 1.0', constraints: BorderLayout.NORTH, border: emptyBorder(10))
+				label(text: "${rs('Figurate')} 1.0", constraints: BorderLayout.NORTH, border: emptyBorder(10))
 				panel(constraints: BorderLayout.CENTER, border: emptyBorder(10)) {
 					borderLayout()
 					scrollPane(horizontalScrollBarPolicy: JScrollPane.HORIZONTAL_SCROLLBAR_NEVER, border: null) {
@@ -118,8 +118,8 @@ new OusiaBuilder().edt {
 								systemProps.add([property: propName, value: System.properties.getProperty(propName)])
 							}
 							tableModel(list: systemProps) {
-								propertyColumn(header:'Property', propertyName:'property')
-								propertyColumn(header:'Value', propertyName:'value')
+								propertyColumn(header: rs('Property'), propertyName:'property')
+								propertyColumn(header: rs('Value'), propertyName:'value')
 							}
 						}
 					}
@@ -130,16 +130,16 @@ new OusiaBuilder().edt {
     
     fileChooser(id: 'chooser')
     
-    frame(title: 'Figurate', size: [640, 480], show: true, locationRelativeTo: null,
+    frame(title: rs('Figurate'), size: [640, 480], show: true, locationRelativeTo: null,
 		 defaultCloseOperation: JFrame.EXIT_ON_CLOSE, id: 'frame', iconImage: imageIcon('/logo.png', id: 'logoIcon').image) {
 		 
         menuBar {
-            menu(text: "File", mnemonic: 'F') {
+            menu(text: rs('File'), mnemonic: 'F') {
                 menuItem(openFileAction)
                 separator()
                 menuItem(exitAction)
             }
-			menu(text: "Edit", mnemonic: 'E') {
+			menu(text: rs('Edit'), mnemonic: 'E') {
 			    // XXX: hack to initialise text actions..
 //			    new RTextArea()
 			    menuItem(RTextArea.getAction(RTextArea.UNDO_ACTION))
@@ -154,33 +154,33 @@ new OusiaBuilder().edt {
 //			    separator()
 //			    menuItem(text: "Preferences")
 			}
-            menu(text: "View", mnemonic: 'V') {
+            menu(text: rs('View'), mnemonic: 'V') {
                 menuItem(increaseFontAction)
                 menuItem(decreaseFontAction)
                 separator()
-                checkBoxMenuItem(text: "Word Wrap", id: 'viewWordWrap')
-                checkBoxMenuItem(text: "Whitespace", id: 'viewWhitespace')
-                checkBoxMenuItem(text: "Line Numbers", id: 'viewLineNumbers')
+                checkBoxMenuItem(text: rs("Word Wrap"), id: 'viewWordWrap')
+                checkBoxMenuItem(text: rs("Whitespace"), id: 'viewWhitespace')
+                checkBoxMenuItem(text: rs("Line Numbers"), id: 'viewLineNumbers')
 //                checkBoxMenuItem(text: "Tab Names", id: 'viewTabNames')
                 separator()
-                checkBoxMenuItem(text: "Status Bar", id: 'viewStatusBar')
+                checkBoxMenuItem(text: rs("Status Bar"), id: 'viewStatusBar')
             }
-            menu(text: "Tools", mnemonic: 'T') {
-                menu(text: "Transform") {
+            menu(text: rs("Tools"), mnemonic: 'T') {
+                menu(text: rs("Transform")) {
                     menuItem(upperCaseAction)
                     menuItem(lowerCaseAction)
                     menuItem(invertCaseAction)
                 }
-                menu(text: "Insert") {
+                menu(text: rs("Insert")) {
                     menuItem(timeDateAction)
                 }
-                menu(text: "Macro") {
+                menu(text: rs("Macro")) {
                     menuItem(beginMacroAction)
                     menuItem(endMacroAction)
                     menuItem(playLastMacroAction)
                 }
             }
-            menu(text: "Help", mnemonic: 'H') {
+            menu(text: rs("Help"), mnemonic: 'H') {
                 menuItem(onlineHelpAction)
 //                menuItem(showTipsAction)
 				separator()
@@ -209,7 +209,7 @@ new OusiaBuilder().edt {
         }
 		
 		statusBar(constraints: BorderLayout.SOUTH, id: 'statusBar') {
-			label(text: 'Ready', constraints: new JXStatusBar.Constraint(FILL))
+			label(text: rs('Ready'), constraints: new JXStatusBar.Constraint(FILL))
 			label(text: '1:0', id: 'caretPositionStatus')
 			label(text: 'text/plain', id: 'syntaxStatus')
 			bind(source: viewStatusBar, sourceProperty:'selected', target:statusBar, targetProperty:'visible')

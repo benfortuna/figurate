@@ -64,8 +64,8 @@ import eu.medsea.mimeutil.MimeUtil;
 MimeUtil.registerMimeDetector("eu.medsea.mimeutil.detector.ExtensionMimeDetector")
 
 new OusiaBuilder().edt {
-    lookAndFeel('substance-mariner')
-    
+	lookAndFeel('gtk', 'substance-mariner')
+	
     actions {
         action id: 'openFileAction', name: rs('Open'), accelerator: shortcut('O'), closure: {
              if (chooser.showOpenDialog() == JFileChooser.APPROVE_OPTION) {

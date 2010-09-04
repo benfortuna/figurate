@@ -58,23 +58,84 @@ import org.fife.ui.rsyntaxtextarea.RSyntaxTextAreaEditorKit.IncreaseFontSizeActi
 import org.jdesktop.swingx.JXStatusBar;
 import org.mnode.ousia.HyperlinkBrowser;
 import org.mnode.ousia.OusiaBuilder;
+import org.noos.xing.mydoggy.ToolWindowAnchor;
 
 import eu.medsea.mimeutil.MimeUtil;
 
 MimeUtil.registerMimeDetector("eu.medsea.mimeutil.detector.ExtensionMimeDetector")
 
-new OusiaBuilder().edt {
+def newEditors = 0
+
+def ousia = new OusiaBuilder()
+
+def newEditor = { file ->
+	
+	String id
+	if (file) {
+		id = file.absolutePath
+	}
+	else {
+		id = ++newEditors
+	}
+	
+	ousia.build {
+		
+		sp = rSyntaxScrollPane {
+			editor = textEditorPane(marginLineEnabled: true)
+			editor.with {
+				addHyperlinkListener(new HyperlinkBrowser())
+				caretUpdate = {
+					def line = getLineOfOffset(caretPosition) + 1
+					def column = caretPosition - getLineStartOffset(line - 1)
+					def lineCount = lineCount
+					def lineLength = getLineEndOffset(line - 1) - getLineStartOffset(line - 1)
+					caretPositionStatus.text = "${line}:${column} (${lineCount}:${lineLength})"
+				}
+				
+				if (file) {
+	                load(FileLocation.create(file), null)
+	                syntaxEditingStyle = MimeUtil.getMimeTypes(file).iterator().next()
+					syntaxStatus.text = syntaxEditingStyle
+	                caretPosition = 0
+					
+	                frame.title = "${fileFullPath} - ${rs('Figurate')}"
+				}
+				else {
+	                frame.title = "Untitled ${id} - ${rs('Figurate')}"
+				}
+			}
+			bind(source: viewWordWrap, sourceProperty:'selected', target: editor, targetProperty: 'lineWrap')
+			bind(source: viewWhitespace, sourceProperty:'selected', target: editor, targetProperty: 'whitespaceVisible')
+		}
+		bind(source: viewLineNumbers, sourceProperty:'selected', target: sp, targetProperty: 'lineNumbersEnabled')
+		
+		sp.with {
+			gutter.bookmarkingEnabled = true
+			gutter.bookmarkIcon = imageIcon('/bookmark.png')
+			putClientProperty 'figurate.id', id
+		}
+		return sp
+	}
+}
+
+ousia.edt {
 	lookAndFeel('gtk', 'substance-mariner')
 	
     actions {
+		action id: 'newEditorAction', name: rs('New'), accelerator: shortcut('N'), closure: {
+			editor = newEditor()
+			id = editor.getClientProperty('figurate.id')
+			windowManager.registerToolWindow id, "Untitled ${id}", null, editor, ToolWindowAnchor.BOTTOM
+			windowManager.getToolWindow(id).available = true
+		}
+		
         action id: 'openFileAction', name: rs('Open'), accelerator: shortcut('O'), closure: {
              if (chooser.showOpenDialog() == JFileChooser.APPROVE_OPTION) {
                  doLater {
-                    editor.load(FileLocation.create(chooser.selectedFile), null)
-                    editor.syntaxEditingStyle = MimeUtil.getMimeTypes(chooser.selectedFile).iterator().next()
-					syntaxStatus.text = editor.syntaxEditingStyle
-                    editor.caretPosition = 0
-                    frame.title = "${editor.fileFullPath} - ${rs('Figurate')}"
+					def editor = newEditor(chooser.selectedFile)
+					id = editor.getClientProperty('figurate.id')
+					windowManager.registerToolWindow id, id, null, editor, ToolWindowAnchor.BOTTOM
+					windowManager.getToolWindow(id).available = true
                  }
              }
          }
@@ -135,6 +196,7 @@ new OusiaBuilder().edt {
 		 
         menuBar {
             menu(text: rs('File'), mnemonic: 'F') {
+				menuItem(newEditorAction)
                 menuItem(openFileAction)
                 separator()
                 menuItem(exitAction)
@@ -187,27 +249,10 @@ new OusiaBuilder().edt {
                 menuItem(aboutAction)
             }
         }
-        
-        rSyntaxScrollPane(id: 'sp') {
-            sp.gutter.bookmarkingEnabled = true
-            sp.gutter.bookmarkIcon = imageIcon('/bookmark.png')
-            textEditorPane(marginLineEnabled: true, id: 'editor') {
-				editor.with {
-					addHyperlinkListener(new HyperlinkBrowser())
-					caretUpdate = {
-						def line = getLineOfOffset(caretPosition) + 1
-						def column = caretPosition - getLineStartOffset(line - 1)
-						def lineCount = lineCount
-						def lineLength = getLineEndOffset(line - 1) - getLineStartOffset(line - 1)
-						caretPositionStatus.text = "${line}:${column} (${lineCount}:${lineLength})"
-					}
-				}
-                bind(source: viewWordWrap, sourceProperty:'selected', target: editor, targetProperty: 'lineWrap')
-                bind(source: viewWhitespace, sourceProperty:'selected', target: editor, targetProperty: 'whitespaceVisible')
-            }
-            bind(source: viewLineNumbers, sourceProperty:'selected', target: sp, targetProperty: 'lineNumbersEnabled')
-        }
-		
+
+		toolWindowManager(id: 'windowManager') {
+		}
+				
 		statusBar(constraints: BorderLayout.SOUTH, id: 'statusBar') {
 			label(text: rs('Ready'), constraints: new JXStatusBar.Constraint(FILL))
 			label(text: '1:0', id: 'caretPositionStatus')
@@ -215,4 +260,7 @@ new OusiaBuilder().edt {
 			bind(source: viewStatusBar, sourceProperty:'selected', target:statusBar, targetProperty:'visible')
 		}
     }
+
+	windowManager.registerToolWindow "New", "Untitled 1", null, newEditor(), ToolWindowAnchor.BOTTOM
+	windowManager.getToolWindow("New").available = true
 }

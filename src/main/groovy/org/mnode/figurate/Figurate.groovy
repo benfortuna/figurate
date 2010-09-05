@@ -119,14 +119,16 @@ def newEditor = { file ->
 }
 
 ousia.edt {
-	lookAndFeel('gtk', 'substance-mariner')
+	lookAndFeel('system', 'substance-mariner')
+//	lookAndFeel('substance-mariner')
 	
     actions {
 		action id: 'newEditorAction', name: rs('New'), accelerator: shortcut('N'), closure: {
 			editor = newEditor()
 			id = editor.getClientProperty('figurate.id')
-			windowManager.registerToolWindow id, "Untitled ${id}", null, editor, ToolWindowAnchor.BOTTOM
-			windowManager.getToolWindow(id).available = true
+			windowManager.contentManager.addContent id, "Untitled ${id}", null, editor, null
+//			windowManager.registerToolWindow id, "Untitled ${id}", null, editor, ToolWindowAnchor.BOTTOM
+//			windowManager.getToolWindow(id).available = true
 		}
 		
         action id: 'openFileAction', name: rs('Open'), accelerator: shortcut('O'), closure: {
@@ -134,8 +136,9 @@ ousia.edt {
                  doLater {
 					def editor = newEditor(chooser.selectedFile)
 					id = editor.getClientProperty('figurate.id')
-					windowManager.registerToolWindow id, id, null, editor, ToolWindowAnchor.BOTTOM
-					windowManager.getToolWindow(id).available = true
+					windowManager.contentManager.addContent id, chooser.selectedFile.name, null, editor, chooser.selectedFile.absolutePath
+//					windowManager.registerToolWindow id, id, null, editor, ToolWindowAnchor.BOTTOM
+//					windowManager.getToolWindow(id).available = true
                  }
              }
          }
@@ -261,6 +264,7 @@ ousia.edt {
 		}
     }
 
-	windowManager.registerToolWindow "New", "Untitled 1", null, newEditor(), ToolWindowAnchor.BOTTOM
-	windowManager.getToolWindow("New").available = true
+	windowManager.contentManager.addContent "New", "Untitled 1", null, newEditor(), null
+//	windowManager.registerToolWindow "New", "Untitled 1", null, newEditor(), ToolWindowAnchor.BOTTOM
+//	windowManager.getToolWindow("New").available = true
 }

@@ -145,7 +145,7 @@ ousia.edt {
                  doLater {
 					def editor = newEditor(chooser.selectedFile)
 					id = editor.getClientProperty('figurate.id')
-					def icon = FileSystemView.fileSystemView.getSystemIcon(chooser.selectedFile)
+					def icon = paddedIcon(FileSystemView.fileSystemView.getSystemIcon(chooser.selectedFile), size: [width: 16, height: 18])
 					def content = windowManager.contentManager.addContent(id, chooser.selectedFile.name, icon, editor, chooser.selectedFile.absolutePath)
 					content.selected = true
 //					windowManager.registerToolWindow id, id, null, editor, ToolWindowAnchor.BOTTOM

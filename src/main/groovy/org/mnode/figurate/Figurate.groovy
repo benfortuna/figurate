@@ -35,6 +35,7 @@ package org.mnode.figurate
 import static org.jdesktop.swingx.JXStatusBar.Constraint.ResizeBehavior.*
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Desktop 
 import java.awt.event.KeyEvent;
 import org.fife.ui.rtextarea.RTextArea;
@@ -51,6 +52,9 @@ import javax.swing.Action;
 
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.UIManager;
+import javax.swing.filechooser.FileSystemView;
+
 import org.fife.ui.rsyntaxtextarea.FileLocation;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextAreaEditorKit.DecreaseFontSizeAction;
@@ -59,10 +63,13 @@ import org.jdesktop.swingx.JXStatusBar;
 import org.mnode.ousia.HyperlinkBrowser;
 import org.mnode.ousia.OusiaBuilder;
 import org.noos.xing.mydoggy.ToolWindowAnchor;
+import org.pushingpixels.substance.api.SubstanceConstants;
+import org.pushingpixels.substance.api.SubstanceLookAndFeel;
 
 import eu.medsea.mimeutil.MimeUtil;
 
 MimeUtil.registerMimeDetector("eu.medsea.mimeutil.detector.ExtensionMimeDetector")
+UIManager.put(SubstanceLookAndFeel.TABBED_PANE_CONTENT_BORDER_KIND, SubstanceConstants.TabContentPaneBorderKind.SINGLE_FULL)
 
 def newEditors = 0
 
@@ -72,7 +79,7 @@ def newEditor = { file ->
 	
 	String id
 	if (file) {
-		id = file.absolutePath
+		id = file.name
 	}
 	else {
 		id = ++newEditors
@@ -93,6 +100,7 @@ def newEditor = { file ->
 				}
 				
 				if (file) {
+					editable = readOnly
 	                load(FileLocation.create(file), null)
 	                syntaxEditingStyle = MimeUtil.getMimeTypes(file).iterator().next()
 					syntaxStatus.text = syntaxEditingStyle
@@ -126,7 +134,8 @@ ousia.edt {
 		action id: 'newEditorAction', name: rs('New'), accelerator: shortcut('N'), closure: {
 			editor = newEditor()
 			id = editor.getClientProperty('figurate.id')
-			windowManager.contentManager.addContent id, "Untitled ${id}", null, editor, null
+			def content = windowManager.contentManager.addContent(id, "Untitled ${id}", null, editor, null)
+			content.selected = true
 //			windowManager.registerToolWindow id, "Untitled ${id}", null, editor, ToolWindowAnchor.BOTTOM
 //			windowManager.getToolWindow(id).available = true
 		}
@@ -136,7 +145,9 @@ ousia.edt {
                  doLater {
 					def editor = newEditor(chooser.selectedFile)
 					id = editor.getClientProperty('figurate.id')
-					windowManager.contentManager.addContent id, chooser.selectedFile.name, null, editor, chooser.selectedFile.absolutePath
+					def icon = FileSystemView.fileSystemView.getSystemIcon(chooser.selectedFile)
+					def content = windowManager.contentManager.addContent(id, chooser.selectedFile.name, icon, editor, chooser.selectedFile.absolutePath)
+					content.selected = true
 //					windowManager.registerToolWindow id, id, null, editor, ToolWindowAnchor.BOTTOM
 //					windowManager.getToolWindow(id).available = true
                  }
@@ -176,7 +187,7 @@ ousia.edt {
 				panel(constraints: BorderLayout.CENTER, border: emptyBorder(10)) {
 					borderLayout()
 					scrollPane(horizontalScrollBarPolicy: JScrollPane.HORIZONTAL_SCROLLBAR_NEVER, border: null) {
-						table() {
+						table(gridColor: Color.LIGHT_GRAY) {
 							def systemProps = []
 							for (propName in System.properties.keySet()) {
 								systemProps.add([property: propName, value: System.properties.getProperty(propName)])

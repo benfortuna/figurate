@@ -3,6 +3,8 @@ package org.mnode.figurate;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.io.File;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -95,6 +97,9 @@ public class FileTreePanel extends JPanel {
 	 * @author Kirill Grouchnikov
 	 */
 	private static class FileTreeNode implements TreeNode {
+		
+		private static final Comparator<File> COMPARATOR = new FileComparator();
+		
 		/**
 		 * Node file.
 		 */
@@ -130,6 +135,9 @@ public class FileTreePanel extends JPanel {
 			this.isFileSystemRoot = isFileSystemRoot;
 			this.parent = parent;
 			this.children = this.file.listFiles();
+			if (children != null) {
+				Arrays.sort(children, COMPARATOR);
+			}
 			if (this.children == null)
 				this.children = new File[0];
 		}

@@ -100,7 +100,7 @@ def newEditor = { file ->
 				}
 				
 				if (file) {
-					editable = readOnly
+					editable = !readOnly
 	                load(FileLocation.create(file), null)
 	                syntaxEditingStyle = MimeUtil.getMimeTypes(file).iterator().next()
 					syntaxStatus.text = syntaxEditingStyle

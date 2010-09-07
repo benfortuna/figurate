@@ -127,8 +127,8 @@ def newEditor = { file ->
 }
 
 ousia.edt {
-	lookAndFeel('system', 'substance-mariner')
-//	lookAndFeel('substance-mariner')
+//	lookAndFeel('system', 'substance-mariner')
+	lookAndFeel('substance-mariner')
 	
     actions {
 		action id: 'newEditorAction', name: rs('New'), accelerator: shortcut('N'), closure: {
@@ -276,6 +276,21 @@ ousia.edt {
     }
 
 	windowManager.contentManager.addContent "New", "Untitled 1", null, newEditor(), null
-//	windowManager.registerToolWindow "New", "Untitled 1", null, newEditor(), ToolWindowAnchor.BOTTOM
-//	windowManager.getToolWindow("New").available = true
+	
+    def explorer = new FileTreePanel()
+    explorer.tree.mouseClicked = { e ->
+        def selected = e.source.selectionPath?.lastPathComponent
+        if (e.clickCount == 2 && selected?.leaf) {
+             doLater {
+                def editor = newEditor(selected.file)
+                id = editor.getClientProperty('figurate.id')
+                def icon = paddedIcon(FileSystemView.fileSystemView.getSystemIcon(selected.file), size: [width: 16, height: 22])
+                def content = windowManager.contentManager.addContent(id, selected.file.name, icon, editor, selected.file.absolutePath)
+                content.selected = true
+             }
+        }
+	}
+    
+	windowManager.registerToolWindow "Explorer", "Filesystem", null, explorer, ToolWindowAnchor.LEFT
+	windowManager.getToolWindow("Explorer").available = true
 }

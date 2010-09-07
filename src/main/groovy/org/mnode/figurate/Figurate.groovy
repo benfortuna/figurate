@@ -106,10 +106,14 @@ def newEditor = { file ->
 					syntaxStatus.text = syntaxEditingStyle
 	                caretPosition = 0
 					
-	                frame.title = "${fileFullPath} - ${rs('Figurate')}"
+					focusGained = {
+						frame.title = "${fileFullPath} - ${rs('Figurate')}"
+					}
 				}
 				else {
-	                frame.title = "Untitled ${id} - ${rs('Figurate')}"
+					focusGained = {
+						frame.title = "Untitled ${id} - ${rs('Figurate')}"
+					}
 				}
 			}
 			bind(source: viewWordWrap, sourceProperty:'selected', target: editor, targetProperty: 'lineWrap')
@@ -127,8 +131,8 @@ def newEditor = { file ->
 }
 
 ousia.edt {
-//	lookAndFeel('system', 'substance-mariner')
-	lookAndFeel('substance-mariner')
+	lookAndFeel('system', 'substance-mariner')
+//	lookAndFeel('substance-mariner')
 	
     actions {
 		action id: 'newEditorAction', name: rs('New'), accelerator: shortcut('N'), closure: {
@@ -145,7 +149,7 @@ ousia.edt {
                  doLater {
 					def editor = newEditor(chooser.selectedFile)
 					id = editor.getClientProperty('figurate.id')
-					def icon = paddedIcon(FileSystemView.fileSystemView.getSystemIcon(chooser.selectedFile), size: [width: 16, height: 18])
+					def icon = paddedIcon(FileSystemView.fileSystemView.getSystemIcon(chooser.selectedFile), size: [width: 16, height: 22])
 					def content = windowManager.contentManager.addContent(id, chooser.selectedFile.name, icon, editor, chooser.selectedFile.absolutePath)
 					content.selected = true
 //					windowManager.registerToolWindow id, id, null, editor, ToolWindowAnchor.BOTTOM

@@ -138,6 +138,19 @@ def newEditor = { file ->
 	}
 }
 
+def openFile = { file ->
+     ousia.doLater {
+		def content = windowManager.contentManager.getContent(file.name)
+		if (!content) {
+	        def editor = newEditor(file)
+	        id = editor.getClientProperty('figurate.id')
+	        def icon = paddedIcon(FileSystemView.fileSystemView.getSystemIcon(file), size: [width: 16, height: 22])
+	        content = windowManager.contentManager.addContent(id, file.name, icon, editor, file.absolutePath)
+		}
+        content.selected = true
+     }
+}
+
 ousia.edt {
 	lookAndFeel('system', 'substance-mariner')
 //	lookAndFeel('substance-mariner')
@@ -154,15 +167,7 @@ ousia.edt {
 		
         action id: 'openFileAction', name: rs('Open'), accelerator: shortcut('O'), closure: {
              if (chooser.showOpenDialog() == JFileChooser.APPROVE_OPTION) {
-                 doLater {
-					def editor = newEditor(chooser.selectedFile)
-					id = editor.getClientProperty('figurate.id')
-					def icon = paddedIcon(FileSystemView.fileSystemView.getSystemIcon(chooser.selectedFile), size: [width: 16, height: 22])
-					def content = windowManager.contentManager.addContent(id, chooser.selectedFile.name, icon, editor, chooser.selectedFile.absolutePath)
-					content.selected = true
-//					windowManager.registerToolWindow id, id, null, editor, ToolWindowAnchor.BOTTOM
-//					windowManager.getToolWindow(id).available = true
-                 }
+				 openFile(chooser.selectedFile)
              }
          }
         
@@ -297,13 +302,7 @@ ousia.edt {
     explorer.tree.mouseClicked = { e ->
         def selected = e.source.selectionPath?.lastPathComponent
         if (e.clickCount == 2 && selected?.leaf) {
-             doLater {
-                def editor = newEditor(selected.file)
-                id = editor.getClientProperty('figurate.id')
-                def icon = paddedIcon(FileSystemView.fileSystemView.getSystemIcon(selected.file), size: [width: 16, height: 22])
-                def content = windowManager.contentManager.addContent(id, selected.file.name, icon, editor, selected.file.absolutePath)
-                content.selected = true
-             }
+			openFile(selected.file)
         }
 	}
 	def explorerWindow = windowManager.registerToolWindow("File Explorer", "Filesystem", null, explorer, ToolWindowAnchor.LEFT)

@@ -52,6 +52,7 @@ import javax.swing.Action;
 
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.filechooser.FileSystemView;
 
@@ -91,13 +92,16 @@ def newEditor = { file ->
 			editor = textEditorPane(marginLineEnabled: true)
 			editor.with {
 				addHyperlinkListener(new HyperlinkBrowser())
-				caretUpdate = {
+				
+				def updateCaretStatus = {
 					def line = getLineOfOffset(caretPosition) + 1
 					def column = caretPosition - getLineStartOffset(line - 1)
 					def lineCount = lineCount
 					def lineLength = getLineEndOffset(line - 1) - getLineStartOffset(line - 1)
 					caretPositionStatus.text = "${line}:${column} (${lineCount}:${lineLength})"
 				}
+				
+				caretUpdate = updateCaretStatus
 				
 				if (file) {
 					editable = !readOnly
@@ -108,11 +112,15 @@ def newEditor = { file ->
 					
 					focusGained = {
 						frame.title = "${fileFullPath} - ${rs('Figurate')}"
+						syntaxStatus.text = syntaxEditingStyle
+						updateCaretStatus()
 					}
 				}
 				else {
 					focusGained = {
 						frame.title = "Untitled ${id} - ${rs('Figurate')}"
+						syntaxStatus.text = syntaxEditingStyle
+						updateCaretStatus()
 					}
 				}
 			}
@@ -235,6 +243,10 @@ ousia.edt {
 //			    menuItem(text: "Preferences")
 			}
             menu(text: rs('View'), mnemonic: 'V') {
+				menu(rs('Sidebar')) {
+					checkBoxMenuItem(text: rs("File Explorer"), id: 'viewFileExplorer')
+				}
+                separator()
                 menuItem(increaseFontAction)
                 menuItem(decreaseFontAction)
                 separator()
@@ -273,8 +285,8 @@ ousia.edt {
 				
 		statusBar(constraints: BorderLayout.SOUTH, id: 'statusBar') {
 			label(text: rs('Ready'), constraints: new JXStatusBar.Constraint(FILL))
-			label(text: '1:0', id: 'caretPositionStatus')
-			label(text: 'text/plain', id: 'syntaxStatus')
+			label(text: '1:0', id: 'caretPositionStatus', horizontalAlignment: SwingConstants.CENTER, toolTipText: 'Cursor position (line:column)', constraints: new JXStatusBar.Constraint(80))
+			label(text: 'text/plain', id: 'syntaxStatus', horizontalAlignment: SwingConstants.CENTER, toolTipText: 'Syntax Highlighting', constraints: new JXStatusBar.Constraint(80))
 			bind(source: viewStatusBar, sourceProperty:'selected', target:statusBar, targetProperty:'visible')
 		}
     }
@@ -294,7 +306,6 @@ ousia.edt {
              }
         }
 	}
-    
-	windowManager.registerToolWindow "Explorer", "Filesystem", null, explorer, ToolWindowAnchor.LEFT
-	windowManager.getToolWindow("Explorer").available = true
+	def explorerWindow = windowManager.registerToolWindow("File Explorer", "Filesystem", null, explorer, ToolWindowAnchor.LEFT)
+	bind(source: viewFileExplorer, sourceProperty:'selected', target:explorerWindow, targetProperty:'available')
 }

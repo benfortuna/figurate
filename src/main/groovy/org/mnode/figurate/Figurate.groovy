@@ -37,6 +37,7 @@ import static org.jdesktop.swingx.JXStatusBar.Constraint.ResizeBehavior.*
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Desktop 
+import java.awt.GraphicsEnvironment;
 import java.awt.event.KeyEvent;
 import org.fife.ui.rtextarea.RTextArea;
 import org.fife.ui.rtextarea.RTextAreaEditorKit.BeginRecordingMacroAction;
@@ -151,6 +152,22 @@ def openFile = { file ->
      }
 }
 
+def tailFile = { file ->
+	 ousia.doLater {
+		def tailWindow = windowManager.getToolWindow('Tail')
+		if (!tailWindow) {
+			id = file.name
+			def icon = paddedIcon(FileSystemView.fileSystemView.getSystemIcon(file), size: [width: 16, height: 22])
+			tailWindow = windowManager.registerToolWindow('Tail', file.name, icon, panel(), ToolWindowAnchor.BOTTOM)
+			tailWindow.available = true
+		}
+		else {
+			tailWindow.addToolWindowTab(file.name, panel())
+		}
+		tailWindow.active = true
+	 }
+}
+
 ousia.edt {
 	lookAndFeel('system', 'substance-mariner')
 //	lookAndFeel('substance-mariner')
@@ -170,10 +187,34 @@ ousia.edt {
 				 openFile(chooser.selectedFile)
              }
          }
-        
+		
+		action id: 'tailFileAction', name: rs('Tail..'), closure: {
+			 if (chooser.showOpenDialog() == JFileChooser.APPROVE_OPTION) {
+				 tailFile(chooser.selectedFile)
+			 }
+		 }
+
         action id: 'exitAction', name: rs('Exit'), accelerator: shortcut('Q'), closure: {
             System.exit(0)
         }
+		
+		def screenEnv = GraphicsEnvironment.localGraphicsEnvironment.defaultScreenDevice
+		action id: 'fullScreenAction', name: rs('Fullscreen'), accelerator: 'F11', enabled: screenEnv.fullScreenSupported, closure: {
+			// toggle..
+			if (screenEnv.fullScreenWindow) {
+				frame.dispose()
+				frame.undecorated = false
+				frame.resizable = true
+				screenEnv.fullScreenWindow = null
+				frame.visible = true
+			}
+			else {
+				frame.dispose()
+				frame.undecorated = true
+				frame.resizable = false
+				screenEnv.fullScreenWindow = frame
+			}
+		}
 		
 		def editorKitActions = [:]
 		new RSyntaxTextArea().actions.each {
@@ -229,6 +270,7 @@ ousia.edt {
             menu(text: rs('File'), mnemonic: 'F') {
 				menuItem(newEditorAction)
                 menuItem(openFileAction)
+//                menuItem(tailFileAction)
                 separator()
                 menuItem(exitAction)
             }
@@ -249,7 +291,7 @@ ousia.edt {
 			}
             menu(text: rs('View'), mnemonic: 'V') {
 				menu(rs('Sidebar')) {
-					checkBoxMenuItem(text: rs("File Explorer"), id: 'viewFileExplorer')
+					checkBoxMenuItem(text: rs("File Explorer"), id: 'viewFileExplorer', accelerator: shortcut('E'))
 				}
                 separator()
                 menuItem(increaseFontAction)
@@ -261,6 +303,7 @@ ousia.edt {
 //                checkBoxMenuItem(text: "Tab Names", id: 'viewTabNames')
                 separator()
                 checkBoxMenuItem(text: rs("Status Bar"), id: 'viewStatusBar')
+                checkBoxMenuItem(fullScreenAction)
             }
             menu(text: rs("Tools"), mnemonic: 'T') {
                 menu(text: rs("Transform")) {

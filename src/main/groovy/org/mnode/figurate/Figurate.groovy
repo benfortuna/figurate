@@ -57,6 +57,25 @@ import org.pushingpixels.substance.api.SubstanceLookAndFeel;
 
 import eu.medsea.mimeutil.MimeUtil;
 
+def initialFile
+if (args) {
+	initialFile = args[0]
+}
+//println initialFile
+
+try {
+	s = new Socket('localhost', 4444)
+	if (initialFile) {
+		s.withStreams { input, output ->
+//			println "Open ${initialFile}"
+			output << initialFile
+		}
+	}
+	System.exit(0)
+}
+catch (Exception e) {
+}
+
 MimeUtil.registerMimeDetector("eu.medsea.mimeutil.detector.ExtensionMimeDetector")
 UIManager.put(SubstanceLookAndFeel.TABBED_PANE_CONTENT_BORDER_KIND, SubstanceConstants.TabContentPaneBorderKind.SINGLE_FULL)
 
@@ -153,6 +172,26 @@ def tailFile = { file ->
 		}
 		tailWindow.active = true
 	 }
+}
+
+Thread.start {
+	def server = new ServerSocket(4444)
+	while(true) {
+		server.accept { socket ->
+			socket.withStreams { input, output ->
+				def reader = input.newReader()
+				def buffer = reader.readLine()
+				if (buffer) {
+//					println "server received: $buffer"
+//					println 'opening file..'
+					openFile(new File(buffer))
+					ousia.doLater {
+						frame.visible = true
+					}
+				}
+			}
+		}
+	}
 }
 
 ousia.edt {
@@ -326,7 +365,12 @@ ousia.edt {
 		}
     }
 
-	windowManager.contentManager.addContent "New", "Untitled 1", null, newEditor(), null
+	if (initialFile) {
+		openFile(new File(initialFile))
+	}
+	else {
+		windowManager.contentManager.addContent "New", "Untitled 1", null, newEditor(), null
+	}
 	
     def explorer = new FileTreePanel()
     explorer.tree.mouseClicked = { e ->

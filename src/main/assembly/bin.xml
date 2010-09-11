@@ -38,6 +38,13 @@
 				<include>${project.finalName}.jar</include>
 			</includes>
 		</fileSet>
+        <fileSet>
+            <directory>etc</directory>
+            <outputDirectory>bin</outputDirectory>
+            <includes>
+                <include>run.sh</include>
+            </includes>
+        </fileSet>
         <!-- 
 		<fileSet>
 			<directory>target/site/apidocs</directory>

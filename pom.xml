@@ -198,8 +198,12 @@
 				<artifactId>maven-jar-plugin</artifactId>
 				<configuration>
 					<archive>
+					    <manifest>
+					       <addClasspath>true</addClasspath>
+					    </manifest>
 						<manifestEntries>
 							<SplashScreen-Image>splash.png</SplashScreen-Image>
+                            <Main-Class>org.mnode.figurate.Figurate</Main-Class>
 						</manifestEntries>
 					</archive>
 				</configuration>
@@ -211,7 +215,7 @@
 				<artifactId>webstart-maven-plugin</artifactId>
 				<executions>
 					<execution>
-						<phase>package</phase>
+						<phase>deploy</phase>
 						<goals>
 							<goal>jnlp</goal>
 						</goals>
@@ -356,6 +360,25 @@
 					</dependency>
 				</dependencies>
 			</plugin>
+
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <configuration>
+                    <descriptors>
+                        <descriptor>src/main/assembly/bin.xml</descriptor>
+                        <descriptor>src/main/assembly/src.xml</descriptor>
+                    </descriptors>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>site-deploy</phase>
+                        <goals>
+                            <goal>attached</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
 		</plugins>
 	</build>
 </project>

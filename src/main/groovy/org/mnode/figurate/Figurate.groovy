@@ -185,10 +185,10 @@ Thread.start {
 //					println "server received: $buffer"
 //					println 'opening file..'
 					openFile(new File(buffer))
-					ousia.doLater {
-						frame.visible = true
-					}
 				}
+			}
+			ousia.doLater {
+				frame.visible = true
 			}
 		}
 	}

@@ -48,6 +48,7 @@ import org.fife.ui.rsyntaxtextarea.FileLocation;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextAreaEditorKit.DecreaseFontSizeAction;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextAreaEditorKit.IncreaseFontSizeAction;
+import org.fife.ui.rsyntaxtextarea.spell.SpellingParser;
 import org.jdesktop.swingx.JXStatusBar;
 import org.mnode.ousia.HyperlinkBrowser;
 import org.mnode.ousia.OusiaBuilder;
@@ -78,6 +79,13 @@ catch (Exception e) {
 
 MimeUtil.registerMimeDetector("eu.medsea.mimeutil.detector.ExtensionMimeDetector")
 UIManager.put(SubstanceLookAndFeel.TABBED_PANE_CONTENT_BORDER_KIND, SubstanceConstants.TabContentPaneBorderKind.SINGLE_FULL)
+
+// spellchecker..
+dictionary = new File('etc/english_dic.zip')
+def spellingParser = SpellingParser.createEnglishSpellingParser(dictionary, true)
+spellingParser.userDictionary = new File("${System.getProperty('user.home')}/.figurate", 'user.dic')
+
+def editors = []
 
 def newEditors = 0
 
@@ -130,6 +138,10 @@ def newEditor = { file ->
 						updateCaretStatus()
 					}
 				}
+				
+				if (toolsSpellChecker.selected) {
+					addParser spellingParser
+				}
 			}
 			bind(source: viewWordWrap, sourceProperty:'selected', target: editor, targetProperty: 'lineWrap')
 			bind(source: viewWhitespace, sourceProperty:'selected', target: editor, targetProperty: 'whitespaceVisible')
@@ -141,6 +153,8 @@ def newEditor = { file ->
 			gutter.bookmarkIcon = imageIcon('/bookmark.png')
 			putClientProperty 'figurate.id', id
 		}
+		
+		editors << sp
 		return sp
 	}
 }
@@ -260,6 +274,19 @@ ousia.edt {
 
 		action(new TimeDateAction(), id: 'timeDateAction', name: rs('Date / Time'))
 		
+		action id: 'toggleSpellCheckerAction', name: rs('Spell Checker'), closure: {
+			editors.each {
+				it.textArea.with {
+					if (parserCount > 0) {
+						clearParsers()
+					}
+					else {
+						addParser spellingParser
+					}
+				}
+			}
+		}
+		
 		action id: 'onlineHelpAction', name: rs('Online Help'), accelerator: 'F1', closure: {
 			Desktop.desktop.browse(URI.create('http://basetools.org/figurate'))
 		}
@@ -345,6 +372,7 @@ ousia.edt {
                     menuItem(endMacroAction)
                     menuItem(playLastMacroAction)
                 }
+				checkBoxMenuItem(toggleSpellCheckerAction, id: 'toolsSpellChecker')
             }
             menu(text: rs("Help"), mnemonic: 'H') {
                 menuItem(onlineHelpAction)

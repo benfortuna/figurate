@@ -123,6 +123,20 @@
 			<artifactId>jpathwatch</artifactId>
 			<version>0.93-rc1</version>
 		</dependency>
+        <dependency>
+            <groupId>com.fifesoft</groupId>
+            <artifactId>autocomplete</artifactId>
+            <version>1.4.1</version>
+            <type>jar</type>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fifesoft</groupId>
+            <artifactId>spellchecker</artifactId>
+            <version>1.4.1</version>
+            <type>jar</type>
+            <scope>compile</scope>
+        </dependency>
 	</dependencies>
 	<scm>
 		<connection>scm:hg:https://figurate.googlecode.com/hg/</connection>

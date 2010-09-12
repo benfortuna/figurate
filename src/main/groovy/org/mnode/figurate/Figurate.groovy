@@ -81,9 +81,12 @@ MimeUtil.registerMimeDetector("eu.medsea.mimeutil.detector.ExtensionMimeDetector
 UIManager.put(SubstanceLookAndFeel.TABBED_PANE_CONTENT_BORDER_KIND, SubstanceConstants.TabContentPaneBorderKind.SINGLE_FULL)
 
 // spellchecker..
-dictionary = new File('etc/english_dic.zip')
-def spellingParser = SpellingParser.createEnglishSpellingParser(dictionary, true)
-spellingParser.userDictionary = new File("${System.getProperty('user.home')}/.figurate", 'user.dic')
+def spellingParser
+dictionary = new File('english_dic-1.0.zip')
+if (dictionary.exists()) {
+	spellingParser = SpellingParser.createEnglishSpellingParser(dictionary, true)
+	spellingParser.userDictionary = new File("${System.getProperty('user.home')}/.figurate", 'user.dic')
+}
 
 def editors = []
 
@@ -372,7 +375,7 @@ ousia.edt {
                     menuItem(endMacroAction)
                     menuItem(playLastMacroAction)
                 }
-				checkBoxMenuItem(toggleSpellCheckerAction, id: 'toolsSpellChecker')
+				checkBoxMenuItem(toggleSpellCheckerAction, id: 'toolsSpellChecker', enabled: bind {spellingParser != null})
             }
             menu(text: rs("Help"), mnemonic: 'H') {
                 menuItem(onlineHelpAction)

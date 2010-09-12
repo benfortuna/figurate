@@ -137,6 +137,13 @@
             <type>jar</type>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+        	<groupId>org.mnode.figurate</groupId>
+        	<artifactId>english_dic</artifactId>
+        	<version>1.0</version>
+        	<type>zip</type>
+        	<scope>runtime</scope>
+        </dependency>
 	</dependencies>
 	<scm>
 		<connection>scm:hg:https://figurate.googlecode.com/hg/</connection>

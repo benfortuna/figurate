@@ -194,16 +194,20 @@ def tailFile = { file ->
 Thread.start {
 	def server = new ServerSocket(4444)
 	while(true) {
-		server.accept { socket ->
-			socket.withStreams { input, output ->
-				def reader = input.newReader()
-				def buffer = reader.readLine()
-				if (buffer) {
-//					println "server received: $buffer"
-//					println 'opening file..'
-					openFile(new File(buffer))
+		try {
+			server.accept { socket ->
+				socket.withStreams { input, output ->
+					def reader = input.newReader()
+					def buffer = reader.readLine()
+					if (buffer) {
+//						println "server received: $buffer"
+//						println 'opening file..'
+						openFile(new File(buffer))
+					}
 				}
 			}
+		}
+		finally {
 			ousia.doLater {
 				frame.visible = true
 			}

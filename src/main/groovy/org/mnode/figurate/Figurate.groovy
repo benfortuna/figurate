@@ -90,76 +90,41 @@ if (dictionary.exists()) {
 
 def editors = []
 
-def newEditors = 0
-
 def ousia = new OusiaBuilder()
+
+def updateCaretStatus = { textArea ->
+	textArea.with {
+		def line = getLineOfOffset(caretPosition) + 1
+		def column = caretPosition - getLineStartOffset(line - 1)
+		def lineCount = lineCount
+		def lineLength = getLineEndOffset(line - 1) - getLineStartOffset(line - 1)
+		ousia.caretPositionStatus.text = "${line}:${column} (${lineCount}:${lineLength})"
+	}
+}
 
 def newEditor = { file ->
 	
-	String id
-	if (file) {
-		id = file.name
+	def editor = new Editor(file)
+	editor.sp.textArea.caretUpdate = { updateCaretStatus(editor.sp.textArea) }
+	editor.sp.textArea.focusGained = {
+		ousia.build {
+			frame.title = "${editor.getClientProperty('figurate.id')} - ${rs('Figurate')}"
+			syntaxStatus.text = editor.sp.textArea.syntaxEditingStyle
+			updateCaretStatus(editor.sp.textArea)
+		}
 	}
-	else {
-		id = ++newEditors
-	}
-	
+
 	ousia.build {
-		
-		sp = rSyntaxScrollPane {
-			editor = textEditorPane(marginLineEnabled: true)
-			editor.with {
-				addHyperlinkListener(new HyperlinkBrowser())
-				
-				def updateCaretStatus = {
-					def line = getLineOfOffset(caretPosition) + 1
-					def column = caretPosition - getLineStartOffset(line - 1)
-					def lineCount = lineCount
-					def lineLength = getLineEndOffset(line - 1) - getLineStartOffset(line - 1)
-					caretPositionStatus.text = "${line}:${column} (${lineCount}:${lineLength})"
-				}
-				
-				caretUpdate = updateCaretStatus
-				
-				if (file) {
-					editable = !readOnly
-	                load(FileLocation.create(file), null)
-	                syntaxEditingStyle = MimeUtil.getMimeTypes(file).iterator().next()
-					syntaxStatus.text = syntaxEditingStyle
-	                caretPosition = 0
-					
-					focusGained = {
-						frame.title = "${fileFullPath} - ${rs('Figurate')}"
-						syntaxStatus.text = syntaxEditingStyle
-						updateCaretStatus()
-					}
-				}
-				else {
-					focusGained = {
-						frame.title = "Untitled ${id} - ${rs('Figurate')}"
-						syntaxStatus.text = syntaxEditingStyle
-						updateCaretStatus()
-					}
-				}
-				
-				if (toolsSpellChecker.selected) {
-					addParser spellingParser
-				}
-			}
-			bind(source: viewWordWrap, sourceProperty:'selected', target: editor, targetProperty: 'lineWrap')
-			bind(source: viewWhitespace, sourceProperty:'selected', target: editor, targetProperty: 'whitespaceVisible')
+		if (toolsSpellChecker.selected) {
+			editor.spellingParser = spellingParser
 		}
-		bind(source: viewLineNumbers, sourceProperty:'selected', target: sp, targetProperty: 'lineNumbersEnabled')
-		
-		sp.with {
-			gutter.bookmarkingEnabled = true
-			gutter.bookmarkIcon = imageIcon('/bookmark.png')
-			putClientProperty 'figurate.id', id
-		}
-		
-		editors << sp
-		return sp
+		bind(source: viewWordWrap, sourceProperty:'selected', target: editor.sp.textArea, targetProperty: 'lineWrap')
+		bind(source: viewWhitespace, sourceProperty:'selected', target: editor.sp.textArea, targetProperty: 'whitespaceVisible')
+		bind(source: viewLineNumbers, sourceProperty:'selected', target: editor.sp, targetProperty: 'lineNumbersEnabled')
+//		bind(source: toolsBookmarks, sourceProperty:'selected', target: editor.sp.gutter, targetProperty: 'bookmarkingEnabled')
 	}
+	editors << editor
+	return editor
 }
 
 def openFile = { file ->
@@ -223,7 +188,7 @@ ousia.edt {
 		action id: 'newEditorAction', name: rs('New'), accelerator: shortcut('N'), closure: {
 			editor = newEditor()
 			id = editor.getClientProperty('figurate.id')
-			def content = windowManager.contentManager.addContent(id, "Untitled ${id}", null, editor, null)
+			def content = windowManager.contentManager.addContent(id, "${id}", null, editor, null)
 			content.selected = true
 //			windowManager.registerToolWindow id, "Untitled ${id}", null, editor, ToolWindowAnchor.BOTTOM
 //			windowManager.getToolWindow(id).available = true
@@ -379,6 +344,7 @@ ousia.edt {
                     menuItem(endMacroAction)
                     menuItem(playLastMacroAction)
                 }
+//				checkBoxMenuItem(rs('Bookmarks'), id: 'toolsBookmarks')
 				checkBoxMenuItem(toggleSpellCheckerAction, id: 'toolsSpellChecker', enabled: bind {spellingParser != null})
             }
             menu(text: rs("Help"), mnemonic: 'H') {
@@ -404,7 +370,11 @@ ousia.edt {
 		openFile(new File(initialFile))
 	}
 	else {
-		windowManager.contentManager.addContent "New", "Untitled 1", null, newEditor(), null
+//		windowManager.contentManager.addContent "New", "Untitled 1", null, newEditor(), null
+		editor = newEditor()
+		id = editor.getClientProperty('figurate.id')
+		def content = windowManager.contentManager.addContent(id, "${id}", null, editor, null)
+		content.selected = true
 	}
 	
     def explorer = new FileTreePanel()

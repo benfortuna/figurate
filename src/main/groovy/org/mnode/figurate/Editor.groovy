@@ -71,10 +71,10 @@ class Editor extends JPanel {
 	
 	void setSpellingParser(Parser parser) {
 		if (parser) {
-			textArea.addParser parser
+			sp.textArea.addParser parser
 		}
 		else {
-			textArea.clearParsers()
+			sp.textArea.clearParsers()
 		}
 	}
 }

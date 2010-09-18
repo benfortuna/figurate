@@ -40,6 +40,7 @@ import javax.swing.Action;
 
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.filechooser.FileSystemView;
@@ -52,6 +53,7 @@ import org.fife.ui.rsyntaxtextarea.spell.SpellingParser;
 import org.jdesktop.swingx.JXStatusBar;
 import org.mnode.ousia.HyperlinkBrowser;
 import org.mnode.ousia.OusiaBuilder;
+import org.noos.xing.mydoggy.ContentManagerUIListener;
 import org.noos.xing.mydoggy.ToolWindowAnchor;
 import org.pushingpixels.substance.api.SubstanceConstants;
 import org.pushingpixels.substance.api.SubstanceLookAndFeel;
@@ -357,6 +359,22 @@ ousia.edt {
         }
 
 		toolWindowManager(id: 'windowManager') {
+			windowManager.contentManager.contentManagerUI.addContentManagerUIListener(
+				["contentUIRemoving": { e ->
+					if (e.contentUI.content.component.sp.textArea.isDirty()) {
+						def filename = e.contentUI.content.component.sp.textArea.fileName
+		                def selection = JOptionPane.showConfirmDialog(windowManager, "Save changes to ${filename}?")
+		                if (selection == JOptionPane.YES_OPTION) {
+//		                    file.text = tabComponent.getClientProperty('figurate.textArea').text
+		                }
+		                else if (selection == JOptionPane.CANCEL_OPTION) {
+		                    return false
+		                }
+						return true
+					}
+				},
+				"contentUIDetached": {}
+			] as ContentManagerUIListener)
 		}
 				
 		statusBar(constraints: BorderLayout.SOUTH, id: 'statusBar') {

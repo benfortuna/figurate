@@ -122,6 +122,7 @@ def newEditor = { file ->
 		bind(source: viewWhitespace, sourceProperty:'selected', target: editor.sp.textArea, targetProperty: 'whitespaceVisible')
 		bind(source: viewLineNumbers, sourceProperty:'selected', target: editor.sp, targetProperty: 'lineNumbersEnabled')
 //		bind(source: toolsBookmarks, sourceProperty:'selected', target: editor.sp.gutter, targetProperty: 'bookmarkingEnabled')
+		bind(source: toolsSpellChecker, sourceProperty:'selected', target: editor, targetProperty: 'spellingParser', converter: { if (it) spellingParser })
 	}
 	editors << editor
 	return editor
@@ -246,18 +247,18 @@ ousia.edt {
 
 		action(new TimeDateAction(), id: 'timeDateAction', name: rs('Date / Time'))
 		
-		action id: 'toggleSpellCheckerAction', name: rs('Spell Checker'), closure: {
-			editors.each {
-				it.textArea.with {
-					if (parserCount > 0) {
-						clearParsers()
-					}
-					else {
-						addParser spellingParser
-					}
-				}
-			}
-		}
+//		action id: 'toggleSpellCheckerAction', name: rs('Spell Checker'), closure: {
+//			editors.each {
+//				it.textArea.with {
+//					if (parserCount > 0) {
+//						clearParsers()
+//					}
+//					else {
+//						addParser spellingParser
+//					}
+//				}
+//			}
+//		}
 		
 		action id: 'onlineHelpAction', name: rs('Online Help'), accelerator: 'F1', closure: {
 			Desktop.desktop.browse(URI.create('http://basetools.org/figurate'))
@@ -345,7 +346,7 @@ ousia.edt {
                     menuItem(playLastMacroAction)
                 }
 //				checkBoxMenuItem(rs('Bookmarks'), id: 'toolsBookmarks')
-				checkBoxMenuItem(toggleSpellCheckerAction, id: 'toolsSpellChecker', enabled: bind {spellingParser != null})
+				checkBoxMenuItem(rs('Spell Checker'), id: 'toolsSpellChecker', enabled: bind {spellingParser != null})
             }
             menu(text: rs("Help"), mnemonic: 'H') {
                 menuItem(onlineHelpAction)

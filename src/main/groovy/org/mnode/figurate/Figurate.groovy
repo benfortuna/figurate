@@ -360,7 +360,7 @@ ousia.edt {
 
 		toolWindowManager(id: 'windowManager') {
 			windowManager.contentManager.contentManagerUI.addContentManagerUIListener(
-				["contentUIRemoving": { e ->
+				[contentUIRemoving: { e ->
 					if (e.contentUI.content.component.sp.textArea.isDirty()) {
 						def filename = e.contentUI.content.component.sp.textArea.fileName
 		                def selection = JOptionPane.showConfirmDialog(windowManager, "Save changes to ${filename}?")
@@ -370,10 +370,10 @@ ousia.edt {
 		                else if (selection == JOptionPane.CANCEL_OPTION) {
 		                    return false
 		                }
-						return true
 					}
+					return true
 				},
-				"contentUIDetached": {}
+				contentUIDetached: {}
 			] as ContentManagerUIListener)
 		}
 				

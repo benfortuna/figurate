@@ -153,7 +153,7 @@ def openUrl = { url ->
 			def editor = newEditor(url)
 			id = editor.getClientProperty('figurate.id')
 //			def icon = paddedIcon(FileSystemView.fileSystemView.getSystemIcon(file), size: [width: 16, height: 22])
-			content = windowManager.contentManager.addContent(id, url.file, null, editor, url.path)
+			content = windowManager.contentManager.addContent(id, url.file.split('/')[-1], null, editor, url.path)
 		}
 		content.selected = true
 	 }

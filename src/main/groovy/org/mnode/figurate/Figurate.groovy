@@ -92,6 +92,8 @@ if (dictionary.exists()) {
 
 def editors = []
 
+def currentEditor
+
 def ousia = new OusiaBuilder()
 
 def updateCaretStatus = { textArea ->
@@ -109,6 +111,7 @@ def newEditor = { file ->
 	def editor = new Editor(file)
 	editor.sp.textArea.caretUpdate = { updateCaretStatus(editor.sp.textArea) }
 	editor.sp.textArea.focusGained = {
+		currentEditor = editor
 		ousia.build {
 			frame.title = "${editor.getClientProperty('figurate.id')} - ${rs('Figurate')}"
 			syntaxStatus.text = editor.sp.textArea.syntaxEditingStyle
@@ -201,14 +204,20 @@ ousia.edt {
              if (chooser.showOpenDialog() == JFileChooser.APPROVE_OPTION) {
 				 openFile(chooser.selectedFile)
              }
-         }
+        }
 		
 		action id: 'tailFileAction', name: rs('Tail..'), closure: {
 			 if (chooser.showOpenDialog() == JFileChooser.APPROVE_OPTION) {
 				 tailFile(chooser.selectedFile)
 			 }
-		 }
-
+		}
+		
+		action id: 'printAction', name: rs('Print..'), closure: {
+			if (new File(currentEditor.sp.textArea.fileFullPath).exists()) {
+				Desktop.desktop.print new File(currentEditor.sp.textArea.fileFullPath)
+			}
+		}
+		
         action id: 'exitAction', name: rs('Exit'), accelerator: shortcut('Q'), closure: {
             System.exit(0)
         }
@@ -300,6 +309,7 @@ ousia.edt {
                 menuItem(openFileAction)
 //                menuItem(tailFileAction)
                 separator()
+                menuItem(printAction)
                 menuItem(exitAction)
             }
 			menu(text: rs('Edit'), mnemonic: 'E') {
@@ -394,6 +404,7 @@ ousia.edt {
 		id = editor.getClientProperty('figurate.id')
 		def content = windowManager.contentManager.addContent(id, "${id}", null, editor, null)
 		content.selected = true
+		editor.sp.textArea.requestFocus()
 	}
 	
     def explorer = new FileTreePanel()

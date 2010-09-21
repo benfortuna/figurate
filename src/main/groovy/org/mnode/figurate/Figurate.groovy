@@ -299,6 +299,11 @@ ousia.edt {
 //			}
 //		}
 		
+		action id: 'openBrowserAction', name: rs('Open in Browser'), closure: {
+			def url = new File(currentEditor.sp.textArea.fileFullPath).toURL()
+			Desktop.getDesktop().browse(url.toURI())
+		}
+
 		action id: 'onlineHelpAction', name: rs('Online Help'), accelerator: 'F1', closure: {
 			Desktop.desktop.browse(URI.create('http://basetools.org/figurate'))
 		}
@@ -390,6 +395,7 @@ ousia.edt {
                 }
 //				checkBoxMenuItem(rs('Bookmarks'), id: 'toolsBookmarks')
 				checkBoxMenuItem(rs('Spell Checker'), id: 'toolsSpellChecker', enabled: bind {spellingParser != null})
+				menuItem(openBrowserAction)
             }
             menu(text: rs("Help"), mnemonic: 'H') {
                 menuItem(onlineHelpAction)

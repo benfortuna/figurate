@@ -36,7 +36,7 @@ class Editor extends JPanel {
 	
 	OusiaBuilder ousia
 			
-	Editor(File file) {
+	Editor(def file) {
 	
 		ousia = new OusiaBuilder()
 		layout = ousia.borderLayout()

@@ -146,6 +146,19 @@ def openFile = { file ->
      }
 }
 
+def openUrl = { url ->
+	 ousia.doLater {
+		def content = windowManager.contentManager.getContent(url.file)
+		if (!content) {
+			def editor = newEditor(url)
+			id = editor.getClientProperty('figurate.id')
+//			def icon = paddedIcon(FileSystemView.fileSystemView.getSystemIcon(file), size: [width: 16, height: 22])
+			content = windowManager.contentManager.addContent(id, url.file, null, editor, url.path)
+		}
+		content.selected = true
+	 }
+}
+
 def tailFile = { file ->
 	 ousia.doLater {
 		def tailWindow = windowManager.getToolWindow('Tail')
@@ -206,6 +219,13 @@ ousia.edt {
              }
         }
 		
+		action id: 'openUrlAction', name: rs('Open URL..'), closure: {
+			url = JOptionPane.showInputDialog(frame, rs('URL'))
+			if (url) {
+				openUrl(new URL(url))
+			}
+		}
+
 		action id: 'tailFileAction', name: rs('Tail..'), closure: {
 			 if (chooser.showOpenDialog() == JFileChooser.APPROVE_OPTION) {
 				 tailFile(chooser.selectedFile)
@@ -340,6 +360,7 @@ ousia.edt {
             menu(text: rs('File'), mnemonic: 'F') {
 				menuItem(newEditorAction)
                 menuItem(openFileAction)
+                menuItem(openUrlAction)
 //                menuItem(tailFileAction)
                 menuItem(saveFileAction)
                 menuItem(saveAsFileAction)

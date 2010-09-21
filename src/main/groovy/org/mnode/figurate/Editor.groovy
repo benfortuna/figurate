@@ -51,6 +51,9 @@ class Editor extends JPanel {
 	                syntaxEditingStyle = MimeUtil.getMimeTypes(file).iterator().next()
 	                caretPosition = 0
 				}
+
+				// reset undo history..
+				discardAllEdits()
 			}
 		}
 		
@@ -60,7 +63,7 @@ class Editor extends JPanel {
 		}
 
 		add sp
-		
+	
 		if (file) {
 			putClientProperty 'figurate.id', sp.textArea.fileName
 		}

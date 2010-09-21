@@ -212,6 +212,34 @@ ousia.edt {
 			 }
 		}
 		
+		action id: 'saveFileAction', name: rs('Save'), accelerator: shortcut('S'), closure: {
+			if (new File(currentEditor.sp.textArea.fileFullPath).exists()) {
+				currentEditor.sp.textArea.save()
+			}
+			else {
+				chooser.selectedFile = new File(currentEditor.sp.textArea.fileFullPath)
+				if (chooser.showSaveDialog() == JFileChooser.APPROVE_OPTION) {
+					currentEditor.sp.textArea.saveAs(FileLocation.create(chooser.selectedFile))
+					editor.putClientProperty 'figurate.id', currentEditor.sp.textArea.fileName
+				}
+			}
+		}
+		
+		action id: 'saveAsFileAction', name: rs('Save As..'), closure: {
+			chooser.selectedFile = new File(currentEditor.sp.textArea.fileFullPath)
+			if (chooser.showSaveDialog() == JFileChooser.APPROVE_OPTION) {
+				currentEditor.sp.textArea.saveAs(FileLocation.create(chooser.selectedFile))
+				editor.putClientProperty 'figurate.id', currentEditor.sp.textArea.fileName
+			}
+		}
+		
+		action id: 'saveCopyFileAction', name: rs('Save a Copy..'), closure: {
+			chooser.selectedFile = new File(currentEditor.sp.textArea.fileFullPath)
+			if (chooser.showSaveDialog() == JFileChooser.APPROVE_OPTION) {
+				chooser.selectedFile.text = currentEditor.sp.textArea.text
+			}
+		}
+		
 		action id: 'printAction', name: rs('Print..'), closure: {
 			if (new File(currentEditor.sp.textArea.fileFullPath).exists()) {
 				Desktop.desktop.print new File(currentEditor.sp.textArea.fileFullPath)
@@ -308,6 +336,9 @@ ousia.edt {
 				menuItem(newEditorAction)
                 menuItem(openFileAction)
 //                menuItem(tailFileAction)
+                menuItem(saveFileAction)
+                menuItem(saveAsFileAction)
+                menuItem(saveCopyFileAction)
                 separator()
                 menuItem(printAction)
                 menuItem(exitAction)

@@ -24,6 +24,7 @@ import static org.jdesktop.swingx.JXStatusBar.Constraint.ResizeBehavior.*
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Desktop 
+import java.awt.FlowLayout;
 import java.awt.GraphicsEnvironment;
 import java.awt.event.KeyEvent;
 import org.fife.ui.rtextarea.RTextArea;
@@ -404,6 +405,7 @@ ousia.edt {
                 checkBoxMenuItem(text: rs("Line Numbers"), id: 'viewLineNumbers')
 //                checkBoxMenuItem(text: "Tab Names", id: 'viewTabNames')
                 separator()
+                checkBoxMenuItem(text: rs("Tool Bar"), id: 'viewToolBar')
                 checkBoxMenuItem(text: rs("Status Bar"), id: 'viewStatusBar')
                 checkBoxMenuItem(fullScreenAction)
             }
@@ -433,6 +435,15 @@ ousia.edt {
             }
         }
 
+		panel(constraints: BorderLayout.NORTH, id: 'toolBar', border: emptyBorder([0, 20, 0, 0])) {
+			flowLayout(alignment: FlowLayout.LEADING)
+			
+//			button(label: rs('Back'))
+//			button(label: rs('Forward'))
+//			button(label: rs('Refresh'))
+			bind(source: viewToolBar, sourceProperty:'selected', target:toolBar, targetProperty:'visible')
+		}
+		
 		toolWindowManager(id: 'windowManager') {
 			windowManager.contentManager.contentManagerUI.addContentManagerUIListener(
 				[contentUIRemoving: { e ->

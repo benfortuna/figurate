@@ -44,6 +44,7 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.filechooser.FileSystemView;
+import javax.swing.text.JTextComponent;
 
 import org.fife.ui.rsyntaxtextarea.FileLocation;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
@@ -92,8 +93,6 @@ if (dictionary.exists()) {
 
 def editors = []
 
-def currentEditor
-
 def ousia = new OusiaBuilder()
 
 def updateCaretStatus = { textArea ->
@@ -111,7 +110,6 @@ def newEditor = { file ->
 	def editor = new Editor(file)
 	editor.sp.textArea.caretUpdate = { updateCaretStatus(editor.sp.textArea) }
 	editor.sp.textArea.focusGained = {
-		currentEditor = editor
 		ousia.build {
 			frame.title = "${editor.getClientProperty('figurate.id')} - ${rs('Figurate')}"
 			syntaxStatus.text = editor.sp.textArea.syntaxEditingStyle
@@ -233,36 +231,36 @@ ousia.edt {
 		}
 		
 		action id: 'saveFileAction', name: rs('Save'), accelerator: shortcut('S'), closure: {
-			if (new File(currentEditor.sp.textArea.fileFullPath).exists()) {
-				currentEditor.sp.textArea.save()
+			if (new File(JTextComponent.focusedComponent.fileFullPath).exists()) {
+				JTextComponent.focusedComponent.save()
 			}
 			else {
-				chooser.selectedFile = new File(currentEditor.sp.textArea.fileFullPath)
+				chooser.selectedFile = new File(JTextComponent.focusedComponent.fileFullPath)
 				if (chooser.showSaveDialog() == JFileChooser.APPROVE_OPTION) {
-					currentEditor.sp.textArea.saveAs(FileLocation.create(chooser.selectedFile))
-					editor.putClientProperty 'figurate.id', currentEditor.sp.textArea.fileName
+					JTextComponent.focusedComponent.saveAs(FileLocation.create(chooser.selectedFile))
+					editor.putClientProperty 'figurate.id', JTextComponent.focusedComponent.fileName
 				}
 			}
 		}
 		
 		action id: 'saveAsFileAction', name: rs('Save As..'), closure: {
-			chooser.selectedFile = new File(currentEditor.sp.textArea.fileFullPath)
+			chooser.selectedFile = new File(JTextComponent.focusedComponent.fileFullPath)
 			if (chooser.showSaveDialog() == JFileChooser.APPROVE_OPTION) {
-				currentEditor.sp.textArea.saveAs(FileLocation.create(chooser.selectedFile))
-				editor.putClientProperty 'figurate.id', currentEditor.sp.textArea.fileName
+				JTextComponent.focusedComponent.saveAs(FileLocation.create(chooser.selectedFile))
+				editor.putClientProperty 'figurate.id', JTextComponent.focusedComponent.fileName
 			}
 		}
 		
 		action id: 'saveCopyFileAction', name: rs('Save a Copy..'), closure: {
-			chooser.selectedFile = new File(currentEditor.sp.textArea.fileFullPath)
+			chooser.selectedFile = new File(JTextComponent.focusedComponent.fileFullPath)
 			if (chooser.showSaveDialog() == JFileChooser.APPROVE_OPTION) {
-				chooser.selectedFile.text = currentEditor.sp.textArea.text
+				chooser.selectedFile.text = JTextComponent.focusedComponent.text
 			}
 		}
 		
 		action id: 'printAction', name: rs('Print..'), closure: {
-			if (new File(currentEditor.sp.textArea.fileFullPath).exists()) {
-				Desktop.desktop.print new File(currentEditor.sp.textArea.fileFullPath)
+			if (new File(JTextComponent.focusedComponent.fileFullPath).exists()) {
+				Desktop.desktop.print new File(JTextComponent.focusedComponent.fileFullPath)
 			}
 		}
 		
@@ -320,7 +318,7 @@ ousia.edt {
 //		}
 		
 		action id: 'openBrowserAction', name: rs('Open in Browser'), closure: {
-			def url = new File(currentEditor.sp.textArea.fileFullPath).toURL()
+			def url = new File(JTextComponent.focusedComponent.fileFullPath).toURL()
 			Desktop.getDesktop().browse(url.toURI())
 		}
 

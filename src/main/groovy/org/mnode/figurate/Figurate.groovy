@@ -231,36 +231,44 @@ ousia.edt {
 		}
 		
 		action id: 'saveFileAction', name: rs('Save'), accelerator: shortcut('S'), closure: {
-			if (new File(JTextComponent.focusedComponent.fileFullPath).exists()) {
-				JTextComponent.focusedComponent.save()
+			editor = JTextComponent.focusedComponent
+			if (new File(editor.fileFullPath).exists()) {
+				editor.save()
+				messageStatus.text = "${editor.fileName} ${rs('saved.')}"
 			}
 			else {
-				chooser.selectedFile = new File(JTextComponent.focusedComponent.fileFullPath)
+				chooser.selectedFile = new File(editor.fileFullPath)
 				if (chooser.showSaveDialog() == JFileChooser.APPROVE_OPTION) {
-					JTextComponent.focusedComponent.saveAs(FileLocation.create(chooser.selectedFile))
-					editor.putClientProperty 'figurate.id', JTextComponent.focusedComponent.fileName
+					editor.saveAs(FileLocation.create(chooser.selectedFile))
+					editor.putClientProperty 'figurate.id', editor.fileName
+					messageStatus.text = "${editor.fileName} ${rs('saved.')}"
 				}
 			}
 		}
 		
 		action id: 'saveAsFileAction', name: rs('Save As..'), closure: {
-			chooser.selectedFile = new File(JTextComponent.focusedComponent.fileFullPath)
+			editor = JTextComponent.focusedComponent
+			chooser.selectedFile = new File(editor.fileFullPath)
 			if (chooser.showSaveDialog() == JFileChooser.APPROVE_OPTION) {
-				JTextComponent.focusedComponent.saveAs(FileLocation.create(chooser.selectedFile))
-				editor.putClientProperty 'figurate.id', JTextComponent.focusedComponent.fileName
+				editor.saveAs(FileLocation.create(chooser.selectedFile))
+				editor.putClientProperty 'figurate.id', editor.fileName
+				messageStatus.text = "${editor.fileName} ${rs('saved.')}"
 			}
 		}
 		
 		action id: 'saveCopyFileAction', name: rs('Save a Copy..'), closure: {
-			chooser.selectedFile = new File(JTextComponent.focusedComponent.fileFullPath)
+			editor = JTextComponent.focusedComponent
+			chooser.selectedFile = new File(editor.fileFullPath)
 			if (chooser.showSaveDialog() == JFileChooser.APPROVE_OPTION) {
-				chooser.selectedFile.text = JTextComponent.focusedComponent.text
+				chooser.selectedFile.text = editor.text
+				messageStatus.text = "${chooser.selectedFile.name} ${rs('saved.')}"
 			}
 		}
 		
 		action id: 'printAction', name: rs('Print..'), closure: {
-			if (new File(JTextComponent.focusedComponent.fileFullPath).exists()) {
-				Desktop.desktop.print new File(JTextComponent.focusedComponent.fileFullPath)
+			editor = JTextComponent.focusedComponent
+			if (new File(editor.fileFullPath).exists()) {
+				Desktop.desktop.print new File(editor.fileFullPath)
 			}
 		}
 		
@@ -318,7 +326,8 @@ ousia.edt {
 //		}
 		
 		action id: 'openBrowserAction', name: rs('Open in Browser'), closure: {
-			def url = new File(JTextComponent.focusedComponent.fileFullPath).toURL()
+			editor = JTextComponent.focusedComponent
+			def url = new File(editor.fileFullPath).toURL()
 			Desktop.getDesktop().browse(url.toURI())
 		}
 
@@ -444,7 +453,7 @@ ousia.edt {
 		}
 				
 		statusBar(constraints: BorderLayout.SOUTH, id: 'statusBar') {
-			label(text: rs('Ready'), constraints: new JXStatusBar.Constraint(FILL))
+			label(text: rs('Ready'), id: 'messageStatus', constraints: new JXStatusBar.Constraint(FILL))
 			label(text: '1:0', id: 'caretPositionStatus', horizontalAlignment: SwingConstants.CENTER, toolTipText: 'Cursor position (line:column)', constraints: new JXStatusBar.Constraint(80))
 			label(text: 'text/plain', id: 'syntaxStatus', horizontalAlignment: SwingConstants.CENTER, toolTipText: 'Syntax Highlighting', constraints: new JXStatusBar.Constraint(80))
 			bind(source: viewStatusBar, sourceProperty:'selected', target:statusBar, targetProperty:'visible')

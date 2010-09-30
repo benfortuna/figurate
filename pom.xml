@@ -11,7 +11,7 @@
 	<name>Figurate</name>
 	<version>0.0.1-SNAPSHOT</version>
 	<description>Configuration editor</description>
-	<url>http://basetools.org/figurate</url>
+	<url>http://figurate.org</url>
 	<repositories>
 		<repository>
 			<id>modularity-releases</id>
@@ -218,6 +218,27 @@
             <groupId>eu.kostia.gtkjfilechooser</groupId>
             <artifactId>gtkjfilechooser</artifactId>
             <version>1.4.8</version>
+        </dependency>
+        <dependency>
+            <groupId>net.java.dev.flamingo</groupId>
+            <artifactId>flamingo</artifactId>
+            <version>5.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.xmlgraphics</groupId>
+            <artifactId>batik-transcoder</artifactId>
+            <version>1.7</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.xmlgraphics</groupId>
+            <artifactId>batik-swing</artifactId>
+            <version>1.7</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>xalan</artifactId>
+                    <groupId>xalan</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
 	</dependencies>
 	<scm>
@@ -435,12 +456,12 @@
 						<configuration>
 							<tasks>
 								<scp file="target/${pom.build.finalName}.zip"
-									todir="modularity@mnode.org:basetools.org/figurate"
+									todir="modularity@mnode.org:figurate.org"
 									keyfile="${user.home}/.ssh/id_rsa" passphrase="" />
 
 								<sshexec host="mnode.org" username="modularity"
 									keyfile="${user.home}/.ssh/id_rsa" passphrase=""
-									command="rm -rf basetools.org/figurate/webstart/*; unzip -o basetools.org/figurate/${pom.build.finalName}.zip -d basetools.org/figurate/webstart" />
+									command="rm -rf figurate.org/webstart/*; unzip -o figurate.org/${pom.build.finalName}.zip -d figurate.org/webstart" />
 							</tasks>
 						</configuration>
 						<goals>
@@ -475,6 +496,30 @@
                     </execution>
                 </executions>
             </plugin>
+            <!-- 
+            <plugin>
+            	<groupId>org.bluestemsoftware.open.maven.plugin</groupId>
+            	<artifactId>launch4j-plugin</artifactId>
+            	<version>1.5.0.0</version>
+			      <executions>
+			        <execution>
+			          <id>launch4j</id>
+			          <phase>verify</phase>
+			          <goals>
+			            <goal>launch4j</goal>
+			          </goals>
+			          <configuration>
+			            <dontWrapJar>true</dontWrapJar>
+			            <headerType>gui</headerType>
+			            <outfile>target/figurate.exe</outfile>
+			            <jar>../lib/${pom.build.finalName}.jar</jar>
+			            <errTitle>Figurate</errTitle>
+			            <jre>1.6</jre>
+			          </configuration>
+			        </execution>
+			      </executions>
+            </plugin>
+             -->
 		</plugins>
 	</build>
 </project>

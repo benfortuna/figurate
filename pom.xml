@@ -233,6 +233,10 @@
             		<artifactId>xalan</artifactId>
             		<groupId>xalan</groupId>
             	</exclusion>
+            	<exclusion>
+            		<artifactId>xml-apis</artifactId>
+            		<groupId>xml-apis</groupId>
+            	</exclusion>
             </exclusions>
         </dependency>
         <dependency>
@@ -243,6 +247,10 @@
                 <exclusion>
                     <artifactId>xalan</artifactId>
                     <groupId>xalan</groupId>
+                </exclusion>
+                <exclusion>
+                	<artifactId>xml-apis</artifactId>
+                	<groupId>xml-apis</groupId>
                 </exclusion>
             </exclusions>
         </dependency>

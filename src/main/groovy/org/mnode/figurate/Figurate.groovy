@@ -467,7 +467,7 @@ ousia.edt {
 		}
 				
 		statusBar(constraints: BorderLayout.SOUTH, id: 'statusBar') {
-			label(text: rs('Ready'), id: 'messageStatus', constraints: new JXStatusBar.Constraint(FILL))
+			label(text: rs('Ready'), id: 'messageStatus', constraints: new JXStatusBar.Constraint(ResizeBehavior.FILL))
 			label(text: '1:0', id: 'caretPositionStatus', horizontalAlignment: SwingConstants.CENTER, toolTipText: 'Cursor position (line:column)', constraints: new JXStatusBar.Constraint(80))
 			label(text: 'text/plain', id: 'syntaxStatus', horizontalAlignment: SwingConstants.CENTER, toolTipText: 'Syntax Highlighting', constraints: new JXStatusBar.Constraint(80))
 			bind(source: viewStatusBar, sourceProperty:'selected', target:statusBar, targetProperty:'visible')

@@ -16,51 +16,42 @@
  * You should have received a copy of the GNU General Public License
  * along with Figurate.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.mnode.figurate
+import java.awt.BorderLayout
+import java.awt.Color
+import java.awt.Desktop
+import java.awt.FlowLayout
+import java.awt.GraphicsEnvironment
+import java.awt.event.KeyEvent
 
+import javax.swing.Action
+import javax.swing.JFileChooser
+import javax.swing.JFrame
+import javax.swing.JOptionPane
+import javax.swing.JScrollPane
+import javax.swing.SwingConstants
+import javax.swing.UIManager
+import javax.swing.filechooser.FileSystemView
+import javax.swing.text.JTextComponent
 
-import static org.jdesktop.swingx.JXStatusBar.Constraint.ResizeBehavior.*
+import org.fife.ui.rsyntaxtextarea.FileLocation
+import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea
+import org.fife.ui.rsyntaxtextarea.RSyntaxTextAreaEditorKit.DecreaseFontSizeAction
+import org.fife.ui.rsyntaxtextarea.RSyntaxTextAreaEditorKit.IncreaseFontSizeAction
+import org.fife.ui.rsyntaxtextarea.spell.SpellingParser
+import org.fife.ui.rtextarea.RTextArea
+import org.fife.ui.rtextarea.RTextAreaEditorKit
+import org.fife.ui.rtextarea.RTextAreaEditorKit.BeginRecordingMacroAction
+import org.fife.ui.rtextarea.RTextAreaEditorKit.TimeDateAction
+import org.jdesktop.swingx.JXStatusBar
+import org.jdesktop.swingx.JXStatusBar.Constraint.ResizeBehavior
+import org.mnode.ousia.OusiaBuilder
+import org.noos.xing.mydoggy.ContentManagerUIListener
+import org.noos.xing.mydoggy.ToolWindowAnchor
+import org.pushingpixels.flamingo.api.common.JCommandButton.CommandButtonKind
+import org.pushingpixels.substance.api.SubstanceConstants
+import org.pushingpixels.substance.api.SubstanceLookAndFeel
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Desktop 
-import java.awt.FlowLayout;
-import java.awt.GraphicsEnvironment;
-import java.awt.event.KeyEvent;
-import org.fife.ui.rtextarea.RTextArea;
-import org.fife.ui.rtextarea.RTextAreaEditorKit.BeginRecordingMacroAction;
-import org.fife.ui.rtextarea.RTextAreaEditorKit.TimeDateAction;
-import javax.swing.JScrollPane;
-
-
-
-import org.fife.ui.rtextarea.RTextAreaEditorKit;
-
-import javax.swing.Action;
-
-
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.SwingConstants;
-import javax.swing.UIManager;
-import javax.swing.filechooser.FileSystemView;
-import javax.swing.text.JTextComponent;
-
-import org.fife.ui.rsyntaxtextarea.FileLocation;
-import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
-import org.fife.ui.rsyntaxtextarea.RSyntaxTextAreaEditorKit.DecreaseFontSizeAction;
-import org.fife.ui.rsyntaxtextarea.RSyntaxTextAreaEditorKit.IncreaseFontSizeAction;
-import org.fife.ui.rsyntaxtextarea.spell.SpellingParser;
-import org.jdesktop.swingx.JXStatusBar;
-import org.mnode.ousia.HyperlinkBrowser;
-import org.mnode.ousia.OusiaBuilder;
-import org.noos.xing.mydoggy.ContentManagerUIListener;
-import org.noos.xing.mydoggy.ToolWindowAnchor;
-import org.pushingpixels.substance.api.SubstanceConstants;
-import org.pushingpixels.substance.api.SubstanceLookAndFeel;
-
-import eu.medsea.mimeutil.MimeUtil;
+import eu.medsea.mimeutil.MimeUtil
 
 def initialFile
 if (args) {
@@ -80,6 +71,8 @@ try {
 }
 catch (Exception e) {
 }
+
+new File(System.getProperty("user.home"), ".figurate/logs").mkdirs()
 
 MimeUtil.registerMimeDetector("eu.medsea.mimeutil.detector.ExtensionMimeDetector")
 UIManager.put(SubstanceLookAndFeel.TABBED_PANE_CONTENT_BORDER_KIND, SubstanceConstants.TabContentPaneBorderKind.SINGLE_FULL)
@@ -437,10 +430,18 @@ ousia.edt {
 
 		panel(constraints: BorderLayout.NORTH, id: 'toolBar', border: emptyBorder([0, 20, 0, 0])) {
 			flowLayout(alignment: FlowLayout.LEADING)
+/*			
+			resizableIcon('/back.svg', size: [20, 20], id: 'backIcon')
+			resizableIcon('/forward.svg', size: [20, 20], id: 'forwardIcon')
+			resizableIcon('/reload.svg', size: [20, 20], id: 'reloadIcon')
 			
-//			button(label: rs('Back'))
-//			button(label: rs('Forward'))
-//			button(label: rs('Refresh'))
+			commandButtonStrip(displayState: CommandButtonDisplayState.FIT_TO_ICON) {
+				commandButton rs('Back'), icon: backIcon, commandButtonKind: CommandButtonKind.ACTION_ONLY
+				commandButton rs('Forward'), icon: forwardIcon
+			}
+			commandButton(rs('Reload'), icon: reloadIcon, displayState: CommandButtonDisplayState.FIT_TO_ICON, , commandButtonKind: CommandButtonKind.ACTION_ONLY)
+			comboBox(id: 'syntaxStyleCombo', model: new DefaultComboBoxModel(['text/plain']))
+*/
 			bind(source: viewToolBar, sourceProperty:'selected', target:toolBar, targetProperty:'visible')
 		}
 		

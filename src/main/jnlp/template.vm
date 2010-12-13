@@ -27,6 +27,10 @@
 #if($offlineAllowed)
     <offline-allowed/>
 #end
+    <shortcut online="false">
+      <desktop/>
+      <menu submenu="$project.Organization.Name"/>
+    </shortcut>
   </information>
 #if($allPermissions)
   <security>

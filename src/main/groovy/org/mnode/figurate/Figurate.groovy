@@ -16,6 +16,8 @@
  * You should have received a copy of the GNU General Public License
  * along with Figurate.  If not, see <http://www.gnu.org/licenses/>.
  */
+package org.mnode.figurate
+
 import java.awt.BorderLayout
 import java.awt.Color
 import java.awt.Desktop

@@ -18,15 +18,15 @@
  */
 package org.mnode.figurate
 
-import javax.swing.JPanel;
+import javax.swing.JPanel
 
-import org.fife.ui.rsyntaxtextarea.FileLocation;
-import org.fife.ui.rsyntaxtextarea.parser.Parser;
-import org.fife.ui.rtextarea.RTextScrollPane;
-import org.mnode.ousia.HyperlinkBrowser;
-import org.mnode.ousia.OusiaBuilder;
+import org.fife.ui.rsyntaxtextarea.FileLocation
+import org.fife.ui.rsyntaxtextarea.parser.Parser
+import org.fife.ui.rtextarea.RTextScrollPane
+import org.mnode.ousia.HyperlinkBrowser
+import org.mnode.ousia.OusiaBuilder
 
-import eu.medsea.mimeutil.MimeUtil;
+import eu.medsea.mimeutil.MimeUtil
 
 class Editor extends JPanel {
 	

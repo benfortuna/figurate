@@ -74,9 +74,9 @@ try {
 catch (Exception e) {
 }
 
-new File(System.getProperty("user.home"), ".figurate/logs").mkdirs()
+new File(System.getProperty('user.home'), '.figurate/logs').mkdirs()
 
-MimeUtil.registerMimeDetector("eu.medsea.mimeutil.detector.ExtensionMimeDetector")
+MimeUtil.registerMimeDetector('eu.medsea.mimeutil.detector.ExtensionMimeDetector')
 UIManager.put(SubstanceLookAndFeel.TABBED_PANE_CONTENT_BORDER_KIND, SubstanceConstants.TabContentPaneBorderKind.SINGLE_FULL)
 
 // spellchecker..
@@ -95,7 +95,6 @@ def updateCaretStatus = { textArea ->
 	textArea.with {
 		def line = getLineOfOffset(caretPosition) + 1
 		def column = caretPosition - getLineStartOffset(line - 1)
-		def lineCount = lineCount
 		def lineLength = getLineEndOffset(line - 1) - getLineStartOffset(line - 1)
 		ousia.caretPositionStatus.text = "${line}:${column} (${lineCount}:${lineLength})"
 	}
@@ -124,7 +123,7 @@ def newEditor = { file ->
 		bind(source: toolsSpellChecker, sourceProperty:'selected', target: editor, targetProperty: 'spellingParser', converter: { if (it) spellingParser })
 	}
 	editors << editor
-	return editor
+	editor
 }
 
 def openFile = { file ->
@@ -298,13 +297,13 @@ ousia.edt {
 		action(new IncreaseFontSizeAction(), id: 'increaseFontAction', name: rs('Increase Font Size'), accelerator: shortcut(KeyEvent.VK_EQUALS))
 		action(new DecreaseFontSizeAction(), id: 'decreaseFontAction', name: rs('Decrease Font Size'), accelerator: shortcut(KeyEvent.VK_MINUS))
 		
-		action(editorKitActions.get(RTextAreaEditorKit.rtaUpperSelectionCaseAction), id: 'upperCaseAction', name: rs('Upper Case'), accelerator: shortcut("shift U"))
-		action(editorKitActions.get(RTextAreaEditorKit.rtaLowerSelectionCaseAction), id: 'lowerCaseAction', name: rs('Lower Case'), accelerator: shortcut("shift L"))
-		action(editorKitActions.get(RTextAreaEditorKit.rtaInvertSelectionCaseAction), id: 'invertCaseAction', name: rs('Invert Case'), accelerator: shortcut("shift I"))
+		action(editorKitActions.get(RTextAreaEditorKit.rtaUpperSelectionCaseAction), id: 'upperCaseAction', name: rs('Upper Case'), accelerator: shortcut('shift U'))
+		action(editorKitActions.get(RTextAreaEditorKit.rtaLowerSelectionCaseAction), id: 'lowerCaseAction', name: rs('Lower Case'), accelerator: shortcut('shift L'))
+		action(editorKitActions.get(RTextAreaEditorKit.rtaInvertSelectionCaseAction), id: 'invertCaseAction', name: rs('Invert Case'), accelerator: shortcut('shift I'))
 		
 		action(new BeginRecordingMacroAction(), id: 'beginMacroAction', name: rs('Begin Recording'))
 		action(editorKitActions.get(RTextAreaEditorKit.rtaEndRecordingMacroAction), id: 'endMacroAction', name: rs('End Recording'))
-		action(editorKitActions.get(RTextAreaEditorKit.rtaPlaybackLastMacroAction), id: 'playLastMacroAction', name: rs('Playback Last'), accelerator: shortcut("shift P"))
+		action(editorKitActions.get(RTextAreaEditorKit.rtaPlaybackLastMacroAction), id: 'playLastMacroAction', name: rs('Playback Last'), accelerator: shortcut('shift P'))
 
 		action(new TimeDateAction(), id: 'timeDateAction', name: rs('Date / Time'))
 		
@@ -324,7 +323,7 @@ ousia.edt {
 		action id: 'openBrowserAction', name: rs('Open in Browser'), closure: {
 			editor = JTextComponent.focusedComponent
 			def url = new File(editor.fileFullPath).toURL()
-			Desktop.getDesktop().browse(url.toURI())
+			Desktop.desktop.browse(url.toURI())
 		}
 
 		action id: 'onlineHelpAction', name: rs('Online Help'), accelerator: 'F1', closure: {
@@ -389,31 +388,31 @@ ousia.edt {
 			}
             menu(text: rs('View'), mnemonic: 'V') {
 				menu(rs('Sidebar')) {
-					checkBoxMenuItem(text: rs("File Explorer"), id: 'viewFileExplorer', accelerator: shortcut('E'))
+					checkBoxMenuItem(text: rs('File Explorer'), id: 'viewFileExplorer', accelerator: shortcut('E'))
 				}
                 separator()
                 menuItem(increaseFontAction)
                 menuItem(decreaseFontAction)
                 separator()
-                checkBoxMenuItem(text: rs("Word Wrap"), id: 'viewWordWrap')
-                checkBoxMenuItem(text: rs("Whitespace"), id: 'viewWhitespace')
-                checkBoxMenuItem(text: rs("Line Numbers"), id: 'viewLineNumbers')
+                checkBoxMenuItem(text: rs('Word Wrap'), id: 'viewWordWrap')
+                checkBoxMenuItem(text: rs('Whitespace'), id: 'viewWhitespace')
+                checkBoxMenuItem(text: rs('Line Numbers'), id: 'viewLineNumbers')
 //                checkBoxMenuItem(text: "Tab Names", id: 'viewTabNames')
                 separator()
-                checkBoxMenuItem(text: rs("Tool Bar"), id: 'viewToolBar')
-                checkBoxMenuItem(text: rs("Status Bar"), id: 'viewStatusBar')
+                checkBoxMenuItem(text: rs('Tool Bar'), id: 'viewToolBar')
+                checkBoxMenuItem(text: rs('Status Bar'), id: 'viewStatusBar')
                 checkBoxMenuItem(fullScreenAction)
             }
-            menu(text: rs("Tools"), mnemonic: 'T') {
-                menu(text: rs("Transform")) {
+            menu(text: rs('Tools'), mnemonic: 'T') {
+                menu(text: rs('Transform')) {
                     menuItem(upperCaseAction)
                     menuItem(lowerCaseAction)
                     menuItem(invertCaseAction)
                 }
-                menu(text: rs("Insert")) {
+                menu(text: rs('Insert')) {
                     menuItem(timeDateAction)
                 }
-                menu(text: rs("Macro")) {
+                menu(text: rs('Macro')) {
                     menuItem(beginMacroAction)
                     menuItem(endMacroAction)
                     menuItem(playLastMacroAction)
@@ -422,7 +421,7 @@ ousia.edt {
 				checkBoxMenuItem(rs('Spell Checker'), id: 'toolsSpellChecker', enabled: bind {spellingParser != null})
 				menuItem(openBrowserAction)
             }
-            menu(text: rs("Help"), mnemonic: 'H') {
+            menu(text: rs('Help'), mnemonic: 'H') {
                 menuItem(onlineHelpAction)
 //                menuItem(showTipsAction)
 				separator()
@@ -460,7 +459,7 @@ ousia.edt {
 		                    return false
 		                }
 					}
-					return true
+					true
 				},
 				contentUIDetached: {}
 			] as ContentManagerUIListener)
@@ -493,6 +492,6 @@ ousia.edt {
 			openFile(selected.file)
         }
 	}
-	def explorerWindow = windowManager.registerToolWindow("File Explorer", "Filesystem", null, explorer, ToolWindowAnchor.LEFT)
+	def explorerWindow = windowManager.registerToolWindow('File Explorer', 'Filesystem', null, explorer, ToolWindowAnchor.LEFT)
 	bind(source: viewFileExplorer, sourceProperty:'selected', target:explorerWindow, targetProperty:'available')
 }

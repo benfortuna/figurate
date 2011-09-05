@@ -8,7 +8,7 @@
 	<groupId>org.mnode.figurate</groupId>
 	<artifactId>figurate</artifactId>
 	<name>Figurate</name>
-	<version>0.0.1</version>
+	<version>0.0.2-SNAPSHOT</version>
 	<description>Configuration editor</description>
 	<url>http://figurate.org</url>
 	<repositories>

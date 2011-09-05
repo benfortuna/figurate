@@ -1,5 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.mnode.base</groupId>
@@ -9,7 +8,7 @@
 	<groupId>org.mnode.figurate</groupId>
 	<artifactId>figurate</artifactId>
 	<name>Figurate</name>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.1</version>
 	<description>Configuration editor</description>
 	<url>http://figurate.org</url>
 	<repositories>
@@ -305,8 +304,7 @@
 							<include>commons-lang:commons-lang</include> </includes>
 						-->
 						<!--
-							excludes> <exclude></exclude> <excludes
-						-->
+							excludes> <exclude></exclude> <excludes -->
 					</dependencies>
 
 					<resourcesDirectory>${project.basedir}/src/main/jnlp/resources</resourcesDirectory>
@@ -317,8 +315,7 @@
 					<jnlp>
 						<!-- default values -->
 						<!--
-							inputTemplateResourcePath>${project.basedir}</inputTemplateResourcePath
-						-->
+							inputTemplateResourcePath>${project.basedir}</inputTemplateResourcePath -->
 						<!--inputTemplate>src/main/jnlp/template.vm</inputTemplate--> <!-- relative to inputTemplateResourcePath -->
 						<!-- defaults to launch.jnlp -->
 						<!-- 
@@ -392,13 +389,9 @@
 						<phase>deploy</phase>
 						<configuration>
 							<tasks>
-								<scp file="target/${pom.build.finalName}.zip"
-									todir="modularity@mnode.org:figurate.org"
-									keyfile="${user.home}/.ssh/id_rsa" passphrase="" />
+								<scp file="target/${pom.build.finalName}.zip" todir="modularity@mnode.org:figurate.org" keyfile="${user.home}/.ssh/id_rsa" passphrase="" />
 
-								<sshexec host="mnode.org" username="modularity"
-									keyfile="${user.home}/.ssh/id_rsa" passphrase=""
-									command="rm -rf figurate.org/webstart/*; unzip -o figurate.org/${pom.build.finalName}.zip -d figurate.org/webstart" />
+								<sshexec host="mnode.org" username="modularity" keyfile="${user.home}/.ssh/id_rsa" passphrase="" command="rm -rf figurate.org/webstart/*; unzip -o figurate.org/${pom.build.finalName}.zip -d figurate.org/webstart" />
 							</tasks>
 						</configuration>
 						<goals>

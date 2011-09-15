@@ -238,7 +238,7 @@
 					    </manifest>
 						<manifestEntries>
 							<SplashScreen-Image>splash.png</SplashScreen-Image>
-                            <Main-Class>org.mnode.figurate.Figurate</Main-Class>
+                            <Main-Class>${mainClass}</Main-Class>
 						</manifestEntries>
 					</archive>
 				</configuration>
@@ -307,7 +307,7 @@
 							used to automatically identify the jar containing the main class.
 						-->
 						<!-- this is perhaps going to change -->
-						<mainClass>org.mnode.figurate.Figurate</mainClass>
+						<mainClass>${mainClass}</mainClass>
                         <j2seVersion>1.6+</j2seVersion>
 					</jnlp>
 

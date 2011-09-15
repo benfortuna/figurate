@@ -485,13 +485,15 @@ ousia.edt {
 		editor.sp.textArea.requestFocus()
 	}
 	
-    def explorer = new FileTreePanel()
-    explorer.tree.mouseClicked = { e ->
-        def selected = e.source.selectionPath?.lastPathComponent
-        if (e.clickCount == 2 && selected?.leaf) {
-			openFile(selected.file)
-        }
-	}
+    fileTreePanel(id: 'explorer') {
+	    explorer.tree.mouseClicked = { e ->
+	        def selected = e.source.selectionPath?.lastPathComponent
+	        if (e.clickCount == 2 && selected?.leaf) {
+				openFile(selected.file)
+	        }
+		}
+    }
+	
 	def explorerWindow = windowManager.registerToolWindow('File Explorer', 'Filesystem', null, explorer, ToolWindowAnchor.LEFT)
 	bind(source: viewFileExplorer, sourceProperty:'selected', target:explorerWindow, targetProperty:'available')
 }

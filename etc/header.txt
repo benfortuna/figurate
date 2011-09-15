@@ -1,6 +1,6 @@
 This file is part of Figurate.
 
-Copyright (c) ${year}, Ben Fortuna [fortuna@micronode.com]
+Copyright (c) ${year}, Ben Fortuna [${email}]
 
 Figurate is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

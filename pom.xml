@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>org.mnode.base</groupId>
 		<artifactId>base-parent</artifactId>
-		<version>0.0.3</version>
+		<version>0.0.4-SNAPSHOT</version>
 	</parent>
 	<groupId>org.mnode.figurate</groupId>
 	<artifactId>figurate</artifactId>
@@ -11,6 +11,12 @@
 	<version>0.0.2-SNAPSHOT</version>
 	<description>Configuration editor</description>
 	<url>http://figurate.org</url>
+
+	<scm>
+		<connection>scm:hg:https://figurate.googlecode.com/hg/</connection>
+		<developerConnection>scm:hg:https://figurate.googlecode.com/hg/</developerConnection>
+	</scm>
+	
 	<repositories>
 		<repository>
 			<id>modularity-releases</id>
@@ -21,30 +27,12 @@
 			</snapshots>
 		</repository>
 		<repository>
-			<id>micronode-releases</id>
-			<name>Micronode Releases</name>
-			<url>http://build.mnode.org/releases</url>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</repository>
-		<repository>
-			<id>micronode-snapshots</id>
-			<name>Micronode Snapshots</name>
-			<url>http://build.mnode.org/snapshots</url>
-			<releases>
-				<enabled>false</enabled>
-			</releases>
-		</repository>
-		<repository>
 	        <id>seaglasslookandfeel</id>
 	        <name>Sea Glass Look and Feel Repository</name>
 	        <url>http://seaglass.googlecode.com/svn/repo</url>
 	    </repository>
 	</repositories>
+	
 	<dependencies>
 		<dependency>
 			<groupId>org.mnode.base</groupId>
@@ -227,14 +215,9 @@
             <version>0.9.28</version>
         </dependency>
 	</dependencies>
-	<scm>
-		<connection>scm:hg:https://figurate.googlecode.com/hg/</connection>
-		<developerConnection>scm:hg:https://figurate.googlecode.com/hg/</developerConnection>
-	</scm>
 
 	<build>
 		<plugins>
-
             <plugin>
                 <groupId>org.codehaus.gmaven</groupId>
                 <artifactId>gmaven-plugin</artifactId>
@@ -262,8 +245,7 @@
 			</plugin>
 
 			<plugin>
-				<groupId>org.codehaus.mojo.webstart
-				</groupId>
+				<groupId>org.codehaus.mojo.webstart</groupId>
 				<artifactId>webstart-maven-plugin</artifactId>
 				<executions>
 					<execution>
@@ -336,13 +318,13 @@
 						dependencies, if necessary
 					-->
 					<sign>
-						<keystore>micronode</keystore>
-						<keypass>!modular1</keypass>
+						<keystore>${mnode.keystore}</keystore>
+						<keypass>${mnode.keypass}</keypass>
 						<!--
 							we need to override passwords easily from the command line.
 							${keypass}
 						-->
-						<storepass>!modular1</storepass> <!-- ${storepass} -->
+						<storepass>${mnode.storepass}</storepass> <!-- ${storepass} -->
 						<!--storetype>fillme</storetype-->
 						<alias>webstart</alias>
 
@@ -445,4 +427,8 @@
              -->
 		</plugins>
 	</build>
+	
+	<properties>
+		<mainClass>org.mnode.figurate.Figurate</mainClass>
+	</properties>
 </project>

@@ -176,20 +176,22 @@
         	</exclusions>
         </dependency>
         <dependency>
-            <groupId>net.java.dev.substance</groupId>
+            <groupId>com.github.insubstantial</groupId>
             <artifactId>substance</artifactId>
         </dependency>
         <dependency>
-            <groupId>net.java.dev.substance</groupId>
+            <groupId>com.github.insubstantial</groupId>
             <artifactId>substance-swingx</artifactId>
         </dependency>
         <dependency>
-            <groupId>net.java.dev.substance</groupId>
+            <groupId>org.swinglabs</groupId>
             <artifactId>swingx</artifactId>
+            <version>1.6.1</version>
         </dependency>
         <dependency>
-            <groupId>net.java.dev.substance</groupId>
+            <groupId>com.github.insubstantial</groupId>
             <artifactId>trident</artifactId>
+            <version>6.3</version>
         </dependency>
         <dependency>
             <groupId>eu.kostia.gtkjfilechooser</groupId>
@@ -197,9 +199,9 @@
             <version>1.4.8</version>
         </dependency>
         <dependency>
-            <groupId>net.java.dev.flamingo</groupId>
+            <groupId>com.github.insubstantial</groupId>
             <artifactId>flamingo</artifactId>
-            <version>5.0</version>
+            <version>6.3</version>
         </dependency>
         <dependency>
             <groupId>org.apache.xmlgraphics</groupId>

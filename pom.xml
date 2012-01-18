@@ -1,14 +1,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>org.mnode.base</groupId>
-		<artifactId>base-parent</artifactId>
-		<version>0.0.4-SNAPSHOT</version>
+		<groupId>org.mnode</groupId>
+		<artifactId>mnode-parent</artifactId>
+		<version>1.6</version>
 	</parent>
 	<groupId>org.mnode.figurate</groupId>
 	<artifactId>figurate</artifactId>
 	<name>Figurate</name>
-	<version>0.0.2-SNAPSHOT</version>
+	<version>0.9-SNAPSHOT</version>
 	<description>Configuration editor</description>
 	<url>http://figurate.org</url>
 
@@ -34,11 +34,13 @@
 	</repositories>
 	
 	<dependencies>
+	<!-- 
 		<dependency>
 			<groupId>org.mnode.base</groupId>
 			<artifactId>base-commons</artifactId>
 			<version>0.0.1</version>
 		</dependency>
+		 -->
 		<!-- 
 		<dependency>
 			<groupId>org.mnode.base</groupId>
@@ -96,7 +98,7 @@
 		<dependency>
 			<groupId>org.mnode.ousia</groupId>
 			<artifactId>ousia</artifactId>
-			<version>0.0.2-SNAPSHOT</version>
+			<version>[0.9,)</version>
 		</dependency>
 		<dependency>
 			<groupId>jpathwatch</groupId>
@@ -106,11 +108,14 @@
         <dependency>
             <groupId>com.fifesoft</groupId>
             <artifactId>autocomplete</artifactId>
+            <version>${fifesoft.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fifesoft</groupId>
             <artifactId>spellchecker</artifactId>
+            <version>${fifesoft.version}</version>
         </dependency>
+        <!-- 
         <dependency>
         	<groupId>org.mnode.figurate</groupId>
         	<artifactId>english_dic</artifactId>
@@ -118,9 +123,11 @@
         	<type>zip</type>
         	<scope>runtime</scope>
         </dependency>
+         -->
         <dependency>
         	<groupId>com.fifesoft</groupId>
         	<artifactId>rsyntaxtextarea</artifactId>
+            <version>${fifesoft.version}</version>
         </dependency>
         <dependency>
         	<groupId>net.sourceforge.mydoggy</groupId>
@@ -178,10 +185,12 @@
         <dependency>
             <groupId>com.github.insubstantial</groupId>
             <artifactId>substance</artifactId>
+            <version>${insubstantial.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.insubstantial</groupId>
             <artifactId>substance-swingx</artifactId>
+            <version>${insubstantial.version}</version>
         </dependency>
         <dependency>
             <groupId>org.swinglabs</groupId>
@@ -206,25 +215,21 @@
         <dependency>
             <groupId>org.apache.xmlgraphics</groupId>
             <artifactId>batik-transcoder</artifactId>
+            <version>${batik.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.xmlgraphics</groupId>
             <artifactId>batik-swing</artifactId>
+            <version>${batik.version}</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>0.9.28</version>
         </dependency>
 	</dependencies>
 
 	<build>
 		<plugins>
-            <plugin>
-                <groupId>org.codehaus.gmaven</groupId>
-                <artifactId>gmaven-plugin</artifactId>
-            </plugin>
-
             <plugin>
                 <groupId>com.mycila.maven-license-plugin</groupId>
                 <artifactId>maven-license-plugin</artifactId>
@@ -432,5 +437,8 @@
 	
 	<properties>
 		<mainClass>org.mnode.figurate.Figurate</mainClass>
+		<fifesoft.version>[1.5.0,)</fifesoft.version>
+		<insubstantial.version>7.0</insubstantial.version>
+		<batik.version>[1.7,)</batik.version>
 	</properties>
 </project>

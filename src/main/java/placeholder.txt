@@ -1,0 +1,1 @@
+Required to force groovy compilation without Java source files..

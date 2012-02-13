@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>org.mnode</groupId>
 		<artifactId>mnode-parent</artifactId>
-		<version>1.7</version>
+		<version>1.9</version>
 	</parent>
 	<groupId>org.mnode.figurate</groupId>
 	<artifactId>figurate</artifactId>
@@ -98,7 +98,7 @@
 		<dependency>
 			<groupId>org.mnode.ousia</groupId>
 			<artifactId>ousia</artifactId>
-			<version>[0.9,)</version>
+			<version>[0.9.1,]</version>
 		</dependency>
 		<dependency>
 			<groupId>jpathwatch</groupId>
@@ -194,13 +194,8 @@
         </dependency>
         <dependency>
             <groupId>org.swinglabs</groupId>
-            <artifactId>swingx</artifactId>
-            <version>1.6.1</version>
-        </dependency>
-        <dependency>
-            <groupId>com.github.insubstantial</groupId>
-            <artifactId>trident</artifactId>
-            <version>6.3</version>
+            <artifactId>swingx-core</artifactId>
+            <version>1.6.2-2</version>
         </dependency>
         <dependency>
             <groupId>eu.kostia.gtkjfilechooser</groupId>
@@ -210,7 +205,7 @@
         <dependency>
             <groupId>com.github.insubstantial</groupId>
             <artifactId>flamingo</artifactId>
-            <version>6.3</version>
+            <version>7.0</version>
         </dependency>
         <dependency>
             <groupId>org.apache.xmlgraphics</groupId>
@@ -230,6 +225,15 @@
 
 	<build>
 		<plugins>
+            <plugin>
+                <!-- Override to Java 6.. -->
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                </configuration>
+            </plugin>
+            
             <plugin>
                 <groupId>com.mycila.maven-license-plugin</groupId>
                 <artifactId>maven-license-plugin</artifactId>
@@ -403,7 +407,7 @@
                         <id>make-assembly</id>
                         <phase>site-deploy</phase>
                         <goals>
-                            <goal>attached</goal>
+                            <goal>single</goal>
                         </goals>
                     </execution>
                 </executions>
